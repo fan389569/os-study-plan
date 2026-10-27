@@ -1,0 +1,1727 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>磁盘调度 · 一道题看懂 SSTF / SCAN / C-SCAN</title>
+<style>
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{height:100%}
+  :root{
+    --bg:#eef1f8; --panel:#ffffff; --panel2:#f6f8fd;
+    --text:#151a26; --muted:#5c6578; --faint:#98a2b3;
+    --line:#e2e7f1; --line2:#cfd7e6;
+    --accent:#4f46e5; --accent2:#6366f1; --accent-soft:#eef0ff;
+    --head:#f59e0b; --good:#0e9f6e; --bad:#e5484d; --purple:#8b5cf6;
+    --shadow:0 10px 34px rgba(23,34,68,.09);
+    --radius:18px;
+  }
+  html[data-theme="dark"]{
+    --bg:#090c12; --panel:#141a26; --panel2:#10151f;
+    --text:#e9edf6; --muted:#9aa5bb; --faint:#69748d;
+    --line:#222a3a; --line2:#34415a;
+    --accent:#8f97ff; --accent2:#818cf8; --accent-soft:#1b2241;
+    --head:#fbbf24; --good:#34d399; --bad:#fb7185; --purple:#a78bfa;
+    --shadow:0 10px 34px rgba(0,0,0,.42);
+  }
+  body{
+    margin:0; color:var(--text);
+    font-family:"PingFang SC","Microsoft YaHei","Noto Sans SC","Source Han Sans SC",system-ui,-apple-system,"Segoe UI",sans-serif;
+    background:
+      radial-gradient(900px 520px at 6% -12%, rgba(99,102,241,.13), transparent 62%),
+      radial-gradient(820px 520px at 102% -6%, rgba(14,165,233,.10), transparent 60%),
+      var(--bg);
+    overflow:hidden;
+  }
+  #app{height:100dvh;display:flex;flex-direction:column}
+  header{
+    flex:none;height:54px;display:flex;align-items:center;gap:12px;padding:0 18px;
+  }
+  .logo{
+    width:30px;height:30px;border-radius:9px;flex:none;
+    background:linear-gradient(135deg,#6366f1,#0ea5e9);
+    display:grid;place-items:center;color:#fff;font-size:12px;font-weight:900;letter-spacing:.5px;
+    box-shadow:0 4px 12px rgba(79,70,229,.35);
+  }
+  .hgroup{display:flex;flex-direction:column;line-height:1.15;min-width:0}
+  .htitle{font-size:14px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .hsub{font-size:11px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .hspace{flex:1}
+  #sceneTag{
+    font-size:12px;font-weight:700;color:var(--accent);
+    background:var(--accent-soft);border:1px solid color-mix(in srgb,var(--accent) 18%, transparent);
+    padding:4px 10px;border-radius:999px;white-space:nowrap;
+  }
+  #themeBtn{
+    flex:none;border:1px solid var(--line);background:var(--panel);color:var(--muted);
+    border-radius:999px;padding:6px 11px;font-size:12px;font-weight:700;cursor:pointer;
+  }
+  #themeBtn:hover{color:var(--text);border-color:var(--line2)}
+
+  main{
+    flex:1 1 auto;min-height:0;display:flex;gap:14px;padding:0 16px;
+  }
+  #stageWrap{
+    flex:1 1 auto;min-width:0;min-height:0;position:relative;
+    background:linear-gradient(180deg, var(--panel), var(--panel2));
+    border:1px solid var(--line);border-radius:22px;box-shadow:var(--shadow);
+    overflow:hidden;
+  }
+  #stageWrap::after{
+    content:"";position:absolute;inset:0;pointer-events:none;border-radius:22px;
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.5);
+  }
+  #stage{width:100%;height:100%;display:block}
+  #stage text{font-family:inherit}
+  #overlay{
+    position:absolute;inset:0;display:none;padding:20px;overflow:auto;
+  }
+  #overlay.on{display:flex;align-items:flex-start;justify-content:center}
+  #overlay > *{margin-top:auto;margin-bottom:auto}
+
+  #side{
+    flex:none;width:272px;min-height:0;overflow:auto;
+    display:flex;flex-direction:column;gap:10px;padding:2px 2px 2px 0;
+    scrollbar-width:thin;
+  }
+  #side:empty{display:none}
+  .card{
+    background:var(--panel);border:1px solid var(--line);border-radius:16px;
+    padding:13px 14px;box-shadow:0 4px 16px rgba(23,34,68,.05);
+  }
+  html[data-theme="dark"] .card{box-shadow:0 4px 16px rgba(0,0,0,.28)}
+  .kick{
+    font-size:10.5px;font-weight:800;letter-spacing:.12em;color:var(--faint);
+    text-transform:uppercase;margin-bottom:5px;
+  }
+  .side-h{font-size:17px;font-weight:800;line-height:1.25;margin-bottom:6px}
+  .side-card p{margin:6px 0 0;font-size:12.5px;line-height:1.6;color:var(--muted)}
+  .rule{
+    font-size:12.5px;line-height:1.55;color:var(--muted);
+    background:var(--panel2);border-radius:10px;padding:8px 10px;margin:2px 0 10px;
+  }
+  .mini{font-size:12px;color:var(--muted);line-height:1.5;margin-bottom:9px}
+  .mini b{color:var(--text)}
+  .terms{
+    display:flex;flex-wrap:wrap;align-items:center;gap:5px 4px;
+    font-variant-numeric:tabular-nums;margin-bottom:10px;
+  }
+  .term{
+    padding:2px 7px;border-radius:7px;font-size:14px;font-weight:800;
+    color:var(--faint);background:transparent;border:1px dashed transparent;
+  }
+  .term.done{color:var(--accent);background:var(--accent-soft);border-color:transparent}
+  .term.active{
+    color:#fff;background:linear-gradient(135deg,var(--accent2),var(--accent));
+    box-shadow:0 3px 10px color-mix(in srgb,var(--accent) 35%, transparent);
+  }
+  .plus{color:var(--faint);font-size:12px}
+  .total-row{
+    display:flex;align-items:baseline;justify-content:space-between;gap:8px;
+    border-top:1px solid var(--line);padding-top:9px;
+  }
+  .total-row span{font-size:12px;color:var(--muted);font-weight:600}
+  .total-row b{font-size:24px;font-weight:900;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+  .total-row b.big{color:var(--accent)}
+  .callout{
+    margin-top:10px;background:color-mix(in srgb,var(--head) 10%, var(--panel));
+    border:1px solid color-mix(in srgb,var(--head) 35%, transparent);
+    border-radius:11px;padding:9px 10px;font-size:12px;line-height:1.65;color:var(--text);
+  }
+  .callout-t{font-weight:800;margin-bottom:3px;color:var(--head)}
+  .callout .ok{margin-top:5px;font-weight:800;color:var(--good)}
+  .note{
+    margin-top:10px;font-size:11.5px;line-height:1.6;color:var(--muted);
+    border-left:3px solid var(--purple);padding-left:8px;
+  }
+  .ans-list{display:flex;flex-direction:column;gap:7px;margin-top:4px}
+  .ans-row{
+    display:flex;align-items:center;justify-content:space-between;gap:8px;
+    background:var(--panel2);border-radius:9px;padding:7px 10px;font-size:12.5px;
+  }
+  .ans-row b{font-size:17px;font-variant-numeric:tabular-nums}
+  .ans-row.on{outline:2px solid color-mix(in srgb,var(--accent) 45%, transparent)}
+  .tag{font-size:10px;color:var(--muted);background:var(--panel);border:1px solid var(--line);border-radius:999px;padding:1px 7px}
+
+  #subtitle{flex:none;display:flex;justify-content:center;padding:9px 18px 3px}
+  .bubble{
+    position:relative;max-width:1000px;
+    background:var(--panel);border:1px solid var(--line);border-radius:15px;
+    padding:9px 20px 9px 22px;
+    font-size:clamp(15px,1.85vw,21px);font-weight:650;line-height:1.5;text-align:center;
+    box-shadow:0 6px 20px rgba(23,34,68,.06);
+  }
+  html[data-theme="dark"] .bubble{box-shadow:0 6px 20px rgba(0,0,0,.3)}
+  .bubble::before{
+    content:"";position:absolute;left:9px;top:11px;bottom:11px;width:3px;
+    border-radius:3px;background:linear-gradient(180deg,var(--accent2),var(--accent));
+  }
+
+  #actionBar{flex:none;display:none;justify-content:center;padding:4px 0 0}
+  #actionBar.on{display:flex}
+  #revealBtn{
+    border:none;cursor:pointer;color:#fff;font-weight:900;font-size:15px;
+    background:linear-gradient(135deg,#6366f1,#4f46e5);
+    padding:9px 26px;border-radius:999px;
+    box-shadow:0 8px 24px rgba(79,70,229,.35);
+    animation:pulse 1.8s ease-in-out infinite;
+  }
+  @keyframes pulse{0%,100%{transform:translateY(0)}50%{transform:translateY(-2px)}}
+
+  #controls{flex:none;padding:7px 14px 11px}
+  .row{display:flex;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap}
+  .btn{
+    border:1px solid var(--line);background:var(--panel);color:var(--text);
+    border-radius:10px;padding:7px 13px;font-size:12.5px;font-weight:700;cursor:pointer;
+    font-family:inherit;transition:border-color .15s, color .15s, background .15s;
+  }
+  .btn:hover{border-color:var(--line2)}
+  .btn.primary{background:var(--accent);border-color:transparent;color:#fff;min-width:78px}
+  .btn.primary:hover{filter:brightness(1.05)}
+  .btn:disabled{opacity:.4;cursor:default}
+  .speed{display:flex;gap:4px;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:3px}
+  .speed button{
+    border:none;background:transparent;color:var(--muted);font-family:inherit;
+    font-size:12px;font-weight:700;padding:4px 9px;border-radius:7px;cursor:pointer;
+  }
+  .speed button.on{background:var(--accent-soft);color:var(--accent)}
+  #progress{font-size:11.5px;color:var(--muted);min-width:104px;text-align:center;font-variant-numeric:tabular-nums}
+  .scene-row{
+    display:flex;gap:6px;overflow-x:auto;justify-content:flex-start;margin-top:8px;
+    padding:2px 1px 4px;scrollbar-width:none;
+  }
+  .scene-row::-webkit-scrollbar{display:none}
+  .schip{
+    flex:none;border:1px solid var(--line);background:var(--panel);color:var(--muted);
+    border-radius:999px;padding:4px 10px;font-size:11px;font-weight:700;cursor:pointer;
+    font-family:inherit;white-space:nowrap;transition:all .15s;
+  }
+  .schip:hover{color:var(--text)}
+  .schip.on{
+    background:var(--accent);border-color:transparent;color:#fff;
+    box-shadow:0 4px 12px color-mix(in srgb,var(--accent) 35%, transparent);
+  }
+
+  /* ---------- HTML views ---------- */
+  .view-card{
+    width:min(760px,100%);
+    background:var(--panel);border:1px solid var(--line);border-radius:20px;
+    padding:26px 30px;box-shadow:0 16px 46px rgba(23,34,68,.1);
+  }
+  html[data-theme="dark"] .view-card{box-shadow:0 16px 46px rgba(0,0,0,.4)}
+  .problem-card .kick{color:var(--accent)}
+  .problem-card h2{margin:2px 0 16px;font-size:clamp(22px,3vw,30px);letter-spacing:-.02em}
+  .num-row{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0 16px}
+  .num-chip{
+    font-size:clamp(15px,2vw,19px);font-weight:800;font-variant-numeric:tabular-nums;
+    background:linear-gradient(180deg,#eff4ff,#e4ecff);color:#1d4ed8;
+    border:1px solid #cddcff;border-radius:10px;padding:5px 11px;
+  }
+  html[data-theme="dark"] .num-chip{background:#16233d;color:#93c5fd;border-color:#25395c}
+  .facts{display:flex;flex-wrap:wrap;gap:10px;margin:8px 0 0}
+  .fact{
+    flex:1 1 180px;background:var(--panel2);border:1px solid var(--line);
+    border-radius:12px;padding:10px 13px;display:flex;flex-direction:column;gap:3px;
+  }
+  .fact span{font-size:11.5px;color:var(--muted);font-weight:700}
+  .fact b{font-size:clamp(15px,2vw,18px)}
+  .ask{
+    margin:18px 0 0;padding-top:16px;border-top:1px dashed var(--line2);
+    font-size:clamp(15px,2vw,18px);line-height:1.65;
+  }
+  .ask b{color:var(--accent)}
+  .readtip{
+    margin:14px 0 0;font-size:12.5px;line-height:1.7;color:var(--muted);
+    background:var(--panel2);border-radius:10px;padding:9px 12px;
+  }
+  .readtip b{color:var(--text)}
+  .big-sub{
+    margin-top:18px;font-size:clamp(14px,1.6vw,17px);color:var(--muted);
+    font-weight:650;line-height:1.7;
+  }
+
+  .big-idea{text-align:center;max-width:760px;padding:10px}
+  .big-q{
+    display:inline-block;font-size:clamp(20px,3vw,30px);font-weight:900;
+    color:var(--accent);background:var(--accent-soft);border-radius:999px;
+    padding:6px 22px;margin-bottom:20px;
+  }
+  .big-a{font-size:clamp(20px,3.1vw,34px);font-weight:850;line-height:1.6;letter-spacing:-.01em}
+
+  .bars{display:flex;flex-direction:column;gap:15px;margin-top:6px}
+  .bar-row{display:grid;grid-template-columns:112px 1fr 76px;gap:12px;align-items:center}
+  .bar-name{font-size:14px;font-weight:800;display:flex;flex-direction:column;line-height:1.25}
+  .bar-name small{font-size:10px;font-weight:600;color:var(--faint);margin-top:2px}
+  .bar-track{height:22px;background:var(--panel2);border-radius:999px;overflow:hidden;border:1px solid var(--line)}
+  .bar-fill{height:100%;border-radius:999px;transition:none}
+  .bar-val{font-size:20px;font-weight:900;text-align:right;font-variant-numeric:tabular-nums}
+
+  .steps4{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+  .step{
+    display:flex;gap:11px;align-items:flex-start;
+    background:var(--panel2);border:1px solid var(--line);border-radius:13px;padding:13px 14px;
+    transition:opacity .25s, transform .25s;
+  }
+  .step.off{opacity:.12;transform:translateY(3px)}
+  .step .n{
+    flex:none;width:28px;height:28px;border-radius:9px;display:grid;place-items:center;
+    background:var(--accent);color:#fff;font-weight:900;font-size:14px;
+  }
+  .step .tx{font-size:clamp(13px,1.5vw,15px);font-weight:750;line-height:1.5;padding-top:3px}
+  .mistakes{margin-top:16px;border-top:1px dashed var(--line2);padding-top:14px}
+  .mistakes h4{margin:0 0 9px;font-size:13px;color:var(--bad);letter-spacing:.02em}
+  .mistakes ul{margin:0;padding-left:20px;font-size:clamp(12.5px,1.5vw,14.5px);line-height:1.85}
+  .mistakes li::marker{color:var(--bad)}
+
+  @media (max-width: 850px){
+    header{height:48px;padding:0 12px;gap:8px}
+    .hsub{display:none}
+    #sceneTag{display:none}
+    main{flex-direction:column;gap:8px;padding:0 10px}
+    #stageWrap{flex:1 1 auto;border-radius:18px;min-height:200px}
+    #side{
+      width:auto;flex:0 0 auto;min-height:0;max-height:150px;
+      flex-direction:row;gap:8px;overflow:auto;padding:0;align-items:flex-start;
+    }
+    #side .card{flex:none;width:min(340px,90vw);padding:9px 11px}
+    #side:empty{display:none}
+    .side-card .kick,.side-card .rule,.side-card .callout,.side-card .note{display:none}
+    .side-card .side-h{font-size:14px;margin-bottom:4px}
+    .side-card .mini{font-size:11px;margin-bottom:5px;line-height:1.4}
+    .terms{gap:3px;margin-bottom:6px}
+    .terms .term{font-size:12px;padding:1px 6px}
+    .plus{font-size:11px}
+    .total-row{padding-top:5px}
+    .total-row span{font-size:11px}
+    .total-row b{font-size:19px}
+    .ans-list{gap:5px}
+    .ans-row{padding:5px 8px;font-size:11.5px}
+    .ans-row b{font-size:15px}
+    .ans-row .tag{display:none}
+    .side-h{font-size:15px}
+    .total-row b{font-size:21px}
+    .terms .term{font-size:13px}
+    #subtitle{padding:6px 10px 2px}
+    .bubble{border-radius:13px;padding:8px 14px 8px 18px;font-size:14px}
+    #controls{padding:5px 8px 8px}
+    .btn{padding:6px 10px;font-size:12px}
+    .scene-row{margin-top:6px}
+    #progress{min-width:88px;font-size:11px}
+    #overlay{padding:12px}
+    .view-card{padding:16px 15px;border-radius:16px}
+    .problem-card h2{font-size:21px;margin:0 0 10px}
+    .num-row{gap:6px;margin:8px 0 12px}
+    .num-chip{font-size:14px;padding:4px 9px;border-radius:8px}
+    .facts{gap:8px}
+    .fact{flex:1 1 128px;padding:7px 10px}
+    .fact span{font-size:10.5px}
+    .fact b{font-size:14px}
+    .ask{margin-top:12px;padding-top:12px;font-size:14px}
+    .readtip{margin-top:10px;padding:7px 9px;font-size:11px;line-height:1.55}
+    .big-a{font-size:22px}
+    .big-q{font-size:20px;margin-bottom:14px}
+    .steps4{grid-template-columns:1fr}
+    .bar-row{grid-template-columns:84px 1fr 62px;gap:8px}
+    .bar-name{font-size:12.5px}
+    .bar-val{font-size:16px}
+    .bar-track{height:18px}
+  }
+  @media (max-height: 700px){
+    #side{max-height:132px}
+    .bubble{font-size:14px;padding:7px 14px 7px 18px}
+    header{height:46px}
+  }
+</style>
+</head>
+<body>
+<div id="app">
+  <header>
+    <div class="logo">OS</div>
+    <div class="hgroup">
+      <div class="htitle">磁盘调度 · 一道题看懂</div>
+      <div class="hsub">SSTF / SCAN / C-SCAN · 逐步手算</div>
+    </div>
+    <div class="hspace"></div>
+    <div id="sceneTag">场景 0 · 这题在问什么</div>
+    <button id="themeBtn" type="button">深色</button>
+  </header>
+
+  <main>
+    <div id="stageWrap">
+      <svg id="stage" viewBox="0 0 560 520" preserveAspectRatio="xMidYMid meet" aria-label="磁盘调度动画"></svg>
+      <div id="overlay"></div>
+    </div>
+    <aside id="side"></aside>
+  </main>
+
+  <div id="subtitle"><div class="bubble" id="subText">正在加载…</div></div>
+  <div id="actionBar"><button id="revealBtn" type="button">看答案 ▶</button></div>
+
+  <div id="controls">
+    <div class="row">
+      <button class="btn" id="prevBtn" type="button">上一步</button>
+      <button class="btn primary" id="playBtn" type="button">暂停</button>
+      <button class="btn" id="nextBtn" type="button">下一步</button>
+      <div class="speed" id="speedBox">
+        <button data-sp="0.5" type="button">0.5×</button>
+        <button data-sp="1" type="button" class="on">1×</button>
+        <button data-sp="2" type="button">2×</button>
+      </div>
+      <div id="progress">场景 1 · 1/2</div>
+    </div>
+    <div class="scene-row" id="sceneRow"></div>
+  </div>
+</div>
+
+<script>
+(function(){
+"use strict";
+
+/* =========================================================
+   1. 数据 + 算法（页面所有数字都由这里算出）
+   ========================================================= */
+const P1 = { reqs:[376,205,134,56,193,396,29,40], start:100, dir:'down', domain:[0,400] };
+const P2 = { reqs:[98,183,37,122,14,124,65,67], start:53, dir:'up', domain:[0,200] };
+
+const abs = Math.abs;
+
+function buildPath(start, order){
+  const moves = [];
+  let cur = start;
+  for (const to of order){
+    moves.push({ from:cur, to, dist:abs(to-cur) });
+    cur = to;
+  }
+  return { start, order:[start, ...order], moves, total: moves.reduce((s,m)=>s+m.dist,0) };
+}
+
+function algFCFS(p){
+  return buildPath(p.start, p.reqs.slice());
+}
+
+function algSSTF(p){
+  const rem = p.reqs.slice();
+  const order = [];
+  let cur = p.start;
+  while (rem.length){
+    let bi = 0, bd = Infinity;
+    for (let i=0;i<rem.length;i++){
+      const d = abs(rem[i]-cur);
+      if (d < bd){ bd = d; bi = i; }
+    }
+    cur = rem.splice(bi,1)[0];
+    order.push(cur);
+  }
+  return buildPath(p.start, order);
+}
+
+/* 本卷口径：SCAN 的掉头点 = 该方向上最远的“请求”，不是磁盘物理端点 */
+function algSCAN(p){
+  const sorted = [...p.reqs].sort((a,b)=>a-b);
+  const loAsc = sorted.filter(v=>v < p.start);
+  const hiAsc = sorted.filter(v=>v >= p.start);
+  const loDesc = loAsc.slice().reverse();
+  const order = p.dir === 'down' ? [...loDesc, ...hiAsc] : [...hiAsc, ...loDesc];
+  const res = buildPath(p.start, order);
+  res.turnBefore = p.dir === 'down' ? loAsc.length : hiAsc.length;
+  res.turnValue = order[res.turnBefore - 1];
+  return res;
+}
+
+/* 本卷口径：C-SCAN 回程 = 从该方向最后一个请求直接到另一侧最远请求，距离计入总和 */
+function algCSCAN(p){
+  const sorted = [...p.reqs].sort((a,b)=>a-b);
+  const loAsc = sorted.filter(v=>v < p.start);
+  const hiAsc = sorted.filter(v=>v >= p.start);
+  const order = p.dir === 'down'
+    ? [...loAsc.slice().reverse(), ...hiAsc.slice().reverse()]
+    : [...hiAsc, ...loAsc];
+  const res = buildPath(p.start, order);
+  res.jumpIndex = p.dir === 'down' ? loAsc.length : hiAsc.length;
+  res.jump = res.moves[res.jumpIndex] || null;
+  return res;
+}
+
+const F1  = algFCFS(P1);
+const S1  = algSSTF(P1);
+const SC1 = algSCAN(P1);
+const CS1 = algCSCAN(P1);
+const S2  = algSSTF(P2);
+const SC2 = algSCAN(P2);
+const CS2 = algCSCAN(P2);
+
+/* 自检：与题目参考答案逐项核对 */
+const EXPECT = [
+  ['FCFS', F1.total, 1314],
+  ['SSTF', S1.total, 648],
+  ['SCAN', SC1.total, 438],
+  ['C-SCAN', CS1.total, 700],
+  ['自测 SSTF', S2.total, 236],
+  ['自测 SCAN', SC2.total, 299],
+  ['自测 C-SCAN', CS2.total, 322]
+];
+EXPECT.forEach(([n,got,want])=>{
+  if (got !== want) console.error('[校验失败]', n, '算得', got, '参考', want);
+});
+window.__TOTALS = { fcfs:F1.total, sstf:S1.total, scan:SC1.total, cscan:CS1.total,
+                    sstf2:S2.total, scan2:SC2.total, cscan2:CS2.total };
+
+/* =========================================================
+   2. 基础工具 / 配色
+   ========================================================= */
+const NS = 'http://www.w3.org/2000/svg';
+const W = 560, H = 520;
+const X0 = 44, X1 = 516, AXIS_Y = 92, ROW0 = 130, ROWH = 42;
+
+const LIGHT = {
+  ink:'#151a26', sub:'#5c6578', faint:'#98a2b3', grid:'#e2e7f1', ring:'#d4dbe9',
+  panel:'#ffffff', panel2:'#f6f8fd', axis:'#b7c0d2',
+  req:'#2563eb', reqBg:'#e9f0ff', served:'#a8b0c2', servedBg:'#eef0f5',
+  head:'#f59e0b', headDeep:'#b45309', good:'#0e9f6e', bad:'#e5484d', turn:'#8b5cf6',
+  accent:'#4f46e5', badgeBg:'#eef0ff', badgeInk:'#3730a3',
+  path:['#2563eb','#0ea5e9','#0d9488','#8b5cf6','#db2777','#ea580c','#16a34a','#ca8a04']
+};
+const DARK = {
+  ink:'#e9edf6', sub:'#9aa5bb', faint:'#69748d', grid:'#242c3d', ring:'#2f384b',
+  panel:'#141a26', panel2:'#10151f', axis:'#3b455a',
+  req:'#60a5fa', reqBg:'#182947', served:'#5d6678', servedBg:'#1c222e',
+  head:'#fbbf24', headDeep:'#fcd34d', good:'#34d399', bad:'#fb7185', turn:'#a78bfa',
+  accent:'#8f97ff', badgeBg:'#1d2440', badgeInk:'#c7d2fe',
+  path:['#60a5fa','#38bdf8','#2dd4bf','#a78bfa','#f472b6','#fb923c','#4ade80','#facc15']
+};
+function C(){ return document.documentElement.dataset.theme === 'dark' ? DARK : LIGHT; }
+
+const clamp01 = v => Math.max(0, Math.min(1, v));
+const ease = t => { t = clamp01(t); return t<0.5 ? 4*t*t*t : 1 - Math.pow(-2*t+2,3)/2; };
+const lerp = (a,b,t) => a + (b-a)*t;
+const xOf = (v, dom=[0,400]) => X0 + (v-dom[0])/(dom[1]-dom[0])*(X1-X0);
+const yOf = i => ROW0 + i*ROWH;
+
+function E(tag, attrs, ...kids){
+  const e = document.createElementNS(NS, tag);
+  if (attrs){
+    for (const k in attrs){
+      const v = attrs[k];
+      if (v === undefined || v === null) continue;
+      if (k === 'text') e.textContent = v;
+      else e.setAttribute(k, v);
+    }
+  }
+  for (const k of kids) if (k) e.appendChild(k);
+  return e;
+}
+
+function T(x, y, text, o={}){
+  const attrs = {
+    x, y,
+    fill:o.fill || C().ink,
+    'font-size':o.size || 13,
+    'text-anchor':o.anchor || 'middle',
+    'font-weight':o.weight || 400,
+    opacity:o.opacity === undefined ? 1 : o.opacity,
+    text
+  };
+  if (o.rotate) attrs.transform = `rotate(${o.rotate} ${x} ${y})`;
+  if (o.letter) attrs['letter-spacing'] = o.letter;
+  return E('text', attrs);
+}
+
+function pill(x, y, text, o={}){
+  const c = C();
+  const h = o.h || 20;
+  const size = o.size || 13;
+  const w = o.w || (text.length * size * 0.66 + 16);
+  const g = E('g');
+  g.appendChild(E('rect', {
+    x:x - w/2, y:y - h/2, width:w, height:h, rx:o.rx === undefined ? 6 : o.rx,
+    fill:o.fill || c.reqBg,
+    stroke:o.stroke || 'none',
+    'stroke-width':o.strokeWidth || 1,
+    opacity:o.opacity === undefined ? 1 : o.opacity
+  }));
+  g.appendChild(T(x, y + size*0.35, text, {
+    size, fill:o.color || c.req, weight:o.weight || 700, opacity:o.opacity === undefined ? 1 : o.opacity
+  }));
+  return g;
+}
+
+function arrowAt(g, x1, y1, x2, y2, color, size=6.5, opacity=1){
+  const a = Math.atan2(y2-y1, x2-x1);
+  const bx = x2 - size*Math.cos(a);
+  const by = y2 - size*Math.sin(a);
+  const px = Math.sin(a)*size*0.55;
+  const py = -Math.cos(a)*size*0.55;
+  g.appendChild(E('polygon', {
+    points:`${x2},${y2} ${bx+px},${by+py} ${bx-px},${by-py}`,
+    fill:color, opacity
+  }));
+}
+
+function addAxis(g, dom, c, showLabels=true){
+  g.appendChild(E('line', { x1:X0, y1:AXIS_Y, x2:X1, y2:AXIS_Y, stroke:c.axis, 'stroke-width':2, 'stroke-linecap':'round' }));
+  for (let v=dom[0]; v<=dom[1]+1e-9; v+=50){
+    const x = xOf(v, dom);
+    g.appendChild(E('line', { x1:x, y1:AXIS_Y-6, x2:x, y2:AXIS_Y+6, stroke:c.axis, 'stroke-width':2 }));
+    if (showLabels){
+      g.appendChild(T(x, AXIS_Y+22, String(Math.round(v)), { size:11.5, fill:c.faint, weight:600 }));
+    }
+  }
+}
+
+function addRequests(g, reqs, served, dom, c, revealCount=Infinity){
+  const sorted = [...new Set(reqs)].sort((a,b)=>a-b);
+  const xs = sorted.map(v=>xOf(v,dom));
+
+  /* 按“横向是否挨得太近”聚类，簇内分两条高度并左右错开，避免标签打架 */
+  const dxs = new Array(sorted.length).fill(0);
+  const lanes = new Array(sorted.length).fill(0);
+  let start = 0;
+  for (let i=1; i<=sorted.length; i++){
+    if (i === sorted.length || xs[i] - xs[i-1] >= 42){
+      const size = i - start;
+      const offs = size === 2 ? [-12, 12]
+                : size === 3 ? [-22, 0, 22]
+                : size >= 4 ? [-28, -10, 10, 28] : [0];
+      for (let k=0;k<size;k++){
+        const idx = start + k;
+        lanes[idx] = k % 2;
+        dxs[idx] = offs[k] || 0;
+      }
+      start = i;
+    }
+  }
+
+  sorted.forEach((v,i)=>{
+    if (i >= revealCount) return;
+    const x = xOf(v,dom);
+    const isServed = served.has(v);
+    const high = lanes[i] === 1;
+    const chipY = high ? 48 : 74;
+    const dx = dxs[i];
+
+    g.appendChild(E('line', {
+      x1:x, y1:AXIS_Y-8, x2:x+dx, y2:chipY + 10.5,
+      stroke:isServed ? c.served : c.req, 'stroke-width':1, opacity:.28
+    }));
+    if (isServed){
+      g.appendChild(E('circle', {
+        cx:x, cy:AXIS_Y, r:7.2, fill:c.served, stroke:c.panel, 'stroke-width':1.6
+      }));
+      g.appendChild(T(x, AXIS_Y+3.2, '✓', { size:9, fill:c.ink, weight:900 }));
+    } else {
+      g.appendChild(E('circle', {
+        cx:x, cy:AXIS_Y, r:5.5, fill:c.req, stroke:c.panel, 'stroke-width':2
+      }));
+    }
+    const w = String(v).length * 8.7 + 15;
+    g.appendChild(E('rect', {
+      x:x+dx-w/2, y:chipY-10.5, width:w, height:21, rx:6.5,
+      fill:isServed ? c.servedBg : c.reqBg,
+      stroke:isServed ? 'none' : c.req,
+      'stroke-opacity':isServed ? 0 : .14,
+      'stroke-width':1
+    }));
+    g.appendChild(T(x+dx, chipY+4.6, String(v), {
+      size:13.5, fill:isServed ? c.faint : c.req, weight:800
+    }));
+  });
+  return xs;
+}
+
+function addHead(g, x, y, c, label){
+  g.appendChild(E('polygon', {
+    points:`${x-15},${y-25} ${x+15},${y-25} ${x},${y+1}`,
+    fill:c.head, opacity:.14
+  }));
+  g.appendChild(E('polygon', {
+    points:`${x-8.5},${y-17} ${x+8.5},${y-17} ${x},${y}`,
+    fill:c.head, stroke:c.panel, 'stroke-width':1.4
+  }));
+  if (label){
+    g.appendChild(T(x, y-23, label, { size:11.5, fill:c.headDeep, weight:800 }));
+  }
+}
+
+function distTag(g, x, y, text, color, bg, o={}){
+  const size = o.size || 12.5;
+  const w = text.length * size * 0.64 + 11;
+  const h = o.h || 18;
+  g.appendChild(E('rect', {
+    x:x-w/2, y:y-h/2, width:w, height:h, rx:6,
+    fill:bg, stroke:color, 'stroke-opacity':o.border === false ? 0 : .3, 'stroke-width':1
+  }));
+  g.appendChild(T(x, y+size*0.35, text, { size, fill:color, weight:800 }));
+}
+
+/* =========================================================
+   3. 主图渲染
+   ========================================================= */
+function drawChart(svg, cfg){
+  const c = C();
+  const dom = cfg.domain || [0,400];
+  const path = cfg.path;
+  const moves = path.moves;
+  const n = moves.length;
+  const upto = Math.max(0, Math.min(n, cfg.upto));
+  const done = Math.min(n, Math.floor(upto + 1e-7));
+  const frac = clamp01(upto - done);
+
+  const served = new Set();
+  for (let i=0;i<done;i++) served.add(moves[i].to);
+
+  const g = E('g');
+
+  /* 方向提示 */
+  if (cfg.arrow){
+    const txt = cfg.arrow.text;
+    const w = 40 + txt.length * 12.8 + 12;
+    const x = 40, y = 8, h = 24;
+    g.appendChild(E('rect', { x, y, width:w, height:h, rx:12, fill:c.panel2, stroke:c.grid, 'stroke-width':1 }));
+    if (cfg.arrow.dir === 'left'){
+      g.appendChild(E('line', { x1:x+34, y1:y+12, x2:x+14, y2:y+12, stroke:c.head, 'stroke-width':2.2, 'stroke-linecap':'round' }));
+      arrowAt(g, x+34, y+12, x+13, y+12, c.head, 5.5);
+      g.appendChild(T(x+40, y+16, txt, { size:12, fill:c.sub, anchor:'start', weight:700 }));
+    } else {
+      g.appendChild(T(x+10, y+16, txt, { size:12, fill:c.sub, anchor:'start', weight:700 }));
+      g.appendChild(E('line', { x1:x+w-34, y1:y+12, x2:x+w-14, y2:y+12, stroke:c.head, 'stroke-width':2.2, 'stroke-linecap':'round' }));
+      arrowAt(g, x+w-34, y+12, x+w-13, y+12, c.head, 5.5);
+    }
+  }
+
+  addAxis(g, dom, c);
+  addRequests(g, cfg.reqs, served, dom, c, cfg.revealCount === undefined ? Infinity : cfg.revealCount);
+
+  /* 时间轴提示 */
+  if (!cfg.hunger){
+    g.appendChild(T(10, 505, '时间 ↓', { size:10.5, fill:c.faint, anchor:'start', weight:600 }));
+  }
+
+  /* SSTF 的距离条 */
+  if (cfg.bars && done < n && frac < 0.16){
+    const alpha = 1 - clamp01(frac/0.16);
+    const m = moves[done];
+    const fromX = xOf(m.from, dom);
+    const baseY = yOf(done) + 11;
+    const rest = moves.slice(done).map(x=>x.to);
+    const chosen = m.to;
+    const ordered = [...rest].sort((a,b)=>a-b);
+    let lastLabelX = -9999;
+
+    ordered.forEach((v, idx)=>{
+      const xr = xOf(v, dom);
+      const isChosen = v === chosen;
+      const d = abs(v - m.from);
+      g.appendChild(E('line', {
+        x1:fromX, y1:baseY, x2:xr, y2:baseY,
+        stroke:isChosen ? c.good : c.faint,
+        'stroke-width':isChosen ? 3 : 1.4,
+        'stroke-dasharray':isChosen ? 'none' : '3 5',
+        opacity:(isChosen ? 1 : .5) * alpha,
+        'stroke-linecap':'round'
+      }));
+      if (!isChosen && Math.abs(xr - lastLabelX) < 20) return;
+      lastLabelX = xr;
+      const ly = baseY + (idx % 2 === 0 ? -11 : 13);
+      if (isChosen){
+        distTag(g, xr, ly, String(d), c.good, c.panel, { size:12.5 });
+        g.appendChild(T(xr, ly - 14, '最近', { size:9.5, fill:c.good, weight:800 }));
+      } else {
+        g.appendChild(T(xr, ly + 3.5, String(d), { size:10, fill:c.faint, weight:700, opacity:alpha }));
+      }
+    });
+  }
+
+  /* 路径段 */
+  function segment(i, f){
+    const m = moves[i];
+    const x1 = xOf(m.from, dom), y1 = yOf(i);
+    const x2 = xOf(m.to, dom),   y2 = yOf(i+1);
+    const xe = lerp(x1,x2,f), ye = lerp(y1,y2,f);
+    const isJump = cfg.jumpIndex === i;
+    const col = isJump ? c.bad : c.path[i % c.path.length];
+
+    if (f > 0.001){
+      g.appendChild(E('line', {
+        x1, y1, x2:xe, y2:ye,
+        stroke:col,
+        'stroke-width':isJump ? 3.2 : 2.6,
+        'stroke-linecap':'round',
+        'stroke-dasharray':isJump ? '9 7' : 'none',
+        opacity:.95
+      }));
+      if (f > 0.4) arrowAt(g, x1, y1, xe, ye, col, 6.5, f);
+    }
+
+    if (f >= 0.999){
+      const mx = (x1+x2)/2, my = (y1+y2)/2 + 15;
+      if (isJump){
+        const w = 92, h = 20;
+        g.appendChild(E('rect', {
+          x:mx-w/2, y:my-h/2, width:w, height:h, rx:10,
+          fill:c.panel, stroke:c.bad, 'stroke-opacity':.45, 'stroke-width':1.2
+        }));
+        g.appendChild(T(mx, my+4.4, `回程 ${m.dist}（计入）`, { size:11, fill:c.bad, weight:800 }));
+      } else {
+        distTag(g, mx, my, String(m.dist), col, c.panel);
+      }
+    }
+  }
+
+  for (let i=0;i<done;i++) segment(i, 1);
+  if (done < n) segment(done, frac);
+
+  /* SCAN 掉头标记 */
+  if (cfg.turnIndex !== undefined && done >= cfg.turnIndex){
+    const m = cfg.turnIndex > 0 ? moves[cfg.turnIndex-1] : null;
+    if (m){
+      const tx = xOf(m.to, dom), ty = yOf(cfg.turnIndex);
+      g.appendChild(E('line', {
+        x1:tx, y1:AXIS_Y+6, x2:tx, y2:ty,
+        stroke:c.turn, 'stroke-width':1.4, 'stroke-dasharray':'3 6', opacity:.45
+      }));
+      g.appendChild(E('circle', { cx:tx, cy:ty, r:11, fill:'none', stroke:c.turn, 'stroke-width':2.2 }));
+      const right = tx < (X0+X1)/2;
+      g.appendChild(pill(tx + (right ? 62 : -62), ty - 4, '掉头点', {
+        w:56, h:19, size:10.5, fill:c.panel, stroke:c.turn, 'stroke-opacity':.5, color:c.turn
+      }));
+    }
+  }
+
+  /* 磁头 */
+  let hx, hy;
+  if (n === 0 || cfg.headOnAxis){
+    hx = xOf(path.start, dom);
+    hy = AXIS_Y + 2;
+  } else if (done >= n){
+    hx = xOf(moves[n-1].to, dom);
+    hy = yOf(n);
+  } else {
+    const m = moves[done];
+    hx = lerp(xOf(m.from,dom), xOf(m.to,dom), frac);
+    hy = lerp(yOf(done), yOf(done+1), frac);
+  }
+  addHead(g, hx, hy, c, cfg.headLabel ? String(cfg.headLabel) : null);
+
+  /* 总距离徽章 */
+  if (cfg.showTotal && done >= n && n > 0){
+    const w = 164, h = 30, x = X1 - w, y = H - 44;
+    g.appendChild(E('rect', {
+      x, y, width:w, height:h, rx:15,
+      fill:c.badgeBg, stroke:c.accent, 'stroke-opacity':.25, 'stroke-width':1
+    }));
+    g.appendChild(T(x+w/2, y+20, `总寻道距离 ${path.total}`, { size:14, fill:c.badgeInk, weight:900 }));
+  }
+
+  /* 饥饿提示 */
+  if (cfg.hunger){
+    const far = path.moves.slice(-2).map(m=>m.to);
+    far.forEach((v,idx)=>{
+      const x = xOf(v,dom);
+      const pulse = 0.5 + 0.5*Math.sin((performance.now()/520) + idx*1.3);
+      g.appendChild(E('circle', {
+        cx:x, cy:AXIS_Y, r:10 + pulse*7, fill:'none',
+        stroke:c.bad, 'stroke-width':2, opacity:.55 - pulse*.25
+      }));
+    });
+    g.appendChild(E('rect', { x:24, y:478, width:146, height:28, rx:14, fill:c.panel, stroke:c.bad, 'stroke-opacity':.4, 'stroke-width':1 }));
+    g.appendChild(T(97, 497, `${far.join('、')} 最晚才轮到`, { size:11.5, fill:c.bad, weight:800 }));
+  }
+
+  while (svg.firstChild) svg.removeChild(svg.firstChild);
+  svg.appendChild(g);
+}
+
+/* =========================================================
+   4. 场景 1：磁盘俯视图 → 拉直成轴
+   ========================================================= */
+function drawScene1(svg, idx, p){
+  const c = C();
+  const dom = [0,400];
+  const cx = 280, cy = 262, R = 236;
+  const flat = idx < 3 ? 0 : (idx === 3 ? ease(p) : 1);
+  const g = E('g');
+
+  if (flat < 0.985){
+    g.appendChild(E('circle', {
+      cx, cy, r:R, fill:c.panel2, stroke:c.grid, 'stroke-width':1.5,
+      opacity:1 - flat*0.85
+    }));
+  }
+
+  const radii = [36,76,116,156,196,236];
+  radii.forEach((r,i)=>{
+    const ry = Math.max(0.6, r * (1-flat));
+    const hi = r === 156;
+    const fadeInner = flat > 0.8 && !hi ? Math.max(0.06, 1 - (flat-0.8)/0.2) : 1;
+    g.appendChild(E('ellipse', {
+      cx, cy, rx:r, ry,
+      fill:'none',
+      stroke: hi ? c.head : c.ring,
+      'stroke-width': hi ? 2.4 : 1.2,
+      opacity: hi ? Math.max(0, 1 - flat*1.15) : fadeInner
+    }));
+  });
+
+  const headR = idx === 0 ? 156 : (idx === 1 ? lerp(156,106,ease(p)) : 106);
+  if (flat < 0.9){
+    const hx = cx + headR;
+    g.appendChild(E('line', {
+      x1:536, y1:cy, x2:hx, y2:cy,
+      stroke:c.axis, 'stroke-width':8, 'stroke-linecap':'round', opacity:1-flat*1.1
+    }));
+    g.appendChild(E('circle', { cx:536, cy, r:8, fill:c.axis, opacity:1-flat*1.1 }));
+    g.appendChild(E('polygon', {
+      points:`${hx},${cy-10} ${hx},${cy+10} ${hx-17},${cy}`,
+      fill:c.head, stroke:c.panel, 'stroke-width':1.2, opacity:1-flat*1.1
+    }));
+  }
+
+  /* 标注 */
+  if (idx === 0 && flat < .5){
+    g.appendChild(pill(280, 58, '盘片俯视图', { w:96, h:24, size:12, fill:c.panel, stroke:c.grid, color:c.sub }));
+    const lx = 280, ly = cy - 156 - 12;
+    g.appendChild(E('line', { x1:lx, y1:ly+3, x2:lx, y2:cy-156-1, stroke:c.head, 'stroke-width':1.4, opacity:.7 }));
+    g.appendChild(pill(lx, ly-10, '一圈 = 一条磁道', { w:112, h:22, size:11.5, fill:c.panel, stroke:c.head, color:c.headDeep }));
+  }
+  if (idx === 1 && flat < .5){
+    g.appendChild(pill(430, cy-34, '磁头臂', { w:64, h:21, size:11, fill:c.panel, stroke:c.grid, color:c.sub }));
+    g.appendChild(pill(370, cy+34, '磁头沿半径移动', { w:112, h:22, size:11, fill:c.panel, stroke:c.head, color:c.headDeep }));
+    g.appendChild(E('line', { x1:430, y1:cy-23, x2:454, y2:cy-9, stroke:c.grid, 'stroke-width':1 }));
+    g.appendChild(E('line', { x1:390, y1:cy+23, x2:cx+headR-18, y2:cy+8, stroke:c.head, 'stroke-width':1.2, opacity:.65 }));
+  }
+  if (idx === 2 && flat < .5){
+    /* 柱面小卡片 */
+    g.appendChild(E('rect', { x:16, y:16, width:218, height:154, rx:14, fill:c.panel, stroke:c.grid, 'stroke-width':1 }));
+    g.appendChild(T(125, 40, '把盘片上下叠起来看', { size:12, fill:c.sub, weight:800 }));
+    for (let k=0;k<3;k++){
+      const ey = 65 + k*25;
+      g.appendChild(E('ellipse', { cx:112, cy:ey, rx:56, ry:9, fill:'none', stroke:c.ring, 'stroke-width':1.4 }));
+      g.appendChild(E('circle', { cx:150, cy:ey, r:4, fill:c.head }));
+    }
+    g.appendChild(E('line', { x1:150, y1:56, x2:150, y2:118, stroke:c.head, 'stroke-width':1.6, 'stroke-dasharray':'4 4' }));
+    g.appendChild(T(125, 142, '同一半径 = 一个柱面', { size:11.5, fill:c.headDeep, weight:800 }));
+    g.appendChild(T(125, 158, '柱面号越小越靠外', { size:10.5, fill:c.faint, weight:600 }));
+  }
+
+  /* 拉直后的轴 */
+  if (flat > 0.55){
+    const a = (flat-0.55)/0.45;
+    const axisG = E('g', { opacity:a });
+    axisG.appendChild(E('line', { x1:X0, y1:cy, x2:X1, y2:cy, stroke:c.axis, 'stroke-width':2.4, 'stroke-linecap':'round' }));
+    for (let v=0; v<=400; v+=50){
+      const x = xOf(v,dom);
+      axisG.appendChild(E('line', { x1:x, y1:cy-6, x2:x, y2:cy+6, stroke:c.axis, 'stroke-width':2 }));
+      axisG.appendChild(T(x, cy+24, String(v), { size:12, fill:c.faint, weight:600 }));
+    }
+    axisG.appendChild(T(30, cy-24, '外', { size:11, fill:c.faint, weight:700 }));
+    axisG.appendChild(T(530, cy-24, '内', { size:11, fill:c.faint, weight:700 }));
+    g.appendChild(axisG);
+    if (idx === 4 || (idx === 3 && flat > .95)){
+      const hx = xOf(P1.start,dom);
+      addHead(g, hx, cy, c, `磁头 ${P1.start}`);
+    }
+  }
+
+  /* 寻道时间示意 */
+  if (idx === 4){
+    const first = S1.moves[0]; // 100 → 134，距离 34
+    const x1 = xOf(first.from,dom), x2 = xOf(first.to,dom);
+    const yy = 330;
+    g.appendChild(E('line', { x1, y1:yy, x2, y2:yy, stroke:c.headDeep, 'stroke-width':2 }));
+    g.appendChild(E('line', { x1, y1:yy-8, x2:x1, y2:yy+8, stroke:c.headDeep, 'stroke-width':2 }));
+    g.appendChild(E('line', { x1:x2, y1:yy-8, x2:x2, y2:yy+8, stroke:c.headDeep, 'stroke-width':2 }));
+    g.appendChild(T((x1+x2)/2, yy-16, `${first.dist} 个柱面`, { size:12.5, fill:c.headDeep, weight:800 }));
+    g.appendChild(T((x1+x2)/2, yy+24, '这段路要花的时间 = 寻道时间', { size:12.5, fill:c.sub, weight:700 }));
+    g.appendChild(T((x1+x2)/2, yy+46, '挪的柱面数越少，总时间越短', { size:12, fill:c.faint, weight:600 }));
+  }
+
+  while (svg.firstChild) svg.removeChild(svg.firstChild);
+  svg.appendChild(g);
+}
+
+/* =========================================================
+   5. 各场景的旁栏
+   ========================================================= */
+const GLOSSARY = [
+  { t:'磁道', d:'盘片上一圈一圈的同心圆。磁头停在哪一圈，就读哪一圈的数据。' },
+  { t:'磁头 / 磁头臂', d:'磁头像唱针，装在磁头臂上，沿半径方向里外移动，换到不同的圈。' },
+  { t:'柱面', d:'同一半径位置、上下叠着的所有磁道，合起来叫一个柱面。' },
+  { t:'柱面轴', d:'把盘片拉直后得到的一条横轴，刻度就是柱面号。做题就画这条轴。' },
+  { t:'寻道时间', d:'磁头从一个柱面挪到另一个柱面花的时间。挪得越少，总时间越短。' }
+];
+
+function glossarySide(i){
+  const it = GLOSSARY[i];
+  return `<div class="card side-card">
+    <div class="kick">术语 · 第 ${i+1} 个</div>
+    <div class="side-h">${it.t}</div>
+    <p>${it.d}</p>
+  </div>`;
+}
+
+function scene2Side(kind){
+  if (kind === 'start'){
+    return `<div class="card side-card">
+      <div class="kick">起点</div>
+      <div class="side-h">磁头在 ${P1.start}</div>
+      <p>先把它画在轴上。后面每走一步，都从这个位置出发。</p>
+    </div>`;
+  }
+  if (kind === 'reqs'){
+    const chips = [...P1.reqs].map(v=>`<span class="tag" style="font-size:12px">${v}</span>`).join(' ');
+    return `<div class="card side-card">
+      <div class="kick">请求队列</div>
+      <div class="side-h">${P1.reqs.length} 个请求</div>
+      <p>每个点就是一个要读的柱面。</p>
+      <div style="display:flex;flex-wrap:wrap;gap:5px;margin-top:8px">${chips}</div>
+    </div>`;
+  }
+  if (kind === 'dir'){
+    return `<div class="card side-card">
+      <div class="kick">方向</div>
+      <div class="side-h">向外 = 往左</div>
+      <p>题目规定“向外”是往小柱面号走，所以在轴上初始方向朝左。方向看反是常见错误。</p>
+    </div>`;
+  }
+  const chips = P1.reqs.map((v,i)=>`<span class="tag" style="font-size:12px">${i+1}. ${v}</span>`).join(' ');
+  return `<div class="card side-card">
+    <div class="kick">到达顺序</div>
+    <div class="side-h">题目给的顺序</div>
+    <div style="display:flex;flex-wrap:wrap;gap:5px;margin:6px 0 10px">${chips}</div>
+    <div class="rule" style="margin:0">服务顺序 = <b style="color:var(--accent)">由算法决定</b>，不一定是这个顺序。</div>
+  </div>`;
+}
+
+function sideFormula(path, meta){
+  return function(p, upto){
+    const n = path.moves.length;
+    const done = Math.min(n, Math.max(0, Math.floor(upto + 1e-7)));
+    const active = done < n && (upto - done) > 0.26;
+    const shown = done + (active ? 1 : 0);
+
+    const terms = [];
+    for (let i=0;i<shown;i++){
+      const cls = i < done ? 'done' : 'active';
+      terms.push(`<span class="term ${cls}">${path.moves[i].dist}</span>`);
+    }
+    const termHTML = terms.length
+      ? terms.join('<span class="plus">+</span>') + (shown < n ? '<span class="plus">+ …</span>' : '')
+      : '<span class="plus">还没开始走</span>';
+
+    const sum = path.moves.slice(0,done).reduce((s,m)=>s+m.dist,0);
+    const isEnd = done >= n;
+    let curLine = '';
+    if (!isEnd){
+      const m = path.moves[done];
+      if (meta.mode === 'sstf'){
+        curLine = `<div class="mini">磁头在 <b>${m.from}</b>　最近请求 <b>${m.to}</b>（${m.dist}）</div>`;
+      } else {
+        curLine = `<div class="mini">下一步　<b>${m.from} → ${m.to}</b>　距离 <b>${m.dist}</b></div>`;
+      }
+    }
+    const extra = meta.extra ? meta.extra(done, path) : '';
+    return `<div class="card side-card">
+      <div class="kick">${meta.kicker || '计算过程'}</div>
+      <div class="side-h">${meta.name}</div>
+      <div class="rule">${meta.rule}</div>
+      ${curLine}
+      <div class="terms">${termHTML}</div>
+      <div class="total-row"><span>${isEnd ? '总寻道距离' : '已走累计'}</span><b class="${isEnd?'big':''}">${isEnd ? path.total : sum}</b></div>
+      ${extra}
+      ${meta.note ? `<div class="note">${meta.note}</div>` : ''}
+    </div>`;
+  };
+}
+
+function sstfWhyExtra(done, path){
+  if (done !== 3) return '';
+  const m = path.moves[3];
+  const cur = m.from;
+  const rest = path.moves.slice(3).map(x=>x.to);
+  const left = Math.max(...rest.filter(v=>v<cur));
+  const right = Math.min(...rest.filter(v=>v>cur));
+  const dl = cur-left, dr = right-cur;
+  return `<div class="callout">
+    <div class="callout-t">这一步为什么要比一比？</div>
+    <div>往左到 <b>${left}</b>：${dl}</div>
+    <div>往右到 <b>${right}</b>：${dr}</div>
+    <div class="ok">${dl} &lt; ${dr}　→　选 ${left}</div>
+  </div>`;
+}
+
+function scene2ChartSide(){
+  return null;
+}
+
+/* =========================================================
+   6. HTML 视图
+   ========================================================= */
+function problemHTML(){
+  const chips = P1.reqs.map(v=>`<span class="num-chip">${v}</span>`).join('');
+  return `<div class="view-card problem-card">
+    <div class="kick">题目 · 闭卷考试常见题型</div>
+    <h2>磁盘请求队列</h2>
+    <div class="num-row">${chips}</div>
+    <div class="facts">
+      <div class="fact"><span>磁头起始位置</span><b>${P1.start}</b></div>
+      <div class="fact"><span>磁头运行方向</span><b>向外　（往小柱面号）</b></div>
+    </div>
+    <p class="ask">分别用 <b>SSTF</b> 和 <b>C-SCAN</b> 算法，计算总寻道距离，写出求解过程。</p>
+    <p class="readtip"><b>先认三个词：</b>请求队列 = 排队等着被服务的请求；柱面号 = 磁道的编号（越小越靠外）；寻道距离 = 磁头一共挪了多少个柱面。</p>
+  </div>`;
+}
+
+function ideaHTML(){
+  return `<div class="big-idea">
+    <div class="big-q">先服务谁？</div>
+    <div class="big-a">磁盘调度 = 决定磁头先去哪个请求<br>让磁头走的总路程尽量短</div>
+    <div class="big-sub">SSTF 和 C-SCAN 就是两种不同的“先服务谁”规则，后面边算边看。</div>
+  </div>`;
+}
+
+function barsHTML(p, highlight){
+  const items = [
+    { name:'FCFS', v:F1.total, color:'#ef4444', tag:'本题不考' },
+    { name:'SSTF', v:S1.total, color:'#10b981', tag:'本题要考' },
+    { name:'SCAN', v:SC1.total, color:'#3b82f6', tag:'铺垫' },
+    { name:'C-SCAN', v:CS1.total, color:'#8b5cf6', tag:'本题要考' }
+  ];
+  const max = Math.max(...items.map(i=>i.v));
+  const rows = items.map((it,i)=>{
+    const t = ease(clamp01(p*1.6 - i*0.13));
+    const w = (it.v/max)*100*t;
+    const isHi = highlight && (it.name === 'SSTF' || it.name === 'C-SCAN');
+    return `<div class="bar-row" style="${isHi?'padding:4px 6px;margin:-4px -6px;background:color-mix(in srgb,var(--accent) 6%, transparent);border-radius:12px':''}">
+      <div class="bar-name">${it.name}<small>${it.tag}</small></div>
+      <div class="bar-track"><div class="bar-fill" style="width:${w.toFixed(2)}%;background:${it.color}"></div></div>
+      <div class="bar-val">${Math.round(it.v*t)}</div>
+    </div>`;
+  }).join('');
+  return `<div class="view-card">
+    <div class="kick">同一道题 · 四种算法的总路程</div>
+    <div class="bars">${rows}</div>
+    <p class="note" style="margin-top:16px">条形越短，磁头走的路越少。数值来自同一份请求数据实时计算。</p>
+  </div>`;
+}
+
+function stepsHTML(p, showMistakes){
+  const steps = [
+    '按算法规则排出磁头移动顺序',
+    '写出每一段移动的距离',
+    '把每一段距离相加',
+    '写出总寻道距离'
+  ];
+  const stepHTML = steps.map((s,i)=>{
+    const on = p*1.7 > i*0.18;
+    return `<div class="step ${on?'':'off'}">
+      <div class="n">${i+1}</div><div class="tx">${s}</div>
+    </div>`;
+  }).join('');
+  const mistakes = [
+    'SSTF 忘了每一步都要重新选最近的请求',
+    'C-SCAN 漏算回程那一大段',
+    '把“向外”的方向看反了',
+    '加法算错，尤其是三位数相加'
+  ];
+  const mHTML = showMistakes ? `<div class="mistakes">
+    <h4>四个常见错误</h4>
+    <ul>${mistakes.map(m=>`<li>${m}</li>`).join('')}</ul>
+  </div>` : '';
+  return `<div class="view-card">
+    <div class="kick">考试答题模板</div>
+    <div class="steps4">${stepHTML}</div>
+    ${mHTML}
+  </div>`;
+}
+
+function selfTestSide(){
+  return `<div class="card side-card">
+    <div class="kick">自测 · 先动笔</div>
+    <div class="side-h">请求与起点</div>
+    <div style="display:flex;flex-wrap:wrap;gap:5px;margin:6px 0 8px">
+      ${P2.reqs.map(v=>`<span class="tag" style="font-size:12px">${v}</span>`).join('')}
+    </div>
+    <p style="margin:0">磁头在 <b>53</b>，先往<b>大柱面号</b>方向走。</p>
+    <div class="note" style="margin-top:9px">分别算 SSTF、SCAN、C-SCAN 的总距离。算完再点“看答案”。</div>
+  </div>`;
+}
+
+function answersSide(activeName){
+  const rows = [
+    ['SSTF', S2.total, '本题最后一问'],
+    ['SCAN', SC2.total, '掉头在 183'],
+    ['C-SCAN', CS2.total, '回程也要算']
+  ];
+  return `<div class="card side-card">
+    <div class="kick">自测答案</div>
+    <div class="side-h">三个总距离</div>
+    <div class="ans-list">
+      ${rows.map(([n,v,t])=>`<div class="ans-row ${activeName===n?'on':''}">
+        <span>${n}<br><span class="tag">${t}</span></span><b>${v}</b>
+      </div>`).join('')}
+    </div>
+  </div>`;
+}
+
+/* =========================================================
+   7. 分镜 / 步骤表
+   ========================================================= */
+const SCENE_TITLES = [
+  '这题在问什么', '磁盘长什么样', '把题目画到轴上', '热身：先来先服务',
+  'SSTF 最短寻道优先', 'SCAN 电梯算法', 'C-SCAN 循环扫描',
+  '四种算法对比', '考试怎么答', '自测'
+];
+const SCENE_SHORT = ['题目','磁盘','画轴','FCFS','SSTF','SCAN','C-SCAN','对比','答题','自测'];
+
+const BEATS = [];
+function add(b){ BEATS.push(b); }
+
+function chartBeat(scene, dur, text, cfg, side){
+  add({ scene, dur, kind:'chart', text, chart:cfg, side });
+}
+
+/* ---------- 场景 0 ---------- */
+add({ scene:0, dur:6500, kind:'html', text:'磁盘调度只决定一件事：先服务哪个请求，让磁头走的总路程尽量短。', html:problemHTML, side:null });
+add({ scene:0, dur:4600, kind:'html', text:`题目给了 ${P1.reqs.length} 个柱面号和起点 ${P1.start}，要你分别用 SSTF 和 C-SCAN 算出总寻道距离。`, html:ideaHTML, side:null });
+
+/* ---------- 场景 1 ---------- */
+['磁道','磁头 / 磁头臂','柱面','柱面轴','寻道时间'].forEach((_,i)=>{
+  const texts = [
+    '这是磁盘盘片的俯视图：一圈一圈的同心圆，每一圈叫一条磁道。',
+    '磁头装在磁头臂上，沿半径方向里外移动，就能换到不同的磁道。',
+    '同一半径位置、上下叠在一起的磁道合起来叫柱面，柱面号就是它们的编号。',
+    '把盘片从中间剪开、拉直，一圈圈磁道就变成了一条横轴：柱面轴。',
+    '磁头从一条磁道挪到另一条要花时间，叫寻道时间；移动的柱面数越少越好。'
+  ];
+  add({ scene:1, dur:i===3?6200:5200, kind:'scene1', idx:i, text:texts[i], side:()=>glossarySide(i) });
+});
+
+/* ---------- 场景 2 ---------- */
+chartBeat(2, 4200, `把题目搬到轴上：横轴一格一格是柱面号，磁头现在停在 ${P1.start}。`, {
+  reqs:P1.reqs, path:{start:P1.start, moves:[], total:0}, upto:0, domain:P1.domain,
+  headLabel:P1.start, arrow:null, revealCount:0, showTotal:false
+}, ()=>scene2Side('start'));
+
+chartBeat(2, 4800, `${P1.reqs.length} 个请求就是轴上的 ${P1.reqs.length} 个点，旁边写的数字就是柱面号。`, {
+  reqs:P1.reqs, path:{start:P1.start, moves:[], total:0}, upto:0, domain:P1.domain,
+  headLabel:P1.start, arrow:null, revealDynamic:true, showTotal:false
+}, ()=>scene2Side('reqs'));
+
+chartBeat(2, 4600, '题目说“向外”，就是往小柱面号走，所以在轴上初始方向朝左。', {
+  reqs:P1.reqs, path:{start:P1.start, moves:[], total:0}, upto:0, domain:P1.domain,
+  headLabel:P1.start, arrow:{ dir:'left', text:'向外 = 往小柱面号' }, showTotal:false
+}, ()=>scene2Side('dir'));
+
+chartBeat(2, 5200, '注意：这些数字只是请求到达的顺序，先服务谁由调度算法决定。', {
+  reqs:P1.reqs, path:{start:P1.start, moves:[], total:0}, upto:0, domain:P1.domain,
+  headLabel:P1.start, arrow:{ dir:'left', text:'向外 = 往小柱面号' }, showTotal:false
+}, ()=>scene2Side('arrive'));
+
+/* ---------- 场景 3：FCFS ---------- */
+chartBeat(3, 4200, '先看最笨的办法：谁先到就先服务谁，叫先来先服务（FCFS）。', {
+  reqs:P1.reqs, path:F1, upto:0, domain:P1.domain,
+  arrow:{ dir:'left', text:'按到达顺序' }, showTotal:false
+}, sideFormula(F1, {
+  name:'FCFS 先来先服务', kicker:'热身 · 本题不考', mode:'seq',
+  rule:'按请求到达的顺序，一个一个服务，不管远近。'
+}));
+
+chartBeat(3, 9000, `磁头按到达顺序跑：${P1.reqs.join('、')}，来回折腾。`, {
+  reqs:P1.reqs, path:F1, domain:P1.domain,
+  upto:p=>F1.moves.length*ease(p),
+  arrow:{ dir:'left', text:'按到达顺序' }, showTotal:true
+}, sideFormula(F1, { name:'FCFS 先来先服务', kicker:'热身 · 本题不考', mode:'seq', rule:'按到达顺序服务。' }));
+
+chartBeat(3, 5400, `总路程 ${F1.total} 个柱面——来回折返很浪费，这就是需要调度算法的原因。`, {
+  reqs:P1.reqs, path:F1, upto:F1.moves.length, domain:P1.domain,
+  arrow:{ dir:'left', text:'按到达顺序' }, showTotal:true
+}, sideFormula(F1, {
+  name:'FCFS 先来先服务', kicker:'热身 · 本题不考', mode:'seq',
+  rule:'按到达顺序服务。',
+  note:`同样 ${P1.reqs.length} 个请求，FCFS 要走 ${F1.total}，比后面几种算法都多。`
+}));
+
+/* ---------- 场景 4：SSTF ---------- */
+chartBeat(4, 4800, 'SSTF 的规则只有一句：每次都选离磁头当前位置最近的请求。', {
+  reqs:P1.reqs, path:S1, upto:0, domain:P1.domain,
+  arrow:{ dir:'left', text:'向外 = 往左' }, showTotal:false
+}, sideFormula(S1, {
+  name:'SSTF 最短寻道优先', kicker:'本题算法 ①', mode:'sstf',
+  rule:'每一步都重新比较：当前磁头离哪个还没服务的请求最近，就先去哪。'
+}));
+
+S1.moves.forEach((m,i)=>{
+  const isWhy = i === 3;
+  let text;
+  if (isWhy){
+    const rest = S1.moves.slice(3).map(x=>x.to);
+    const left = Math.max(...rest.filter(v=>v<m.from));
+    const right = Math.min(...rest.filter(v=>v>m.from));
+    text = `在 ${m.from} 要比一比：往左到 ${left} 是 ${m.from-left}，往右到 ${right} 是 ${right-m.from}——选 ${left}。`;
+  } else if (i === 6){
+    text = `左边都服务完了，只能去最远的 ${m.to}，这一趟要走 ${m.dist}。`;
+  } else if (i === 7){
+    text = `最后到 ${m.to}，走 ${m.dist}。全部请求服务完毕。`;
+  } else {
+    text = `第 ${i+1} 步：磁头在 ${m.from}，最近的请求是 ${m.to}，走 ${m.dist} 个柱面。`;
+  }
+  chartBeat(4, isWhy ? 6000 : 4000, text, {
+    reqs:P1.reqs, path:S1, domain:P1.domain,
+    upto:p=>i + ease(clamp01((p-0.42)/0.58)),
+    arrow:{ dir:'left', text:'向外 = 往左' },
+    bars:true, showTotal:false
+  }, sideFormula(S1, {
+    name:'SSTF 最短寻道优先', kicker:'本题算法 ①', mode:'sstf',
+    rule:'每一步都重新选最近的请求。',
+    extra:isWhy ? sstfWhyExtra : null
+  }));
+});
+
+chartBeat(4, 5600, `总寻道距离 = ${S1.total}，比 FCFS 的 ${F1.total} 小了一大半。`, {
+  reqs:P1.reqs, path:S1, upto:S1.moves.length, domain:P1.domain,
+  arrow:{ dir:'left', text:'向外 = 往左' }, showTotal:true
+}, sideFormula(S1, {
+  name:'SSTF 最短寻道优先', kicker:'本题算法 ①', mode:'sstf',
+  rule:'每一步都重新选最近的请求。',
+  note:`本题答案：SSTF = ${S1.total}。`
+}));
+
+chartBeat(4, 6800, '缺点：如果新请求总落在磁头附近，远处的请求可能一直等不到——这叫饥饿。', {
+  reqs:P1.reqs, path:S1, upto:S1.moves.length, domain:P1.domain,
+  arrow:{ dir:'left', text:'向外 = 往左' }, showTotal:true, hunger:true
+}, sideFormula(S1, {
+  name:'SSTF 的缺点', kicker:'注意', mode:'sstf',
+  rule:'贪心地选最近的，可能让远处的请求长期得不到服务。',
+  note:'这叫“饥饿”。考试写一句就够，不用展开。'
+}));
+
+/* ---------- 场景 5：SCAN ---------- */
+chartBeat(5, 5400, 'SCAN 像电梯：先一直往一个方向走，顺路把请求都服务了，再掉头。', {
+  reqs:P1.reqs, path:SC1, upto:0, domain:P1.domain,
+  arrow:{ dir:'left', text:'先一直往左' }, showTotal:false
+}, sideFormula(SC1, {
+  name:'SCAN 电梯算法', kicker:'铺垫 · 为 C-SCAN 打底', mode:'seq',
+  rule:'先沿一个方向走到底，再掉头沿反方向走；不来回横跳。'
+}));
+
+SC1.moves.forEach((m,i)=>{
+  let text;
+  if (i === 0) text = `磁头一直朝左，顺路先服务 ${m.to}，走 ${m.dist}。`;
+  else if (i < SC1.turnBefore) text = `继续朝左，服务 ${m.to}，走 ${m.dist}。`;
+  else if (i === SC1.turnBefore) text = `左边没有请求了，在 ${SC1.turnValue} 掉头，往右去 ${m.to}，走 ${m.dist}。`;
+  else if (i === SC1.moves.length-1) text = `最后服务 ${m.to}，走 ${m.dist}，全部完成。`;
+  else text = `继续朝右，服务 ${m.to}，走 ${m.dist}。`;
+
+  chartBeat(5, i===SC1.turnBefore ? 5200 : 3800, text, {
+    reqs:P1.reqs, path:SC1, domain:P1.domain,
+    upto:p=>i + ease(clamp01((p-0.3)/0.7)),
+    arrow:{ dir: i<SC1.turnBefore ? 'left' : 'right', text: i<SC1.turnBefore ? '一路向左' : '掉头后向右' },
+    turnIndex:SC1.turnBefore, showTotal:false
+  }, sideFormula(SC1, {
+    name:'SCAN 电梯算法', kicker:'铺垫 · 为 C-SCAN 打底', mode:'seq',
+    rule:'先沿一个方向走，走到没有请求再掉头。'
+  }));
+});
+
+/* 在掉头处插入一个停顿步骤 */
+BEATS.splice(BEATS.length - (SC1.moves.length - SC1.turnBefore), 0, {
+  scene:5, dur:4200, kind:'chart',
+  text:`到 ${SC1.turnValue} 了：左边没有请求，现在才掉头。注意掉头点是 ${SC1.turnValue}，不是磁盘端点 0。`,
+  chart:{
+    reqs:P1.reqs, path:SC1, upto:SC1.turnBefore, domain:P1.domain,
+    arrow:{ dir:'left', text:'走到这里掉头' },
+    turnIndex:SC1.turnBefore, showTotal:false
+  },
+  side: sideFormula(SC1, {
+    name:'SCAN 掉头点', kicker:'本卷口径', mode:'seq',
+    rule:`掉头点取这个方向上最远的请求（${SC1.turnValue}），不是物理端点 0。`,
+    note:'按物理端点算，答案会变成另一个数；本卷按“最远请求”这个口径。'
+  })
+});
+
+chartBeat(5, 6000, `SCAN 总距离 ${SC1.total}。掉头点取最远请求 ${SC1.turnValue}，不是磁盘端点 0。`, {
+  reqs:P1.reqs, path:SC1, upto:SC1.moves.length, domain:P1.domain,
+  turnIndex:SC1.turnBefore, showTotal:true,
+  arrow:{ dir:'right', text:'掉头后向右' }
+}, sideFormula(SC1, {
+  name:'SCAN 电梯算法', kicker:'铺垫 · 为 C-SCAN 打底', mode:'seq',
+  rule:'走到该方向最远的请求才掉头。',
+  note:`SCAN = ${SC1.total}。本题不要求 SCAN，但看懂它才能看懂 C-SCAN。`
+}));
+
+/* ---------- 场景 6：C-SCAN ---------- */
+chartBeat(6, 5600, 'C-SCAN 只在一个方向服务；走到头后直接回到另一端，再继续同一个方向。', {
+  reqs:P1.reqs, path:CS1, upto:0, domain:P1.domain,
+  arrow:{ dir:'left', text:'只在向左时服务' }, showTotal:false
+}, sideFormula(CS1, {
+  name:'C-SCAN 循环扫描', kicker:'本题算法 ②', mode:'seq',
+  rule:'只在一个方向服务请求；到头后跳回另一端，继续同一个方向。'
+}));
+
+CS1.moves.forEach((m,i)=>{
+  const isJump = i === CS1.jumpIndex;
+  let text;
+  if (isJump){
+    text = `到 ${CS1.moves[i-1].to} 后不回头服务，直接跳回最右端 ${m.to}——这一跳 ${m.dist}，也要计入总距离。`;
+  } else if (i < CS1.jumpIndex){
+    text = `先朝左服务：到 ${m.to}，走 ${m.dist}。`;
+  } else if (i === CS1.moves.length-1){
+    text = `继续朝左，最后服务 ${m.to}，走 ${m.dist}。`;
+  } else {
+    text = `从 ${m.from} 继续朝左，服务 ${m.to}，走 ${m.dist}。`;
+  }
+  chartBeat(6, isJump ? 6200 : 3900, text, {
+    reqs:P1.reqs, path:CS1, domain:P1.domain,
+    upto:p=>i + ease(clamp01((p-0.36)/0.64)),
+    arrow:{ dir:'left', text: isJump ? '回程（计入）' : '向左服务' },
+    jumpIndex:CS1.jumpIndex, showTotal:false
+  }, sideFormula(CS1, {
+    name:'C-SCAN 循环扫描', kicker:'本题算法 ②', mode:'seq',
+    rule:'单向服务，到头后跳回另一端继续。',
+    note: isJump ? `回程 ${m.dist} 个柱面，本卷口径要计入总距离。` : ''
+  }));
+});
+
+chartBeat(6, 6200, `C-SCAN 总距离 ${CS1.total}。比 SCAN 的 ${SC1.total} 长，但每个请求的等待更均匀。`, {
+  reqs:P1.reqs, path:CS1, upto:CS1.moves.length, domain:P1.domain,
+  arrow:{ dir:'left', text:'继续向左' },
+  jumpIndex:CS1.jumpIndex, showTotal:true
+}, sideFormula(CS1, {
+  name:'C-SCAN 循环扫描', kicker:'本题算法 ②', mode:'seq',
+  rule:'单向服务，回程计入。',
+  note:`本题答案：C-SCAN = ${CS1.total}。回程 ${CS1.jump.dist} 必须算进去。`
+}));
+
+/* ---------- 场景 7 ---------- */
+add({ scene:7, dur:6200, kind:'html', text:`四种算法走同一道题：FCFS ${F1.total}、SSTF ${S1.total}、SCAN ${SC1.total}、C-SCAN ${CS1.total}。`, html:p=>barsHTML(p,false), side:()=>null });
+
+add({ scene:7, dur:5800, kind:'html', text:`这道题里 SCAN 反而最短（${SC1.total}）；但题目只要求 SSTF 和 C-SCAN，考试按指定的算法算。`, html:p=>barsHTML(1,true), side:()=>`<div class="card side-card">
+  <div class="kick">记住</div>
+  <div class="side-h">按题目要求作答</div>
+  <p>本题只要求 <b>SSTF</b> 和 <b>C-SCAN</b>。SCAN 是理解 C-SCAN 的台阶，FCFS 只是反面对照。</p>
+  <div class="note">不要说“某个算法永远最好”，只比较同一道题的结果。</div>
+</div>` });
+
+/* ---------- 场景 8 ---------- */
+add({ scene:8, dur:7200, kind:'html', text:'考试答题就四步：排顺序、算每段、相加、写总数。', html:p=>stepsHTML(p,false), side:()=>null });
+add({ scene:8, dur:6800, kind:'html', text:'四个常见坑：SSTF 忘了每步重选、C-SCAN 漏回程、方向看反、加法算错。', html:p=>stepsHTML(1,true), side:()=>null });
+
+/* ---------- 场景 9：自测 ---------- */
+add({
+  scene:9, dur:Infinity, waitClick:true, kind:'chart',
+  text:'先自己算：SSTF、SCAN、C-SCAN 各要走多少？算完再点“看答案”。',
+  chart:{ reqs:P2.reqs, path:{start:P2.start, moves:[], total:0}, upto:0, domain:P2.domain,
+          arrow:{ dir:'right', text:'先往大柱面号' }, showTotal:false, revealCount:8 },
+  side: selfTestSide
+});
+
+chartBeat(9, 9500, `SSTF 答案 ${S2.total}：53→65→67→37→14→98→122→124→183。`, {
+  reqs:P2.reqs, path:S2, domain:P2.domain,
+  upto:p=>S2.moves.length*ease(p),
+  arrow:{ dir:'right', text:'先往大柱面号' }, showTotal:true
+}, sideFormula(S2, { name:'自测 · SSTF', kicker:'答案 ①', mode:'sstf',
+  rule:'每次选最近的。', note:`SSTF = ${S2.total}。` }));
+
+chartBeat(9, 9500, `SCAN 答案 ${SC2.total}：先往右到头，在 ${SC2.turnValue} 掉头往左。`, {
+  reqs:P2.reqs, path:SC2, domain:P2.domain,
+  upto:p=>SC2.moves.length*ease(p),
+  arrow:{ dir:'right', text:'先往右' }, turnIndex:SC2.turnBefore, showTotal:true
+}, sideFormula(SC2, { name:'自测 · SCAN', kicker:'答案 ②', mode:'seq',
+  rule:'往右走到最远请求，再掉头往左。', note:`SCAN = ${SC2.total}。` }));
+
+chartBeat(9, 9800, `C-SCAN 答案 ${CS2.total}：往右到头，回程 ${CS2.jump.dist}，再继续往右服务。`, {
+  reqs:P2.reqs, path:CS2, domain:P2.domain,
+  upto:p=>CS2.moves.length*ease(p),
+  arrow:{ dir:'right', text:'回程也计入' }, jumpIndex:CS2.jumpIndex, showTotal:true
+}, sideFormula(CS2, { name:'自测 · C-SCAN', kicker:'答案 ③', mode:'seq',
+  rule:'单向服务，回程计入。', note:`C-SCAN = ${CS2.total}。` }));
+
+chartBeat(9, 7000, `三问答案：SSTF ${S2.total}，SCAN ${SC2.total}，C-SCAN ${CS2.total}。`, {
+  reqs:P2.reqs, path:CS2, upto:CS2.moves.length, domain:P2.domain,
+  arrow:{ dir:'right', text:'回程也计入' }, jumpIndex:CS2.jumpIndex, showTotal:true
+}, ()=>answersSide('C-SCAN'));
+
+/* =========================================================
+   8. 播放控制
+   ========================================================= */
+const state = { i:0, elapsed:0, playing:true, speed:1, last:0 };
+
+const stageEl = document.getElementById('stage');
+const overlayEl = document.getElementById('overlay');
+const sideEl = document.getElementById('side');
+const subEl = document.getElementById('subText');
+const progressEl = document.getElementById('progress');
+const sceneTagEl = document.getElementById('sceneTag');
+const playBtn = document.getElementById('playBtn');
+const prevBtn = document.getElementById('prevBtn');
+const nextBtn = document.getElementById('nextBtn');
+const actionBar = document.getElementById('actionBar');
+const revealBtn = document.getElementById('revealBtn');
+const sceneRow = document.getElementById('sceneRow');
+const themeBtn = document.getElementById('themeBtn');
+
+let lastSideHTML = null;
+let lastOverlayHTML = null;
+let lastSub = null;
+let lastScene = -1;
+
+function setSide(html){
+  if (html === lastSideHTML) return;
+  lastSideHTML = html;
+  sideEl.innerHTML = html || '';
+  document.body.classList.toggle('has-side', !!html);
+}
+
+function setOverlay(html){
+  if (html === lastOverlayHTML) return;
+  lastOverlayHTML = html;
+  if (!html){
+    overlayEl.classList.remove('on');
+    overlayEl.innerHTML = '';
+    return;
+  }
+  overlayEl.classList.add('on');
+  overlayEl.innerHTML = html;
+}
+
+function showAction(on){
+  actionBar.classList.toggle('on', !!on);
+}
+
+function syncPlayBtn(){
+  const t = state.playing ? '暂停' : '播放';
+  if (playBtn.textContent !== t) playBtn.textContent = t;
+}
+
+function sceneRange(scene){
+  let a = 0, b = 0, started = false;
+  BEATS.forEach((b2,i)=>{
+    if (b2.scene === scene){
+      if (!started){ a = i; started = true; }
+      b = i;
+    }
+  });
+  return [a,b];
+}
+
+function syncChrome(){
+  const beat = BEATS[state.i];
+  const scene = beat.scene;
+
+  if (lastSub !== beat.text){
+    lastSub = beat.text;
+    subEl.textContent = beat.text;
+  }
+  if (lastScene !== scene){
+    lastScene = scene;
+    sceneTagEl.textContent = `场景 ${scene} · ${SCENE_TITLES[scene]}`;
+    [...sceneRow.children].forEach((el,i)=>el.classList.toggle('on', i===scene));
+  }
+  const [a,b] = sceneRange(scene);
+  const prog = `场景 ${scene} · ${state.i-a+1}/${b-a+1}`;
+  if (progressEl.textContent !== prog) progressEl.textContent = prog;
+  syncPlayBtn();
+}
+
+function go(idx, autoplay){
+  state.i = Math.max(0, Math.min(BEATS.length-1, idx));
+  state.elapsed = 0;
+  const beat = BEATS[state.i];
+  if (beat.waitClick){
+    state.playing = false;
+    showAction(true);
+  } else {
+    state.playing = autoplay !== false;
+    showAction(false);
+  }
+  lastSub = null;
+  lastScene = -1;
+  render();
+}
+
+function reveal(){
+  const beat = BEATS[state.i];
+  if (!beat.waitClick) return;
+  go(state.i+1, true);
+}
+
+/* 渲染一帧 */
+function render(){
+  const beat = BEATS[state.i];
+  const p = beat.dur === Infinity ? 0 : clamp01(state.elapsed / beat.dur);
+  let upto = 0;
+
+  if (beat.kind === 'scene1'){
+    setOverlay(null);
+    stageEl.style.display = 'block';
+    drawScene1(stageEl, beat.idx, p);
+    setSide(beat.side ? beat.side(p, 0) : null);
+  } else if (beat.kind === 'chart'){
+    setOverlay(null);
+    stageEl.style.display = 'block';
+    const cfg = Object.assign({}, beat.chart);
+    upto = typeof cfg.upto === 'function' ? cfg.upto(p) : cfg.upto;
+    cfg.upto = upto;
+
+    /* 场景 2 请求逐个出现 */
+    if (cfg.revealDynamic){
+      cfg.revealCount = Math.min(8, Math.max(0, Math.ceil(p*8.01)));
+    }
+    drawChart(stageEl, cfg);
+    setSide(beat.side ? beat.side(p, upto) : null);
+  } else {
+    stageEl.style.display = 'none';
+    const html = typeof beat.html === 'function' ? beat.html(p) : beat.html;
+    setOverlay(html);
+    setSide(beat.side ? beat.side(p, 0) : null);
+  }
+
+  syncChrome();
+}
+
+/* 主循环 */
+function tick(now){
+  if (!state.last) state.last = now;
+  const dt = Math.min(80, now - state.last);
+  state.last = now;
+  const beat = BEATS[state.i];
+
+  if (state.playing && !beat.waitClick){
+    state.elapsed += dt * state.speed;
+    if (state.elapsed >= beat.dur){
+      if (state.i < BEATS.length-1){
+        go(state.i+1, true);
+      } else {
+        state.elapsed = beat.dur;
+        state.playing = false;
+        syncPlayBtn();
+      }
+    }
+  }
+  render();
+  requestAnimationFrame(tick);
+}
+
+/* =========================================================
+   9. UI 绑定
+   ========================================================= */
+function buildSceneChips(){
+  SCENE_SHORT.forEach((s,i)=>{
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'schip';
+    b.textContent = `${i} ${s}`;
+    b.addEventListener('click', ()=>{
+      const [a] = sceneRange(i);
+      state.last = 0;
+      go(a, true);
+    });
+    sceneRow.appendChild(b);
+  });
+}
+
+function jumpScene(dir){
+  const cur = BEATS[state.i].scene;
+  const target = Math.max(0, Math.min(SCENE_TITLES.length-1, cur+dir));
+  const [a] = sceneRange(target);
+  go(a, state.playing);
+}
+
+playBtn.addEventListener('click', ()=>{
+  const beat = BEATS[state.i];
+  if (beat.waitClick){ reveal(); return; }
+  if (!state.playing && state.i === BEATS.length-1 && state.elapsed >= beat.dur){
+    go(0, true);
+    return;
+  }
+  state.playing = !state.playing;
+  syncPlayBtn();
+});
+
+prevBtn.addEventListener('click', ()=>{
+  state.last = 0;
+  if (state.i > 0){
+    go(state.i-1, state.playing);
+  } else {
+    go(0, false);
+  }
+});
+
+nextBtn.addEventListener('click', ()=>{
+  state.last = 0;
+  if (BEATS[state.i].waitClick){
+    reveal();
+    return;
+  }
+  if (state.i < BEATS.length-1){
+    go(state.i+1, state.playing);
+  }
+});
+
+revealBtn.addEventListener('click', reveal);
+
+document.querySelectorAll('#speedBox button').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    state.speed = parseFloat(btn.dataset.sp);
+    document.querySelectorAll('#speedBox button').forEach(b=>b.classList.toggle('on', b===btn));
+  });
+});
+
+document.addEventListener('keydown', (e)=>{
+  if (e.code === 'Space'){
+    e.preventDefault();
+    playBtn.click();
+  } else if (e.code === 'ArrowRight'){
+    e.preventDefault();
+    nextBtn.click();
+  } else if (e.code === 'ArrowLeft'){
+    e.preventDefault();
+    prevBtn.click();
+  }
+});
+
+/* 主题 */
+function applyTheme(theme){
+  document.documentElement.dataset.theme = theme;
+  themeBtn.textContent = theme === 'dark' ? '浅色' : '深色';
+  lastSideHTML = null;
+  lastOverlayHTML = null;
+  render();
+}
+function readSavedTheme(){
+  try { return localStorage.getItem('disk-theme'); } catch(e){ return null; }
+}
+function saveTheme(t){
+  try { localStorage.setItem('disk-theme', t); } catch(e){ /* file:// 或隐私模式下忽略 */ }
+}
+(function initTheme(){
+  const saved = readSavedTheme();
+  if (saved === 'dark' || saved === 'light'){
+    applyTheme(saved);
+  } else {
+    const dark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+    applyTheme(dark ? 'dark' : 'light');
+  }
+})();
+themeBtn.addEventListener('click', ()=>{
+  const next = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
+  saveTheme(next);
+  applyTheme(next);
+});
+
+/* =========================================================
+   10. 启动
+   ========================================================= */
+buildSceneChips();
+go(0, true);
+requestAnimationFrame(tick);
+
+/* 调试入口（自动化测试用） */
+window.__disk = { BEATS, state, go, render,
+  totals:{ fcfs:F1.total, sstf:S1.total, scan:SC1.total, cscan:CS1.total,
+           sstf2:S2.total, scan2:SC2.total, cscan2:CS2.total },
+  paths:{ F1, S1, SC1, CS1, S2, SC2, CS2 } };
+})();
+</script>
+</body>
+</html>

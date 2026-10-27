@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="zh-CN" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="light dark">
+<title>操作系统四个考点 · 图解与手算</title>
+<script>
+(function(){try{var t=localStorage.getItem('os-theme');if(!t)t=window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';document.documentElement.setAttribute('data-theme',t);}catch(e){}})();
+</script>
+<style>
+/*__CSS__*/
+</style>
+</head>
+<body>
+<header class="topbar">
+  <div class="brand">
+    <div class="brand-mark" aria-hidden="true">OS</div>
+    <div class="brand-text">
+      <h1>操作系统 · 四个考点图解</h1>
+      <p>边看边算 · 一周及格版</p>
+    </div>
+  </div>
+  <div class="top-actions">
+    <span class="top-hint">闭卷手算 · 4 个高频考点</span>
+    <button id="themeBtn" class="theme-btn" type="button" aria-label="切换主题">◐ 深色</button>
+  </div>
+</header>
+
+<nav class="tabs" id="tabs" role="tablist" aria-label="模块切换">
+  <button class="tab active" role="tab" data-tab="m1" aria-selected="true"><b>①</b><span>文件索引</span></button>
+  <button class="tab" role="tab" data-tab="m2" aria-selected="false"><b>②</b><span>地址变换</span></button>
+  <button class="tab" role="tab" data-tab="m3" aria-selected="false"><b>③</b><span>首次适应</span></button>
+  <button class="tab" role="tab" data-tab="m4" aria-selected="false"><b>④</b><span>快表 TLB</span></button>
+  <button class="tab" role="tab" data-tab="m5" aria-selected="false"><b>⑤</b><span>复盘与自测</span></button>
+</nav>
+
+<main id="main">
+  <section class="module active" id="m1" role="tabpanel" aria-label="文件索引"></section>
+  <section class="module" id="m2" role="tabpanel" aria-label="地址变换"></section>
+  <section class="module" id="m3" role="tabpanel" aria-label="首次适应"></section>
+  <section class="module" id="m4" role="tabpanel" aria-label="快表 TLB"></section>
+  <section class="module" id="m5" role="tabpanel" aria-label="复盘与自测"></section>
+</main>
+
+<footer class="foot">
+  <span>所有数字由页面内同一份计算脚本生成</span>
+  <span>·</span>
+  <span>快捷键：空格 播放/暂停，← → 上一步/下一步</span>
+</footer>
+
+<script>
+/*__JS__*/
+</script>
+</body>
+</html>

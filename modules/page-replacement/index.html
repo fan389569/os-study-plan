@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>页面置换算法 · 零基础动画课</title>
+<link rel="stylesheet" href="style.css">
+<style>html,body{background:#05080f}</style>
+</head>
+<body>
+<div id="fit">
+  <div id="stage">
+
+    <header id="topbar">
+      <div class="brand">页面置换算法 <span class="brand-sub">零基础动画课</span></div>
+      <div class="chapter" id="chapterTag">准备开始</div>
+      <div class="topright">
+        <div class="algo-chip" id="algoChip">—</div>
+        <div class="ctrl" id="ctrl">
+          <button id="btnRestart" title="从头开始" style="min-width:46px">重播</button>
+          <button id="btnPrev" title="上一步">&#9664;</button>
+          <button id="btnPlay" title="播放 / 暂停">&#9654;</button>
+          <button id="btnNext" title="下一步">&#9654;&#9654;</button>
+          <button id="btnSpeed" title="切换速度">1.0&times;</button>
+        </div>
+      </div>
+      <div class="progress"><i id="progressFill"></i></div>
+    </header>
+
+    <main id="main">
+      <section id="tableWrap">
+        <div class="table" id="table"></div>
+      </section>
+
+      <aside id="panel">
+        <div class="panel-block">
+          <div class="pl-key">当前算法</div>
+          <div class="pl-algo" id="panelAlgoName">—</div>
+          <div class="pl-rule" id="panelRule"></div>
+        </div>
+        <div class="panel-block grow">
+          <div class="pl-key">这一列在做什么</div>
+          <div class="pl-note" id="panelNote">—</div>
+        </div>
+        <div class="panel-block stat">
+          <div class="pl-key">缺页次数</div>
+          <div class="stat-num"><b id="statFaults">0</b><span id="statTotal">/ 10</span></div>
+          <div class="stat-bar"><i id="statBar"></i></div>
+          <div class="pl-key" style="margin-top:12px">缺页率</div>
+          <div class="stat-rate" id="statRate">0%</div>
+        </div>
+      </aside>
+    </main>
+
+    <footer id="subtitle"><div id="subText"></div></footer>
+
+    <div id="titlecard">
+      <div class="tc-line"></div>
+      <div class="tc-title">页面置换</div>
+      <div class="tc-sub">三个抽屉，满了该踢谁？</div>
+      <div class="tc-tags">FIFO &nbsp;/&nbsp; LRU &nbsp;/&nbsp; OPT</div>
+      <div class="tc-line"></div>
+    </div>
+
+    <div id="chapterFlash"></div>
+    <div id="callout"></div>
+  </div>
+</div>
+<script src="data.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

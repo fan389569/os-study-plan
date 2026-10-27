@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="zh-CN" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="操作系统期末高频概念可视化记忆：进程与线程、死锁、I/O、内存管理、文件、OS 概述，附 36 题综合自测。">
+<title>操作系统 · 高频概念图鉴</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%231f2937'/%3E%3Ctext x='32' y='43' font-family='Arial' font-size='26' font-weight='bold' text-anchor='middle' fill='%23fde68a'%3EOS%3C/text%3E%3C/svg%3E">
+<style>@@CSS@@</style>
+<script>
+  try {
+    var savedTheme = localStorage.getItem("os-theme");
+    var darkPref = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
+    document.documentElement.dataset.theme = savedTheme || (darkPref ? "dark" : "light");
+  } catch (e) {}
+</script>
+</head>
+<body>
+<div class="paper" aria-hidden="true"></div>
+
+<header class="site-head">
+  <div class="head-inner">
+    <div class="brand">
+      <div class="brand-mark" aria-hidden="true">OS</div>
+      <div class="brand-text">
+        <div class="eyebrow">期末急救 · 可视化记忆</div>
+        <h1>操作系统 · 高频概念图鉴</h1>
+        <p class="sub">6 张概念卡 + 综合自测 &nbsp;·&nbsp; 先看画面，再记口诀，最后做题</p>
+      </div>
+    </div>
+    <button class="theme-btn" id="themeBtn" type="button" aria-label="切换深色模式">
+      <span class="theme-ico" aria-hidden="true">☾</span><span class="theme-txt">深色</span>
+    </button>
+  </div>
+  <div class="head-hint">
+    <span><b>播放</b> 看动画</span>
+    <span><b>答错</b> 自动回放</span>
+    <span><b>口诀</b> 在每张卡底部</span>
+  </div>
+</header>
+
+<nav class="tabs" id="tabs" role="tablist" aria-label="概念卡导航"></nav>
+
+<main id="main" class="main" aria-live="polite"></main>
+
+<footer class="foot">
+  <span>依据课程复习提纲整理 · 仅用于期末复习</span>
+  <span class="foot-dot">·</span>
+  <span>点页签切换，手机竖屏可用</span>
+</footer>
+
+<div id="toast" class="toast" role="status" aria-live="polite" hidden>
+  <div class="toast-ico" id="toastIco" aria-hidden="true">✗</div>
+  <div class="toast-body">
+    <strong id="toastTitle"></strong>
+    <p id="toastText"></p>
+  </div>
+  <div class="toast-actions">
+    <button class="btn small" id="toastBack" type="button">回到小测</button>
+    <button class="btn small ghost" id="toastClose" type="button" aria-label="关闭提示">关闭</button>
+  </div>
+</div>
+
+<svg class="svg-defs" aria-hidden="true" focusable="false">
+  <defs>
+    <marker id="ah-ink" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 Z" fill="#6b7280"/></marker>
+    <marker id="ah-blue" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 Z" fill="#3b82f6"/></marker>
+    <marker id="ah-darkblue" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 Z" fill="#2563eb"/></marker>
+    <marker id="ah-red" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 Z" fill="#e11d48"/></marker>
+    <marker id="ah-green" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 Z" fill="#059669"/></marker>
+    <marker id="ah-amber" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 Z" fill="#d97706"/></marker>
+    <marker id="ah-purple" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 Z" fill="#7c3aed"/></marker>
+    <marker id="ah-teal" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 Z" fill="#0891b2"/></marker>
+    <marker id="ah-muted" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 Z" fill="#94a3b8"/></marker>
+  </defs>
+</svg>
+
+<script>@@CONTENT@@
+@@APP@@</script>
+</body>
+</html>

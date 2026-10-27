@@ -1,0 +1,1228 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>操作系统 · 七天冲刺计划</title>
+<style>
+  :root{
+    --bg:#f5f2ea;
+    --surface:#fffdf8;
+    --surface-2:#faf7f0;
+    --ink:#23201a;
+    --muted:#6f6a5f;
+    --line:#e2dcd0;
+    --line-strong:#d3cabb;
+    --accent:#8e3524;
+    --accent-2:#b4573f;
+    --accent-soft:#f4e5df;
+    --ok:#2f6b4f;
+    --ok-soft:#e3efe7;
+    --warn:#8a5a12;
+    --warn-soft:#f7ecd8;
+    --shadow:0 1px 2px rgba(50,40,25,.05), 0 8px 24px -18px rgba(50,40,25,.35);
+    --radius:14px;
+  }
+  html[data-theme="dark"]{
+    --bg:#14130f;
+    --surface:#1c1a15;
+    --surface-2:#211f19;
+    --ink:#ebe5d8;
+    --muted:#a69c8b;
+    --line:#322d24;
+    --line-strong:#423b30;
+    --accent:#e08a70;
+    --accent-2:#c9735c;
+    --accent-soft:#38241d;
+    --ok:#7fc09a;
+    --ok-soft:#1e3229;
+    --warn:#e0b878;
+    --warn-soft:#33291a;
+    --shadow:0 1px 2px rgba(0,0,0,.3), 0 8px 24px -16px rgba(0,0,0,.8);
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--ink);
+    font-family:"Microsoft YaHei","PingFang SC","Hiragino Sans GB",system-ui,-apple-system,sans-serif;
+    font-size:15px;
+    line-height:1.75;
+    -webkit-font-smoothing:antialiased;
+  }
+  .app{display:flex;min-height:100vh}
+
+  /* ---------- sidebar ---------- */
+  .side{
+    width:252px;flex:0 0 252px;
+    border-right:1px solid var(--line);
+    background:var(--surface-2);
+    padding:22px 14px 24px;
+    position:sticky;top:0;height:100vh;overflow-y:auto;
+  }
+  .brand{padding:0 10px 18px;border-bottom:1px solid var(--line);margin-bottom:16px}
+  .brand .kicker{
+    font-size:11px;letter-spacing:.22em;color:var(--accent);
+    font-weight:700;text-transform:uppercase;
+  }
+  .brand h1{
+    font-family:Georgia,"Songti SC","SimSun",serif;
+    font-size:21px;line-height:1.3;margin:6px 0 4px;font-weight:700;letter-spacing:.01em;
+  }
+  .brand p{margin:0;font-size:12px;color:var(--muted)}
+  .nav{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:2px}
+  .nav button{
+    width:100%;display:flex;align-items:center;gap:10px;
+    padding:8px 10px;border:0;border-radius:9px;background:transparent;
+    color:var(--ink);font:inherit;font-size:13.5px;text-align:left;cursor:pointer;
+    white-space:nowrap;transition:background .15s,color .15s;
+  }
+  .nav button:hover{background:var(--accent-soft)}
+  .nav button.active{background:var(--accent);color:#fff}
+  html[data-theme="dark"] .nav button.active{color:#17140f}
+  .nav .idx{
+    flex:0 0 26px;height:20px;border-radius:5px;background:rgba(0,0,0,.06);
+    font-size:10.5px;font-weight:700;display:flex;align-items:center;justify-content:center;
+    letter-spacing:.04em;color:var(--muted);
+  }
+  html[data-theme="dark"] .nav .idx{background:rgba(255,255,255,.08)}
+  .nav button.active .idx{background:rgba(255,255,255,.22);color:#fff}
+  html[data-theme="dark"] .nav button.active .idx{background:rgba(0,0,0,.18);color:#17140f}
+  .nav .txt{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .nav .sep{height:1px;background:var(--line);margin:10px 8px}
+  .side-foot{
+    margin-top:18px;padding-top:14px;border-top:1px solid var(--line);
+    display:flex;align-items:center;justify-content:space-between;gap:8px;
+  }
+  .progress-mini{font-size:11.5px;color:var(--muted);line-height:1.2}
+  .progress-mini b{color:var(--accent);font-size:14px}
+  .icon-btn{
+    border:1px solid var(--line-strong);background:var(--surface);color:var(--ink);
+    width:34px;height:34px;border-radius:9px;cursor:pointer;font-size:15px;
+    display:inline-flex;align-items:center;justify-content:center;
+  }
+  .icon-btn:hover{border-color:var(--accent);color:var(--accent)}
+
+  /* ---------- main ---------- */
+  main{flex:1;min-width:0;padding:34px clamp(18px,4vw,56px) 80px}
+  .panel{display:none;max-width:940px;margin:0 auto;animation:fade .18s ease}
+  .panel.show{display:block}
+  @keyframes fade{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+
+  /* ---------- overview ---------- */
+  .hero{margin-bottom:30px}
+  .hero .eyebrow{
+    display:inline-flex;align-items:center;gap:8px;
+    font-size:12px;color:var(--accent);font-weight:700;letter-spacing:.14em;
+  }
+  .hero .eyebrow::before{content:"";width:22px;height:2px;background:var(--accent)}
+  .hero h2{
+    font-family:Georgia,"Songti SC","SimSun",serif;
+    font-size:clamp(28px,4vw,40px);line-height:1.25;margin:10px 0 8px;font-weight:700;
+  }
+  .hero p{margin:0;color:var(--muted);font-size:14.5px}
+  .hero-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:18px}
+  .cta{
+    display:inline-flex;align-items:center;gap:8px;text-decoration:none;
+    padding:10px 18px;border-radius:10px;font-size:14px;font-weight:600;
+    background:var(--ink);color:var(--bg);border:1px solid var(--ink);
+    transition:transform .12s,filter .15s;
+  }
+  .cta:hover{filter:brightness(1.15)}
+  .cta:active{transform:translateY(1px)}
+  .cta.ghost{background:var(--surface);color:var(--ink);border-color:var(--line-strong)}
+  .cta.ghost:hover{border-color:var(--accent);color:var(--accent)}
+  .nav a.side-link{
+    width:100%;display:flex;align-items:center;gap:10px;text-decoration:none;
+    padding:8px 10px;border-radius:9px;color:var(--ink);font-size:13.5px;
+    white-space:nowrap;transition:background .15s,color .15s;
+  }
+  .nav a.side-link:hover{background:var(--accent-soft);color:var(--accent)}
+  .nav a.side-link .idx{
+    flex:0 0 26px;height:20px;border-radius:5px;background:rgba(0,0,0,.06);
+    font-size:10.5px;font-weight:700;display:flex;align-items:center;justify-content:center;
+    letter-spacing:.04em;color:var(--muted);
+  }
+  html[data-theme="dark"] .nav a.side-link .idx{background:rgba(255,255,255,.08)}
+  .progress-wrap{margin-top:18px;display:flex;align-items:center;gap:12px}
+  .progress-bar{flex:1;height:6px;border-radius:99px;background:var(--line);overflow:hidden}
+  .progress-bar i{display:block;height:100%;width:0;background:var(--accent);transition:width .3s}
+  .progress-wrap span{font-size:12.5px;color:var(--muted);white-space:nowrap}
+
+  .method{
+    margin:26px 0 30px;padding:20px 22px;border:1px solid var(--line);
+    border-left:3px solid var(--accent);border-radius:0 var(--radius) var(--radius) 0;
+    background:var(--surface);
+  }
+  .method h3{margin:0 0 10px;font-size:15px}
+  .method ol{margin:0;padding-left:20px;color:var(--ink)}
+  .method li{margin:4px 0;font-size:14px}
+
+  .section-title{
+    display:flex;align-items:baseline;gap:10px;
+    margin:34px 0 14px;padding-bottom:8px;border-bottom:1px solid var(--line);
+  }
+  .section-title h3{margin:0;font-size:16px;letter-spacing:.02em}
+  .section-title span{font-size:12px;color:var(--muted)}
+
+  .day-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px}
+  .day-card{
+    position:relative;border:1px solid var(--line);border-radius:var(--radius);
+    background:var(--surface);padding:16px 16px 14px;box-shadow:var(--shadow);
+    display:flex;flex-direction:column;gap:8px;
+  }
+  .day-card.done{background:var(--ok-soft);border-color:color-mix(in srgb,var(--ok) 35%,transparent)}
+  .day-card .num{
+    font-family:Georgia,"Songti SC",serif;font-size:12px;letter-spacing:.12em;
+    color:var(--accent);font-weight:700;
+  }
+  .day-card h4{
+    margin:0;font-size:15.5px;line-height:1.45;cursor:pointer;
+  }
+  .day-card h4:hover{color:var(--accent)}
+  .day-card .meta{font-size:12px;color:var(--muted)}
+  .day-card ul{margin:2px 0 0;padding-left:17px;font-size:13px;color:var(--muted);line-height:1.65}
+  .day-card ul li{margin:1px 0}
+  .card-links{display:flex;flex-wrap:wrap;gap:6px;margin-top:auto;padding-top:6px}
+  .lnk{
+    display:inline-flex;align-items:center;gap:5px;text-decoration:none;
+    font-size:12.5px;padding:5px 10px;border-radius:99px;
+    border:1px solid var(--line-strong);color:var(--ink);background:var(--surface-2);
+    transition:all .15s;line-height:1.4;
+  }
+  .lnk:hover{border-color:var(--accent);color:var(--accent);background:var(--accent-soft)}
+  .lnk::after{content:"↗";font-size:11px;opacity:.7}
+  .lnk.ghost{opacity:.55;border-style:dashed;cursor:default}
+  .lnk.ghost::after{content:"";content:none}
+  .done-toggle{
+    position:absolute;top:13px;right:13px;display:flex;align-items:center;gap:5px;
+    font-size:11px;color:var(--muted);cursor:pointer;user-select:none;
+  }
+  .done-toggle input{accent-color:var(--ok);width:14px;height:14px;cursor:pointer}
+
+  /* ---------- reference table ---------- */
+  .ref-table{width:100%;border-collapse:collapse;font-size:13px;background:var(--surface);
+    border:1px solid var(--line);border-radius:var(--radius);overflow:hidden}
+  .ref-table th,.ref-table td{padding:10px 12px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+  .ref-table th{background:var(--surface-2);font-size:12px;letter-spacing:.05em;color:var(--muted);font-weight:700}
+  .ref-table tr:last-child td{border-bottom:0}
+  .ref-table td:first-child{white-space:nowrap;font-weight:700}
+
+  /* ---------- day panel ---------- */
+  .day-head{margin-bottom:26px;position:relative;padding-bottom:18px;border-bottom:2px solid var(--ink)}
+  .day-head .ghost-num{
+    position:absolute;right:0;top:-24px;font-family:Georgia,serif;font-size:96px;
+    line-height:1;color:var(--line);font-weight:700;pointer-events:none;user-select:none;
+  }
+  .day-head .kicker{font-size:11.5px;letter-spacing:.2em;color:var(--accent);font-weight:700}
+  .day-head h2{
+    font-family:Georgia,"Songti SC","SimSun",serif;
+    font-size:clamp(24px,3.4vw,32px);margin:8px 0 6px;line-height:1.3;position:relative;
+  }
+  .day-head .sub{color:var(--muted);font-size:14px;max-width:640px;position:relative}
+  .badges{display:flex;flex-wrap:wrap;gap:7px;margin-top:12px;position:relative}
+  .badge{
+    font-size:12px;padding:3px 10px;border-radius:99px;background:var(--surface);
+    border:1px solid var(--line-strong);color:var(--muted);
+  }
+  .badge.time{color:var(--accent);border-color:color-mix(in srgb,var(--accent) 40%,transparent);background:var(--accent-soft)}
+
+  .block{margin:0 0 30px}
+  .block-head{display:flex;align-items:center;gap:12px;margin-bottom:14px}
+  .block-head .dot{
+    flex:0 0 auto;display:inline-flex;align-items:center;justify-content:center;
+    height:26px;min-width:26px;padding:0 8px;border-radius:7px;
+    background:var(--ink);color:var(--bg);font-size:11.5px;font-weight:700;letter-spacing:.04em;
+  }
+  .block-head h3{margin:0;font-size:17px;letter-spacing:.01em}
+  .block p{margin:8px 0}
+  .block ul,.block ol{margin:8px 0;padding-left:22px}
+  .block li{margin:5px 0}
+  .block li::marker{color:var(--accent)}
+  .lead{color:var(--ink)}
+  .muted{color:var(--muted);font-size:13.5px}
+
+  .box{
+    border:1px solid var(--line);border-radius:var(--radius);background:var(--surface);
+    padding:16px 18px;margin:14px 0;
+  }
+  .box.accent{background:var(--accent-soft);border-color:color-mix(in srgb,var(--accent) 28%,transparent)}
+  .box.ok{background:var(--ok-soft);border-color:color-mix(in srgb,var(--ok) 30%,transparent)}
+  .box.warn{background:var(--warn-soft);border-color:color-mix(in srgb,var(--warn) 30%,transparent)}
+  .box .box-title{
+    font-size:12px;font-weight:700;letter-spacing:.12em;margin-bottom:8px;
+    display:flex;align-items:center;gap:7px;
+  }
+  .box.accent .box-title{color:var(--accent)}
+  .box.ok .box-title{color:var(--ok)}
+  .box.warn .box-title{color:var(--warn)}
+  .box p:first-of-type{margin-top:0}
+  .box p:last-child{margin-bottom:0}
+
+  .exam{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-top:14px}
+  .exam .label{font-size:12px;color:var(--muted);letter-spacing:.06em}
+  .exam a{
+    display:inline-flex;align-items:center;gap:7px;text-decoration:none;
+    padding:9px 16px;border-radius:10px;font-size:13.5px;font-weight:600;
+    background:var(--accent);color:#fff;border:1px solid var(--accent);
+    white-space:nowrap;transition:filter .15s,transform .15s;
+  }
+  html[data-theme="dark"] .exam a{color:#1b1712}
+  .exam a:hover{filter:brightness(1.08)}
+  .exam a:active{transform:translateY(1px)}
+  .exam a.secondary{background:var(--surface);color:var(--ink);border-color:var(--line-strong)}
+  .exam a.secondary:hover{border-color:var(--accent);color:var(--accent)}
+
+  code,.mono{
+    font-family:"Cascadia Mono","Consolas","SFMono-Regular",monospace;
+    font-size:.92em;background:rgba(0,0,0,.05);border-radius:4px;padding:1px 5px;
+  }
+  html[data-theme="dark"] code,html[data-theme="dark"] .mono{background:rgba(255,255,255,.08)}
+  table.data{width:100%;border-collapse:collapse;font-size:13.5px;margin:10px 0;background:var(--surface);
+    border:1px solid var(--line)}
+  table.data th,table.data td{border:1px solid var(--line);padding:7px 10px;text-align:center}
+  table.data th{background:var(--surface-2);font-weight:700;font-size:12.5px}
+  table.data td:first-child{font-weight:700}
+  table.data.left td,table.data.left th{text-align:left}
+
+  .timeline{position:relative;padding-left:20px;border-left:1px dashed var(--line-strong);margin-left:4px}
+  .timeline .row{position:relative;margin:0 0 20px}
+  .timeline .row::before{
+    content:"";position:absolute;left:-25px;top:8px;width:9px;height:9px;border-radius:50%;
+    background:var(--surface);border:2px solid var(--accent);
+  }
+  .timeline .t{
+    font-family:"Cascadia Mono",Consolas,monospace;font-size:12px;font-weight:700;
+    color:var(--accent);letter-spacing:.02em;
+  }
+  .timeline h4{margin:2px 0 6px;font-size:15.5px}
+  .timeline ul{margin:4px 0;padding-left:19px;font-size:14px}
+  .timeline li{margin:4px 0}
+
+  .rule-chain{font-size:14px;line-height:2;word-break:break-word}
+  .rule-chain b{color:var(--accent)}
+
+  .day-nav{display:flex;justify-content:space-between;gap:10px;margin-top:40px;padding-top:18px;border-top:1px solid var(--line)}
+  .day-nav button{
+    border:1px solid var(--line-strong);background:var(--surface);color:var(--ink);
+    padding:9px 16px;border-radius:10px;font:inherit;font-size:13px;cursor:pointer;
+  }
+  .day-nav button:hover{border-color:var(--accent);color:var(--accent)}
+  .day-nav button:disabled{opacity:.35;cursor:default}
+  .day-nav button:hover:disabled{border-color:var(--line-strong);color:var(--ink)}
+
+  .print-only{display:none}
+
+  @media (max-width:860px){
+    .app{display:block}
+    .side{
+      width:auto;flex:none;height:auto;position:sticky;top:0;z-index:20;
+      border-right:0;border-bottom:1px solid var(--line);padding:12px 12px 8px;
+      backdrop-filter:blur(8px);
+    }
+    .brand{display:flex;align-items:baseline;gap:10px;padding:0 4px 8px;margin-bottom:8px;border-bottom:0}
+    .brand .kicker{display:none}
+    .brand h1{font-size:16px;margin:0}
+    .brand p{font-size:11px}
+    .nav{flex-direction:row;overflow-x:auto;gap:4px;padding-bottom:4px;scrollbar-width:none}
+    .nav::-webkit-scrollbar{display:none}
+    .nav button{width:auto;flex:0 0 auto;padding:6px 10px;font-size:12.5px}
+    .nav .idx{flex:none}
+    .nav .txt{flex:0 0 auto;overflow:visible}
+    .nav a.side-link{width:auto;flex:0 0 auto;padding:6px 10px;font-size:12.5px}
+    .nav .sep{display:none}
+    .side{padding-right:56px}
+    .side-foot{display:block;position:absolute;top:10px;right:12px;margin:0;padding:0;border:0}
+    .progress-mini{display:none}
+    main{padding:22px 16px 60px}
+    .day-head .ghost-num{font-size:64px;top:-10px}
+    .day-grid{grid-template-columns:1fr}
+  }
+  @media print{
+    .side,.day-nav,.exam,.done-toggle{display:none!important}
+    .panel{display:block!important;max-width:none;page-break-after:always}
+    body{background:#fff;color:#000;font-size:11pt}
+    .day-head .ghost-num{display:none}
+    .box,.day-card,.ref-table{box-shadow:none}
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="side">
+    <div class="brand">
+      <div class="kicker">Operating Systems</div>
+      <h1>操作系统冲刺</h1>
+      <p>七天 · 以手算和默写为主</p>
+    </div>
+    <ul class="nav" id="nav">
+      <li><button data-panel="overview" class="active"><span class="idx">计划</span><span class="txt">学习计划</span></button></li>
+      <li><button data-panel="d1"><span class="idx">D1</span><span class="txt">银行家算法</span></button></li>
+      <li><button data-panel="d2"><span class="idx">D2</span><span class="txt">页面置换 + 磁盘调度</span></button></li>
+      <li><button data-panel="d3"><span class="idx">D3</span><span class="txt">索引 / 地址 / TLB</span></button></li>
+      <li><button data-panel="d4"><span class="idx">D4</span><span class="txt">调度 + PV + 位示图</span></button></li>
+      <li><button data-panel="d5"><span class="idx">D5</span><span class="txt">概念题</span></button></li>
+      <li><button data-panel="d6"><span class="idx">D6</span><span class="txt">计算题冲刺</span></button></li>
+      <li><button data-panel="d7"><span class="idx">D7</span><span class="txt">考试日</span></button></li>
+      <li class="sep"></li>
+      <li><a class="side-link" href="papers.html" target="_blank" rel="noopener"><span class="idx">卷</span><span class="txt">真题卷 · 2024 / 2025</span></a></li>
+      <li><button data-panel="tips"><span class="idx">附</span><span class="txt">通用提醒</span></button></li>
+      <li><button data-panel="priority"><span class="idx">附</span><span class="txt">落后时的取舍</span></button></li>
+    </ul>
+    <div class="side-foot">
+      <div class="progress-mini">已完成 <b id="doneCount">0</b> / 7 天</div>
+      <button class="icon-btn" id="themeBtn" title="切换深色 / 浅色">◐</button>
+    </div>
+  </aside>
+
+  <main id="main">
+
+    <!-- ================= 学习计划（总览） ================= -->
+    <section class="panel show" id="p-overview">
+      <div class="hero">
+        <div class="eyebrow">Study Plan</div>
+        <h2>操作系统 · 七天冲刺计划</h2>
+        <p>周五考试。七天，从零到能盖住答案手写完整的大题。每一天都有配套的动画页面和对应的真题原题，点开就能看。</p>
+        <div class="hero-actions">
+          <a class="cta" href="papers.html" target="_blank" rel="noopener">打开真题卷 · 2024 / 2025 ↗</a>
+          <a class="cta ghost" href="#d1" data-go="d1">从第 1 天开始 →</a>
+        </div>
+        <div class="progress-wrap">
+          <div class="progress-bar"><i id="progressFill"></i></div>
+          <span id="progressText">0 / 7 天已完成</span>
+        </div>
+      </div>
+
+      <div class="method">
+        <h3>每个考点的学法（三天都一样）</h3>
+        <ol>
+          <li>先看我给的流程，花 10 到 20 分钟，不看视频。</li>
+          <li>盖住答案，用手写完整做一道。考试是手写，只看不写等于没学。</li>
+          <li>对答案，错在哪就标出来，然后换一道重做，直到能不看答案做对一整道，才算过关。</li>
+        </ol>
+      </div>
+
+      <div class="section-title">
+        <h3>七天安排</h3>
+        <span>点击卡片标题看当天详情，点击按钮直达配套页面</span>
+      </div>
+
+      <div class="day-grid">
+        <article class="day-card" data-day="d1">
+          <label class="done-toggle"><input type="checkbox" data-done="d1"> 完成</label>
+          <div class="num">DAY 01 · 今晚</div>
+          <h4 data-go="d1">银行家算法</h4>
+          <div class="meta">约 2 小时 · 分值最大的一类</div>
+          <ul>
+            <li>学流程 20 分钟：安全性检查 + 请求检查</li>
+            <li>做真题 60 分钟：2024 卷四.5、2025 卷四.2</li>
+            <li>抄一张银行家卡片</li>
+          </ul>
+          <div class="card-links">
+            <a class="lnk" href="papers.html#p2024-s4-q5" target="_blank" rel="noopener">2024 四.5 原题</a>
+            <a class="lnk" href="papers.html#p2025-s4-q2" target="_blank" rel="noopener">2025 四.2 原题</a>
+          </div>
+        </article>
+
+        <article class="day-card" data-day="d2">
+          <label class="done-toggle"><input type="checkbox" data-done="d2"> 完成</label>
+          <div class="num">DAY 02 · 周日</div>
+          <h4 data-go="d2">页面置换 + 磁盘调度</h4>
+          <div class="meta">约 2 小时 · 70 + 50 分钟</div>
+          <ul>
+            <li>页面置换：FIFO / LRU / OPT</li>
+            <li>磁盘调度：SSTF / SCAN / C-SCAN</li>
+            <li>三种算法各做对一道</li>
+          </ul>
+          <div class="card-links">
+            <a class="lnk" href="modules/page-replacement/index.html" target="_blank" rel="noopener">页面置换动画</a>
+            <a class="lnk" href="modules/disk-scheduling/disk-scheduling.html" target="_blank" rel="noopener">磁盘调度动画</a>
+          </div>
+        </article>
+
+        <article class="day-card" data-day="d3">
+          <label class="done-toggle"><input type="checkbox" data-done="d3"> 完成</label>
+          <div class="num">DAY 03 · 周一</div>
+          <h4 data-go="d3">索引 + 地址变换 + 首次适应 + TLB</h4>
+          <div class="meta">约 1 小时 50 分钟</div>
+          <ul>
+            <li>inode / 多级索引 40 分钟</li>
+            <li>分页地址变换 30 分钟</li>
+            <li>首次适应 20 分钟 · TLB 15 分钟</li>
+          </ul>
+          <div class="card-links">
+            <a class="lnk" href="modules/os-visual-exam/dist/index.html" target="_blank" rel="noopener">索引 / 地址 / TLB 图解</a>
+          </div>
+        </article>
+
+        <article class="day-card" data-day="d4">
+          <label class="done-toggle"><input type="checkbox" data-done="d4"> 完成</label>
+          <div class="num">DAY 04 · 周二</div>
+          <h4 data-go="d4">进程调度 + PV 操作 + 位示图</h4>
+          <div class="meta">约 2 小时</div>
+          <ul>
+            <li>进程调度 50 分钟</li>
+            <li>PV 操作 50 分钟</li>
+            <li>位示图 15 分钟 + 收工</li>
+          </ul>
+          <div class="card-links">
+            <a class="lnk" href="modules/os-visual/os-visual.html" target="_blank" rel="noopener">调度 / PV / 位示图动画</a>
+          </div>
+        </article>
+
+        <article class="day-card" data-day="d5">
+          <label class="done-toggle"><input type="checkbox" data-done="d5"> 完成</label>
+          <div class="num">DAY 05 · 周三</div>
+          <h4 data-go="d5">概念题</h4>
+          <div class="meta">约 2 小时 · 选择 30 + 判断 10 + 填空简答 20</div>
+          <ul>
+            <li>概念动画 60 分钟：6 张卡</li>
+            <li>2024 / 2025 卷选择 + 判断 40 分钟</li>
+            <li>抄一页概念小抄</li>
+          </ul>
+          <div class="card-links">
+            <a class="lnk" href="modules/os-exam-concepts/index.html" target="_blank" rel="noopener">高频概念图鉴</a>
+          </div>
+        </article>
+
+        <article class="day-card" data-day="d6">
+          <label class="done-toggle"><input type="checkbox" data-done="d6"> 完成</label>
+          <div class="num">DAY 06 · 周四</div>
+          <h4 data-go="d6">计算题冲刺 + 复盘</h4>
+          <div class="meta">约 2 小时 · 限时训练</div>
+          <ul>
+            <li>七类计算题限时各一道</li>
+            <li>概念快过 + 重刷错题</li>
+            <li>整理一页考场卡</li>
+          </ul>
+          <div class="card-links">
+            <a class="lnk" href="papers.html" target="_blank" rel="noopener">真题卷</a>
+            <a class="lnk" href="modules/page-replacement/index.html" target="_blank" rel="noopener">页面置换</a>
+            <a class="lnk" href="modules/disk-scheduling/disk-scheduling.html" target="_blank" rel="noopener">磁盘调度</a>
+            <a class="lnk" href="modules/os-visual-exam/dist/index.html" target="_blank" rel="noopener">索引 / TLB</a>
+            <a class="lnk" href="modules/os-visual/os-visual.html" target="_blank" rel="noopener">调度 / PV</a>
+          </div>
+        </article>
+
+        <article class="day-card" data-day="d7">
+          <label class="done-toggle"><input type="checkbox" data-done="d7"> 完成</label>
+          <div class="num">DAY 07 · 周五</div>
+          <h4 data-go="d7">考试日</h4>
+          <div class="meta">早上 30–40 分钟 · 考场 120 分钟</div>
+          <ul>
+            <li>只看考场卡和概念小抄</li>
+            <li>按 120 分钟分配答题</li>
+            <li>检查计算与单位</li>
+          </ul>
+          <div class="card-links">
+            <span class="lnk ghost">不安排新内容</span>
+          </div>
+        </article>
+      </div>
+
+      <div class="section-title">
+        <h3>题号对照</h3>
+        <span>已按原卷卷面逐条核对</span>
+      </div>
+      <div class="box warn" style="margin-top:0">
+        <div class="box-title">卷号更正</div>
+        <p>原计划里写的「24 卷」其实是 <b>2025 卷</b>，「25 卷」是 <b>2024 卷</b>——两份卷子的标签标反了，下面的题号和站内真题页都已按卷面改正。23 卷没有电子原卷，相关题目暂无法收录。</p>
+      </div>
+      <table class="ref-table">
+        <thead>
+          <tr><th style="width:130px">卷子</th><th>题号 · 网站入口</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><a class="lnk" href="papers.html#p2025-s4-q1" target="_blank" rel="noopener">2025 卷</a></td>
+            <td>三.8 串联文件、三.9 分页地址、三.11 SJF、三.12 磁盘调度；四.1 页面置换、四.2 银行家（P3 请求 0,1,0,2）、四.3 首次适应、四.4 inode<br><span class="muted">原计划写作「24 卷」的那份</span></td>
+          </tr>
+          <tr>
+            <td><a class="lnk" href="papers.html#p2024-s4-q1" target="_blank" rel="noopener">2024 卷</a></td>
+            <td>四.1 磁盘调度、四.2 页面置换、四.3 抢占式 SJF、四.4 TLB、四.5 银行家；三.12 两级索引<br><span class="muted">原计划写作「25 卷」的那份</span></td>
+          </tr>
+          <tr>
+            <td>23 卷</td>
+            <td>四.1 inode、四.2 磁盘调度、四.3 银行家、四.4 页面置换、四.5 分页地址<br><span class="muted">原卷未收录，暂时跳过</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- ================= 第 1 天 ================= -->
+    <section class="panel" id="p-d1">
+      <div class="day-head">
+        <div class="ghost-num">01</div>
+        <div class="kicker">DAY 01 · 今晚</div>
+        <h2>银行家算法</h2>
+        <div class="sub">这是分值最大的一类，三年的格式几乎一样。</div>
+        <div class="badges"><span class="badge time">约 2 小时</span><span class="badge">学流程 20 分钟</span><span class="badge">做真题 60 分钟</span><span class="badge">收工 10 分钟</span></div>
+      </div>
+
+      <div class="block">
+        <div class="block-head"><span class="dot">第一步</span><h3>学流程（20 分钟）</h3></div>
+        <p>先记四个概念：</p>
+        <ul>
+          <li><b>Available</b> 是系统现在空闲的资源。</li>
+          <li><b>Allocation</b> 是已经分给进程的。</li>
+          <li><b>Need</b> 是进程还需要的。</li>
+          <li><b>安全状态</b>是指存在一个执行顺序，让所有进程都能跑完。</li>
+        </ul>
+
+        <div class="box">
+          <div class="box-title">安全性检查的做法</div>
+          <ol>
+            <li>令 Work = Available。</li>
+            <li>从上到下找一个没完成、且 Need ≤ Work 的进程（每一列都要 ≤）。</li>
+            <li>找到后，让它完成，Work = Work + 它的 Allocation，记下顺序。</li>
+            <li>重复第 2、3 步。全部完成就是安全，找不到就不安全。</li>
+            <li>答案序列不唯一，只要每一步都满足 Need ≤ Work 就对。</li>
+          </ol>
+        </div>
+
+        <div class="box">
+          <div class="box-title">请求检查（Request）的做法，四步按顺序写</div>
+          <ol>
+            <li>Request ≤ Need。不满足就报错。</li>
+            <li>Request ≤ Available。不满足就让进程等待。</li>
+            <li>试分配：Available 减去 Request，该进程的 Allocation 加上 Request，Need 减去 Request。</li>
+            <li>对试分配后的状态做一次安全性检查。安全就分配，不安全就不分配。</li>
+          </ol>
+        </div>
+
+        <div class="box accent">
+          <div class="box-title">小例子（自己先算，再对答案）</div>
+          <p>两类资源，Available = (2,1)。</p>
+          <table class="data">
+            <thead><tr><th>进程</th><th>Allocation</th><th>Need</th></tr></thead>
+            <tbody>
+              <tr><td>P0</td><td>(1,0)</td><td>(1,1)</td></tr>
+              <tr><td>P1</td><td>(0,1)</td><td>(3,1)</td></tr>
+              <tr><td>P2</td><td>(2,1)</td><td>(0,1)</td></tr>
+            </tbody>
+          </table>
+          <ol>
+            <li>是否安全？<br><b>答案：</b>安全，序列 P0、P1、P2。</li>
+            <li>P1 请求 (1,0)，能否分配？<br><b>答案：</b>能。试分配后 Available = (1,1)，P1 的 Need 变成 (2,1)，依次 P0、P1、P2 仍能全部完成。</li>
+          </ol>
+        </div>
+      </div>
+
+      <div class="block">
+        <div class="block-head"><span class="dot">第二步</span><h3>做真题（60 分钟）</h3></div>
+        <ul>
+          <li>盖住答案做 <b>2024 卷四.5</b>（银行家算法，12 分），用答案里的表格格式。
+            <a class="lnk" href="papers.html#p2024-s4-q5" target="_blank" rel="noopener">去写这题</a></li>
+          <li>再做 <b>2025 卷四.2</b>（P3 请求 0,1,0,2）。
+            <a class="lnk" href="papers.html#p2025-s4-q2" target="_blank" rel="noopener">去写这题</a></li>
+          <li class="muted">23 卷四.3 原卷未收录，先跳过。</li>
+        </ul>
+        <div class="box warn">
+          <div class="box-title">写答案的格式</div>
+          <p>安全性检查要画表（Work、Need、Allocation、Work+Allocation、Finish 五列），请求检查要把“Request ≤ Need”“Request ≤ Available”两句写出来，再写试分配后的状态，最后写结论。这些都是给分点。</p>
+        </div>
+      </div>
+
+      <div class="block">
+        <div class="block-head"><span class="dot">第三步</span><h3>收工（10 分钟）</h3></div>
+        <ul>
+          <li>把上面的流程抄在一张纸上，当你的银行家卡片。</li>
+          <li>常见错误：Need 和 Allocation 看反；试分配后忘了改 Need；最后没写结论。</li>
+        </ul>
+      </div>
+
+      <div class="box ok">
+        <div class="box-title">今晚达标标准</div>
+        <p>不看答案做对一整道银行家题，包括两小问。</p>
+      </div>
+
+      <div class="day-nav">
+        <button data-go="overview">← 学习计划</button>
+        <button data-go="d2">第 2 天 页面置换 + 磁盘调度 →</button>
+      </div>
+    </section>
+
+    <!-- ================= 第 2 天 ================= -->
+    <section class="panel" id="p-d2">
+      <div class="day-head">
+        <div class="ghost-num">02</div>
+        <div class="kicker">DAY 02 · 周日</div>
+        <h2>页面置换 + 磁盘调度</h2>
+        <div class="sub">两种题型，各练三种算法。</div>
+        <div class="badges"><span class="badge time">约 2 小时</span><span class="badge">页面置换 约 70 分钟</span><span class="badge">磁盘调度 约 50 分钟</span></div>
+      </div>
+
+      <div class="block">
+        <div class="block-head"><span class="dot">一</span><h3>页面置换（约 70 分钟）</h3></div>
+        <div class="exam">
+          <span class="label">配套页面</span>
+          <a href="modules/page-replacement/index.html" target="_blank" rel="noopener">页面置换算法 · 零基础动画课</a>
+        </div>
+
+        <p><b>规则：</b></p>
+        <ul>
+          <li>缺页率 = 缺页次数 ÷ 总访问次数。</li>
+          <li><b>FIFO</b>：淘汰最早进来的。命中时不调整顺序。</li>
+          <li><b>LRU</b>：往回看，淘汰最久没被用过的。命中时要更新“最近使用”。</li>
+          <li><b>OPT</b>：往后看，淘汰最久以后才会再用到的（或者以后不会再用的）。</li>
+        </ul>
+
+        <p>做题方法：横着写访问序列，下面按列画框里的内容，缺页打 √。</p>
+
+        <div class="box accent">
+          <div class="box-title">自检用的小例子</div>
+          <p>访问序列 2,3,2,1,5,2,4,5,3,2，3 个物理块。先自己画，再对：FIFO 缺页 7 次，LRU 缺页 7 次，OPT 缺页 6 次。</p>
+        </div>
+
+        <p>两个常用的检查：</p>
+        <ul>
+          <li>缺页数不可能少于不同页面的个数。</li>
+          <li>OPT 的缺页数一定是最少的，如果你算出 OPT 比 FIFO 还多，肯定算错了。</li>
+        </ul>
+
+        <p><b>练习（盖答案做）：</b></p>
+        <ul>
+          <li><b>2024 卷四.2</b>：FIFO + OPT。
+            <a class="lnk" href="papers.html#p2024-s4-q2" target="_blank" rel="noopener">去写这题</a></li>
+          <li><b>2025 卷四.1</b>：FIFO + LRU，答案表格排版乱了，你自己算出来再对缺页率 13/16。
+            <a class="lnk" href="papers.html#p2025-s4-q1" target="_blank" rel="noopener">去写这题</a></li>
+          <li class="muted">23 卷四.4（OPT + LRU，OPT 11/16、LRU 12/16）：原卷未收录，先跳过。</li>
+        </ul>
+      </div>
+
+      <div class="block">
+        <div class="block-head"><span class="dot">二</span><h3>磁盘调度（约 50 分钟）</h3></div>
+        <div class="exam">
+          <span class="label">配套页面</span>
+          <a href="modules/disk-scheduling/disk-scheduling.html" target="_blank" rel="noopener">磁盘调度 · SSTF / SCAN / C-SCAN</a>
+        </div>
+
+        <p><b>规则：</b></p>
+        <ul>
+          <li><b>SSTF</b>：每次选离磁头当前位置最近的。</li>
+          <li><b>SCAN（电梯）</b>：沿一个方向走到该方向最后一个请求，然后掉头走完剩下的。</li>
+          <li><b>C-SCAN</b>：单方向走到头，然后直接跳到另一端第一个请求，继续同一方向。</li>
+          <li>两套卷子的答案口径一致：掉头点取最远的那个请求，C-SCAN 回程按两端请求之间的距离算，并计入总距离。</li>
+          <li>“向外”在两套卷子的答案里都是先往小柱面号走。</li>
+        </ul>
+
+        <div class="box accent">
+          <div class="box-title">自检用的小例子</div>
+          <p>请求 98,183,37,122,14,124,65,67，磁头在 53，先往大号方向走。答案：SSTF 总距离 236，SCAN 总距离 299，C-SCAN 总距离 322。</p>
+        </div>
+
+        <p><b>练习：</b></p>
+        <ul>
+          <li><b>2025 卷三.12</b>（SSTF + 电梯）。
+            <a class="lnk" href="papers.html#p2025-s3-q12" target="_blank" rel="noopener">去写这题</a></li>
+          <li><b>2024 卷四.1</b>（SSTF + C-SCAN）。
+            <a class="lnk" href="papers.html#p2024-s4-q1" target="_blank" rel="noopener">去写这题</a></li>
+          <li class="muted">23 卷四.2（SCAN + C-SCAN，每柱面 3ms）：原卷未收录，先跳过。</li>
+        </ul>
+      </div>
+
+      <div class="box ok">
+        <div class="box-title">达标标准</div>
+        <p>页面置换三种算法各做对一道，磁盘调度三种算法各做对一道。</p>
+      </div>
+
+      <div class="day-nav">
+        <button data-go="d1">← 第 1 天 银行家算法</button>
+        <button data-go="d3">第 3 天 索引 + 地址变换 →</button>
+      </div>
+    </section>
+
+    <!-- ================= 第 3 天 ================= -->
+    <section class="panel" id="p-d3">
+      <div class="day-head">
+        <div class="ghost-num">03</div>
+        <div class="kicker">DAY 03 · 周一</div>
+        <h2>索引 + 地址变换 + 首次适应 + TLB</h2>
+        <div class="sub">四类小计算题，公式都很少，关键是别记混。</div>
+        <div class="badges"><span class="badge time">约 1 小时 50 分钟</span></div>
+      </div>
+
+      <div class="exam">
+        <span class="label">配套页面</span>
+        <a href="modules/os-visual-exam/dist/index.html" target="_blank" rel="noopener">文件索引 / 地址变换 / 首次适应 / 快表 TLB</a>
+      </div>
+
+      <div class="block">
+        <div class="block-head"><span class="dot">一</span><h3>inode / 多级索引（约 40 分钟）</h3></div>
+        <p><b>做法：</b></p>
+        <ol>
+          <li>每块能放的地址项数 = 块大小 ÷ 地址项大小。</li>
+          <li>最大文件 = (直接块数 + 一级项数 × 每块项数 + 二级项数 × 每块项数² + …) × 块大小。</li>
+          <li>求“访问某偏移需要几次磁盘”：偏移 ÷ 块大小，算出第几块，判断它落在直接、一级、二级哪一段。落在哪一级，就要多读几层索引块（inode 已在内存的话，直接区 1 次，一级 2 次，二级 3 次）。</li>
+          <li>求“实际占用多少块”：数据块 + 用到的各级索引块。</li>
+        </ol>
+        <p><b>练习：</b></p>
+        <ul>
+          <li class="muted">23 卷四.1：原卷未收录，先跳过。</li>
+          <li><b>2025 卷四.4</b>：第 (1) 问标准答案算错了，正确是约 1032MB。第 (2) 问 3 次、第 (3) 问 2065 块是对的。
+            <a class="lnk" href="papers.html#p2025-s4-q4" target="_blank" rel="noopener">去写这题</a></li>
+          <li><b>2024 卷三.12</b>：填空，答案 64MB。
+            <a class="lnk" href="papers.html#p2024-s3-q12" target="_blank" rel="noopener">去写这题</a></li>
+        </ul>
+      </div>
+
+      <div class="block">
+        <div class="block-head"><span class="dot">二</span><h3>分页地址变换（约 30 分钟）</h3></div>
+        <ul>
+          <li>页大小 = 2 的页内位数次方。</li>
+          <li>逻辑地址 ÷ 页大小，商是页号，余数是页内偏移。</li>
+          <li>物理地址 = 块号 × 页大小 + 页内偏移。</li>
+          <li>十六进制题的做法：把逻辑地址写成二进制，把页号那几位换成块号，再转回十六进制。</li>
+        </ul>
+        <p><b>练习：</b></p>
+        <ul>
+          <li class="muted">23 卷四.5（0CA8H → 74A8）：原卷未收录，先跳过。</li>
+          <li><b>2025 卷三.9</b>：十进制算，答案里 6896 对应的十六进制应是 1AF0，不是 1AE0。
+            <a class="lnk" href="papers.html#p2025-s3-q9" target="_blank" rel="noopener">去写这题</a></li>
+        </ul>
+      </div>
+
+      <div class="block">
+        <div class="block-head"><span class="dot">三</span><h3>首次适应（约 20 分钟）</h3></div>
+        <p><b>做法：</b></p>
+        <ol>
+          <li>按地址从低到高排空闲区。</li>
+          <li>每次分配，从头找第一个够大的空闲区。</li>
+          <li>释放时，要和相邻的空闲区合并。</li>
+        </ol>
+        <p><b>练习：</b><b>2025 卷四.3</b>。注意作业 1 释放后，要和作业 2 之前释放出来的 60KB 合并成一个 160KB 的空闲区，所以作业 5 才会分在最开头。
+          <a class="lnk" href="papers.html#p2025-s4-q3" target="_blank" rel="noopener">去写这题</a></p>
+      </div>
+
+      <div class="block">
+        <div class="block-head"><span class="dot">四</span><h3>TLB 有效访问时间（约 15 分钟）</h3></div>
+        <ul>
+          <li>公式：<span class="mono">命中率 × (TLB 时间 + 内存时间) + (1 − 命中率) × (TLB 时间 + 2 × 内存时间)</span>。</li>
+          <li><b>2024 卷四.4</b> 的数字代进去：<span class="mono">0.8 × (5+50) + 0.2 × (5+50+50) = 65ns</span>。
+            <a class="lnk" href="papers.html#p2024-s4-q4" target="_blank" rel="noopener">去写这题</a></li>
+        </ul>
+      </div>
+
+      <div class="box ok">
+        <div class="box-title">达标标准</div>
+        <p>这四类各做对一道，不看答案。</p>
+      </div>
+
+      <div class="day-nav">
+        <button data-go="d2">← 第 2 天 页面置换 + 磁盘调度</button>
+        <button data-go="d4">第 4 天 进程调度 + PV →</button>
+      </div>
+    </section>
+
+    <!-- ================= 第 4 天 ================= -->
+    <section class="panel" id="p-d4">
+      <div class="day-head">
+        <div class="ghost-num">04</div>
+        <div class="kicker">DAY 04 · 周二</div>
+        <h2>进程调度 + PV 操作 + 位示图</h2>
+        <div class="sub">调度靠画时间轴，PV 靠默写模板。</div>
+        <div class="badges"><span class="badge time">约 2 小时</span></div>
+      </div>
+
+      <div class="exam">
+        <span class="label">配套页面</span>
+        <a href="modules/os-visual/os-visual.html" target="_blank" rel="noopener">看图速成｜调度 · PV · 位示图</a>
+      </div>
+
+      <div class="block">
+        <div class="block-head"><span class="dot">时间安排</span><h3>四段</h3></div>
+        <div class="timeline">
+          <div class="row">
+            <div class="t">0:00–0:50</div>
+            <h4>进程调度</h4>
+            <ul>
+              <li>看动画模块①，约 15 分钟。</li>
+              <li>盖住答案做 <b>2025 卷三.11</b>（SJF）<a class="lnk" href="papers.html#p2025-s3-q11" target="_blank" rel="noopener">去写这题</a>、<b>2024 卷四.3</b>（抢占式 SJF）<a class="lnk" href="papers.html#p2024-s4-q3" target="_blank" rel="noopener">去写这题</a>，再做动画里的自测。</li>
+              <li>做法：先画时间轴，每次有进程到达或 CPU 空闲时，看一眼就绪队列，按规则选一个，再填完成时间。周转 = 完成 − 到达，带权周转 = 周转 ÷ 运行，等待 = 周转 − 运行。</li>
+            </ul>
+          </div>
+          <div class="row">
+            <div class="t">0:50–1:40</div>
+            <h4>PV 操作</h4>
+            <ul>
+              <li>看动画模块②，约 20 分钟。</li>
+              <li>把生产者消费者和读者写者（过桥题）的模板默写 3 遍，再做 <b>2025 卷三.10</b> 过桥填空
+                <a class="lnk" href="papers.html#p2025-s3-q10" target="_blank" rel="noopener">去写这题</a>和公交车自测。</li>
+              <li>做法：先判断是互斥还是同步；每个“等待条件”设一个信号量，写出初值；同步的 P 和 V 分在两个进程里，互斥的 P/V 夹住临界区；同步 P 放在互斥 P 之前。写完每一条 P 都问自己：它在等什么，谁会给它 V。</li>
+            </ul>
+          </div>
+          <div class="row">
+            <div class="t">1:40–1:55</div>
+            <h4>位示图</h4>
+            <ul>
+              <li>看动画模块③，做自测。2024、2025 两卷都没考过，多花时间不划算。</li>
+            </ul>
+          </div>
+          <div class="row">
+            <div class="t">1:55–2:00</div>
+            <h4>收工</h4>
+            <ul>
+              <li>把当天的模板抄到卡片上。</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="box warn">
+        <div class="box-title">只有 1 小时</div>
+        <p>做调度 + PV（生产者消费者和过桥），跳过位示图、哲学家和前趋图。</p>
+      </div>
+
+      <div class="box ok">
+        <div class="box-title">达标标准</div>
+        <p>不看答案做对 SJF 和抢占式 SJF 各一道，默写出生产者消费者的完整代码。</p>
+      </div>
+
+      <div class="day-nav">
+        <button data-go="d3">← 第 3 天 索引 + 地址变换</button>
+        <button data-go="d5">第 5 天 概念题 →</button>
+      </div>
+    </section>
+
+    <!-- ================= 第 5 天 ================= -->
+    <section class="panel" id="p-d5">
+      <div class="day-head">
+        <div class="ghost-num">05</div>
+        <div class="kicker">DAY 05 · 周三</div>
+        <h2>概念题</h2>
+        <div class="sub">选择题 30 分 + 判断题 10 分 + 填空简答 20–30 分，两套卷子的概念题大量重复，这一天的目标是把这些都装进脑子。</div>
+        <div class="badges"><span class="badge time">约 2 小时</span></div>
+      </div>
+
+      <div class="exam">
+        <span class="label">配套页面</span>
+        <a href="modules/os-exam-concepts/index.html" target="_blank" rel="noopener">操作系统 · 高频概念图鉴</a>
+      </div>
+
+      <div class="block">
+        <div class="block-head"><span class="dot">时间安排</span><h3>三段</h3></div>
+        <div class="timeline">
+          <div class="row">
+            <div class="t">0:00–1:00</div>
+            <h4>概念动画</h4>
+            <ul>
+              <li>看动画里的 6 张概念卡，每张 10 分钟，做完卡里的小测。顺序按三年出现频率：①进程与线程 ②死锁 ③I/O ④内存管理 ⑤文件 ⑥OS 概述。</li>
+            </ul>
+          </div>
+          <div class="row">
+            <div class="t">1:00–1:40</div>
+            <h4>真题的选择和判断</h4>
+            <ul>
+              <li>盖住答案，限时做 <b>2025 卷</b>、<b>2024 卷</b>的选择 + 判断（各约 20 分钟）。错的当场看动画里对应的卡。
+                <div class="exam" style="margin-top:8px">
+                  <a class="secondary" href="papers.html#p2025-s1" target="_blank" rel="noopener">2025 卷 · 选择</a>
+                  <a class="secondary" href="papers.html#p2025-s2" target="_blank" rel="noopener">2025 卷 · 判断</a>
+                  <a class="secondary" href="papers.html#p2024-s1" target="_blank" rel="noopener">2024 卷 · 选择</a>
+                  <a class="secondary" href="papers.html#p2024-s2" target="_blank" rel="noopener">2024 卷 · 判断</a>
+                </div>
+                <span class="muted">23 卷原卷未收录，周四改用两卷的错题。</span></li>
+            </ul>
+          </div>
+          <div class="row">
+            <div class="t">1:40–2:00</div>
+            <h4>概念小抄</h4>
+            <ul>
+              <li>把错题和每张卡的“口诀”抄成一页纸，这就是你的概念小抄（周四和周五早上看）。</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="box warn">
+        <div class="box-title">只有 1 小时</div>
+        <p>只看①②③，其余靠做真题时顺手补。</p>
+      </div>
+
+      <div class="box ok">
+        <div class="box-title">达标标准</div>
+        <p>2024 卷和 2025 卷的选择 + 判断，正确率到 80% 以上。</p>
+      </div>
+
+      <div class="day-nav">
+        <button data-go="d4">← 第 4 天 调度 + PV</button>
+        <button data-go="d6">第 6 天 计算题冲刺 →</button>
+      </div>
+    </section>
+
+    <!-- ================= 第 6 天 ================= -->
+    <section class="panel" id="p-d6">
+      <div class="day-head">
+        <div class="ghost-num">06</div>
+        <div class="kicker">DAY 06 · 周四</div>
+        <h2>计算题冲刺 + 复盘</h2>
+        <div class="sub">限时训练，练的是手速和取舍。</div>
+        <div class="badges"><span class="badge time">约 2 小时</span></div>
+      </div>
+
+      <div class="block">
+        <div class="block-head"><span class="dot">0:00–1:15</span><h3>计算题限时训练</h3></div>
+        <p>每类做一道，限时：</p>
+        <table class="data left">
+          <thead><tr><th style="width:30%">考点</th><th style="width:12%">限时</th><th>原题（点开就做）</th><th>动画</th></tr></thead>
+          <tbody>
+            <tr>
+              <td>银行家算法（含请求判断）</td><td>15 分钟</td>
+              <td><a class="lnk" href="papers.html#p2024-s4-q5" target="_blank" rel="noopener">2024 · 四.5</a>
+                  <a class="lnk" href="papers.html#p2025-s4-q2" target="_blank" rel="noopener">2025 · 四.2</a></td>
+              <td class="muted">—</td>
+            </tr>
+            <tr>
+              <td>页面置换（两种算法）</td><td>12 分钟</td>
+              <td><a class="lnk" href="papers.html#p2024-s4-q2" target="_blank" rel="noopener">2024 · 四.2</a>
+                  <a class="lnk" href="papers.html#p2025-s4-q1" target="_blank" rel="noopener">2025 · 四.1</a></td>
+              <td><a class="lnk" href="modules/page-replacement/index.html" target="_blank" rel="noopener">页面置换</a></td>
+            </tr>
+            <tr>
+              <td>磁盘调度（两种算法）</td><td>10 分钟</td>
+              <td><a class="lnk" href="papers.html#p2024-s4-q1" target="_blank" rel="noopener">2024 · 四.1</a>
+                  <a class="lnk" href="papers.html#p2025-s3-q12" target="_blank" rel="noopener">2025 · 三.12</a></td>
+              <td><a class="lnk" href="modules/disk-scheduling/disk-scheduling.html" target="_blank" rel="noopener">磁盘调度</a></td>
+            </tr>
+            <tr>
+              <td>inode / 索引计算</td><td>10 分钟</td>
+              <td><a class="lnk" href="papers.html#p2025-s4-q4" target="_blank" rel="noopener">2025 · 四.4</a>
+                  <a class="lnk" href="papers.html#p2024-s3-q12" target="_blank" rel="noopener">2024 · 三.12</a></td>
+              <td><a class="lnk" href="modules/os-visual-exam/dist/index.html" target="_blank" rel="noopener">索引图解</a></td>
+            </tr>
+            <tr>
+              <td>分页地址变换</td><td>6 分钟</td>
+              <td><a class="lnk" href="papers.html#p2025-s3-q9" target="_blank" rel="noopener">2025 · 三.9</a></td>
+              <td><a class="lnk" href="modules/os-visual-exam/dist/index.html" target="_blank" rel="noopener">地址变换</a></td>
+            </tr>
+            <tr>
+              <td>进程调度</td><td>10 分钟</td>
+              <td><a class="lnk" href="papers.html#p2024-s4-q3" target="_blank" rel="noopener">2024 · 四.3</a>
+                  <a class="lnk" href="papers.html#p2025-s3-q11" target="_blank" rel="noopener">2025 · 三.11</a></td>
+              <td><a class="lnk" href="modules/os-visual/os-visual.html" target="_blank" rel="noopener">调度动画</a></td>
+            </tr>
+            <tr>
+              <td>首次适应 + TLB</td><td>12 分钟</td>
+              <td><a class="lnk" href="papers.html#p2025-s4-q3" target="_blank" rel="noopener">2025 · 四.3</a>
+                  <a class="lnk" href="papers.html#p2024-s4-q4" target="_blank" rel="noopener">2024 · 四.4</a></td>
+              <td><a class="lnk" href="modules/os-visual-exam/dist/index.html" target="_blank" rel="noopener">首次适应 / TLB</a></td>
+            </tr>
+          </tbody>
+        </table>
+        <p>用改了数字的变式题，不是你已经看过答案的原题。</p>
+      </div>
+
+      <div class="block">
+        <div class="block-head"><span class="dot">1:15–1:45</span><h3>概念快过</h3></div>
+        <ul>
+          <li>看周三那页概念小抄，把 <a class="lnk" href="papers.html#p2024-s1" target="_blank" rel="noopener">2024 卷选择</a> <a class="lnk" href="papers.html#p2024-s2" target="_blank" rel="noopener">判断</a>的错题再过一遍（23 卷原卷未收录）。</li>
+        </ul>
+      </div>
+
+      <div class="block">
+        <div class="block-head"><span class="dot">1:45–2:00</span><h3>整理考场卡</h3></div>
+        <ul>
+          <li>把各类计算题的模板压缩成一页纸（银行家四步、页面置换三种规则、磁盘调度三种规则、索引公式、地址变换步骤、调度公式、TLB 公式）。</li>
+        </ul>
+      </div>
+
+      <div class="box warn">
+        <div class="box-title">晚上</div>
+        <p>不再做新题，看一遍卡片，早睡。</p>
+      </div>
+
+      <div class="box">
+        <div class="box-title">批改方式</div>
+        <p>做完的题发给我，我帮你核对。哪一类错得多，就在晚上花 15 分钟只补那一类。</p>
+      </div>
+
+      <div class="day-nav">
+        <button data-go="d5">← 第 5 天 概念题</button>
+        <button data-go="d7">第 7 天 考试日 →</button>
+      </div>
+    </section>
+
+    <!-- ================= 第 7 天 ================= -->
+    <section class="panel" id="p-d7">
+      <div class="day-head">
+        <div class="ghost-num">07</div>
+        <div class="kicker">DAY 07 · 周五</div>
+        <h2>考试日</h2>
+        <div class="sub">早上只看卡片，不学新东西。</div>
+        <div class="badges"><span class="badge time">考场 120 分钟</span></div>
+      </div>
+
+      <div class="block">
+        <div class="block-head"><span class="dot">早上</span><h3>30–40 分钟</h3></div>
+        <p>只看考场卡和概念小抄，不学新东西。</p>
+      </div>
+
+      <div class="block">
+        <div class="block-head"><span class="dot">考场</span><h3>120 分钟分配</h3></div>
+        <table class="data left">
+          <thead><tr><th style="width:26%">时间</th><th>内容</th></tr></thead>
+          <tbody>
+            <tr><td>0–25 分钟</td><td>选择 + 判断，不会的先打记号跳过</td></tr>
+            <tr><td>25–40 分钟</td><td>填空 + 简答</td></tr>
+            <tr><td>40–105 分钟</td><td>综合题，顺序：银行家 → 页面置换 → 磁盘调度 → 索引/地址 → 调度/其他</td></tr>
+            <tr><td>105–120 分钟</td><td>回头做跳过的，检查计算</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="block">
+        <div class="block-head"><span class="dot">做法</span><h3>具体做法</h3></div>
+        <ul>
+          <li>拿到卷子，先花 2 分钟把公式和模板默写在草稿纸上，后面直接看，不用再回忆。</li>
+          <li>计算题一定写步骤和公式，12 分的大题基本都有过程分，写出来比只写答案安全。</li>
+          <li>不留空白：不会的题，写出你知道的概念关键词。</li>
+          <li>选择和判断题，不确定的先别纠结，做完综合题再回来看。</li>
+          <li>检查项：银行家题的 Need 和 Allocation 有没有看反；磁盘题的起始方向；页面置换的缺页率是否写成“缺页次数 ÷ 总次数”；单位（B、KB、ms）有没有写。</li>
+          <li>提前问清楚能不能带计算器。银行家、索引、TLB 都要算加减乘除。</li>
+        </ul>
+      </div>
+
+      <div class="day-nav">
+        <button data-go="d6">← 第 6 天 计算题冲刺</button>
+        <button data-go="overview">回到学习计划 →</button>
+      </div>
+    </section>
+
+    <!-- ================= 通用提醒 ================= -->
+    <section class="panel" id="p-tips">
+      <div class="day-head">
+        <div class="kicker">NOTES</div>
+        <h2>通用提醒</h2>
+        <div class="sub">每天开始前先看一眼这几条。</div>
+      </div>
+
+      <div class="block">
+        <ul>
+          <li><b>时间不够时的取舍</b>：任何一天只有 1 小时，就只做当天最前面的那个考点，后面的挪到第二天。首次适应和 TLB 是最可以牺牲的。</li>
+          <li><b>别开新资料</b>：这三天不要去看 PPT 的其他章节，也不要看视频，除非某个点完全卡住，再搜对应关键词。</li>
+          <li><b>每天晚上收工前</b>：把当天学的流程抄到一张纸上，周四复习时直接看这几张纸。</li>
+        </ul>
+      </div>
+
+      <div class="box">
+        <div class="box-title">日程</div>
+        <p>日程按周二到周五排。周五考试，周四晚上不学新东西。如果周六、周日的银行家和页面置换没做完，周二把它们放在最前面，后面的内容压缩。</p>
+      </div>
+
+      <div class="day-nav">
+        <button data-go="overview">← 学习计划</button>
+        <button data-go="priority">落后时的取舍 →</button>
+      </div>
+    </section>
+
+    <!-- ================= 落后时的取舍 ================= -->
+    <section class="panel" id="p-priority">
+      <div class="day-head">
+        <div class="kicker">PRIORITY</div>
+        <h2>落后时的取舍</h2>
+        <div class="sub">如果某一天没做完，按这个顺序保底。</div>
+      </div>
+
+      <div class="box accent">
+        <div class="rule-chain">
+          银行家算法 <b>＞</b> 页面置换 <b>＞</b> 磁盘调度 <b>＞</b> 索引计算 <b>＞</b> 地址变换 <b>＞</b> 高频概念（进程线程、死锁、I/O）<b>＞</b> 进程调度 <b>＞</b> PV <b>＞</b> 首次适应 / TLB <b>＞</b> 位示图
+        </div>
+      </div>
+
+      <p>靠前的几类每年占 30 到 40 分，前面这些拿稳了，及格基本就稳了。</p>
+
+      <div class="day-nav">
+        <button data-go="tips">← 通用提醒</button>
+        <button data-go="overview">回到学习计划 →</button>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<script>
+(function(){
+  var panels = document.querySelectorAll('.panel');
+  var navBtns = document.querySelectorAll('.nav button');
+  var order = ['overview','d1','d2','d3','d4','d5','d6','d7','tips','priority'];
+
+  function show(id){
+    if(order.indexOf(id) < 0) id = 'overview';
+    panels.forEach(function(p){ p.classList.toggle('show', p.id === 'p-' + id); });
+    navBtns.forEach(function(b){ b.classList.toggle('active', b.dataset.panel === id); });
+    location.hash = id;
+    window.scrollTo({top:0, behavior:'auto'});
+    // 手机上把当前 nav 项滚进可视区
+    var act = document.querySelector('.nav button.active');
+    if(act && act.scrollIntoView){ act.scrollIntoView({block:'nearest', inline:'center'}); }
+  }
+
+  navBtns.forEach(function(b){
+    b.addEventListener('click', function(){ show(b.dataset.panel); });
+  });
+
+  document.addEventListener('click', function(e){
+    var t = e.target.closest('[data-go]');
+    if(t){ e.preventDefault(); show(t.dataset.go); }
+  });
+
+  window.addEventListener('hashchange', function(){
+    var id = location.hash.replace('#','');
+    if(id) show(id);
+  });
+
+  if(location.hash) show(location.hash.replace('#',''));
+
+  /* ---------- 完成进度 ---------- */
+  var KEY = 'osp-days-done';
+  var done = {};
+  try{ done = JSON.parse(localStorage.getItem(KEY) || '{}') || {}; }catch(err){ done = {}; }
+
+  var boxes = document.querySelectorAll('[data-done]');
+  function paint(){
+    var n = 0;
+    order.slice(1,8).forEach(function(d){ if(done[d]) n++; });
+    document.getElementById('doneCount').textContent = n;
+    document.getElementById('progressText').textContent = n + ' / 7 天已完成';
+    document.getElementById('progressFill').style.width = (n/7*100) + '%';
+    boxes.forEach(function(b){
+      b.checked = !!done[b.dataset.done];
+      var card = b.closest('.day-card');
+      if(card) card.classList.toggle('done', !!done[b.dataset.done]);
+    });
+  }
+  boxes.forEach(function(b){
+    b.addEventListener('change', function(){
+      done[b.dataset.done] = b.checked;
+      try{ localStorage.setItem(KEY, JSON.stringify(done)); }catch(err){}
+      paint();
+    });
+  });
+  paint();
+
+  /* ---------- 主题 ---------- */
+  var THEME = 'osp-theme';
+  var saved = null;
+  try{ saved = localStorage.getItem(THEME); }catch(err){}
+  if(saved){ document.documentElement.dataset.theme = saved; }
+  document.getElementById('themeBtn').addEventListener('click', function(){
+    var next = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
+    document.documentElement.dataset.theme = next;
+    try{ localStorage.setItem(THEME, next); }catch(err){}
+  });
+
+  /* ---------- 键盘 ---------- */
+  document.addEventListener('keydown', function(e){
+    if(e.target.matches('input,textarea')) return;
+    if(e.key === 'ArrowLeft' || e.key === 'ArrowRight'){
+      var cur = location.hash.replace('#','') || 'overview';
+      var i = order.indexOf(cur);
+      if(i < 0) return;
+      var j = e.key === 'ArrowRight' ? i + 1 : i - 1;
+      if(j >= 0 && j < order.length) show(order[j]);
+    }
+  });
+})();
+</script>
+</body>
+</html>

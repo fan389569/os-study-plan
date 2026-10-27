@@ -1,0 +1,4021 @@
+<!doctype html>
+<html lang="zh-CN" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="操作系统期末高频概念可视化记忆：进程与线程、死锁、I/O、内存管理、文件、OS 概述，附 36 题综合自测。">
+<title>操作系统 · 高频概念图鉴</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%231f2937'/%3E%3Ctext x='32' y='43' font-family='Arial' font-size='26' font-weight='bold' text-anchor='middle' fill='%23fde68a'%3EOS%3C/text%3E%3C/svg%3E">
+<style>/* ============ 基础与主题 ============ */
+:root{
+  color-scheme: light;
+  --bg:#f4f0e6;
+  --bg2:#ebe4d6;
+  --card:#fffcf5;
+  --ink:#20242a;
+  --ink2:#5f6874;
+  --muted:#8a93a0;
+  --line:#ded6c6;
+  --line2:#c9bfab;
+  --dot:#d9d0bf;
+  --accent:#1f4ed8;
+  --accent-soft:#dfe6ff;
+  --hl:#ffe27a;
+  --hl-bg:#fff3c4;
+  --stage:#fbf8f0;
+  --stage-grid:#eae3d4;
+  --ok:#15803d;
+  --bad:#b91c1c;
+  --warn:#b45309;
+  --ok-bg:#e8f6ec;
+  --bad-bg:#fdecec;
+  --shadow:0 1px 2px rgba(32,36,42,.05), 0 10px 28px rgba(32,36,42,.07);
+  --shadow-lg:0 18px 56px rgba(32,36,42,.14);
+  --c-proc:#2563eb;
+  --c-thread:#0891b2;
+  --c-res:#7c3aed;
+  --c-ready:#d97706;
+  --c-run:#059669;
+  --c-block:#e11d48;
+  --c-create:#64748b;
+  --c-term:#475569;
+  --c-mem:#4f46e5;
+  --c-seg:#9333ea;
+  --c-file:#0284c7;
+  --c-disk:#ea580c;
+  --c-cpu:#334155;
+  --c-buf:#b45309;
+  --c-user:#2563eb;
+  --c-kernel:#b91c1c;
+  --c-ok:#15803d;
+  --c-bad:#b91c1c;
+  --c-warn:#b45309;
+  --c-muted:#94a3b8;
+  --r-lg:24px;
+  --r-md:16px;
+  --r-sm:11px;
+}
+[data-theme="dark"]{
+  color-scheme: dark;
+  --bg:#0d1217;
+  --bg2:#121a22;
+  --card:#161f29;
+  --ink:#e8eef6;
+  --ink2:#a7b5c5;
+  --muted:#7c8b9c;
+  --line:#293746;
+  --line2:#3b4c5e;
+  --dot:#1e2935;
+  --accent:#7aa2ff;
+  --accent-soft:#1c2b4a;
+  --hl:#6b5300;
+  --hl-bg:#2c2405;
+  --stage:#101821;
+  --stage-grid:#1c2834;
+  --ok:#4ade80;
+  --bad:#f87171;
+  --warn:#fbbf24;
+  --ok-bg:#13291b;
+  --bad-bg:#2b1517;
+  --shadow:0 1px 2px rgba(0,0,0,.4), 0 12px 32px rgba(0,0,0,.3);
+  --shadow-lg:0 20px 60px rgba(0,0,0,.5);
+  --c-proc:#60a5fa;
+  --c-thread:#22d3ee;
+  --c-res:#a78bfa;
+  --c-ready:#fbbf24;
+  --c-run:#34d399;
+  --c-block:#fb7185;
+  --c-create:#94a3b8;
+  --c-term:#cbd5e1;
+  --c-mem:#818cf8;
+  --c-seg:#c084fc;
+  --c-file:#38bdf8;
+  --c-disk:#fb923c;
+  --c-cpu:#cbd5e1;
+  --c-buf:#fbbf24;
+  --c-user:#60a5fa;
+  --c-kernel:#f87171;
+  --c-ok:#4ade80;
+  --c-bad:#f87171;
+  --c-warn:#fbbf24;
+  --c-muted:#64748b;
+}
+
+*,*::before,*::after{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0;
+  background:var(--bg);
+  color:var(--ink);
+  font-family:"PingFang SC","Microsoft YaHei","Noto Sans SC","Source Han Sans SC",system-ui,-apple-system,"Segoe UI",sans-serif;
+  font-size:16px;
+  line-height:1.65;
+  -webkit-font-smoothing:antialiased;
+  text-rendering:optimizeLegibility;
+  overflow-x:hidden;
+}
+body::selection{background:var(--hl);color:#20242a}
+[hidden]{display:none!important}
+button,select{font-family:inherit}
+button{color:inherit}
+a{color:var(--accent)}
+.paper{
+  position:fixed;inset:0;z-index:-2;pointer-events:none;
+  background:
+    radial-gradient(circle at 15% 0%, color-mix(in srgb,var(--hl) 16%,transparent) 0, transparent 34%),
+    radial-gradient(circle at 88% 10%, color-mix(in srgb,var(--accent) 9%,transparent) 0, transparent 30%),
+    radial-gradient(var(--dot) 1px, transparent 1px);
+  background-size:auto,auto,20px 20px;
+  opacity:.9;
+}
+.paper::after{
+  content:"";position:absolute;inset:0;
+  background:linear-gradient(180deg,transparent 0,var(--bg) 78%);
+}
+.svg-defs{position:absolute;width:0;height:0;overflow:hidden}
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+
+/* ============ 头部 ============ */
+.site-head{max-width:1140px;margin:0 auto;padding:28px 22px 6px}
+.head-inner{display:flex;align-items:flex-start;justify-content:space-between;gap:22px}
+.brand{display:flex;align-items:flex-start;gap:16px;min-width:0}
+.brand-mark{
+  flex:0 0 auto;width:60px;height:60px;border-radius:17px;display:grid;place-items:center;
+  background:var(--ink);color:var(--bg);font-family:Georgia,"Times New Roman",serif;
+  font-weight:800;font-size:20px;letter-spacing:.04em;
+  box-shadow:inset 0 -5px 0 rgba(0,0,0,.18),0 8px 22px rgba(0,0,0,.16);
+  transform:rotate(-2deg);
+}
+.brand-text{min-width:0}
+.eyebrow{
+  display:inline-flex;align-items:center;gap:8px;
+  font-size:12px;font-weight:800;letter-spacing:.16em;color:var(--warn);
+  text-transform:uppercase;
+}
+.eyebrow::before{content:"";width:18px;height:2px;background:var(--warn);border-radius:2px}
+h1{
+  margin:3px 0 4px;
+  font-family:"Songti SC","Noto Serif SC",Georgia,"Times New Roman",serif;
+  font-size:clamp(27px,3.8vw,42px);
+  line-height:1.15;letter-spacing:.015em;font-weight:900;
+}
+.sub{margin:0;color:var(--ink2);font-size:clamp(13px,1.5vw,15px)}
+.theme-btn{
+  flex:0 0 auto;display:inline-flex;align-items:center;gap:8px;
+  border:1px solid var(--line2);background:var(--card);border-radius:999px;
+  padding:9px 15px;font-size:14px;font-weight:700;cursor:pointer;
+  box-shadow:var(--shadow);transition:transform .15s ease,border-color .15s ease,background .15s ease;
+}
+.theme-btn:hover{transform:translateY(-1px);border-color:var(--accent)}
+.theme-ico{font-size:16px;line-height:1}
+.head-hint{
+  display:flex;flex-wrap:wrap;gap:8px;margin:18px 0 0 76px;
+}
+.head-hint span{
+  font-size:12.5px;color:var(--ink2);background:var(--card);border:1px solid var(--line);
+  padding:4px 10px;border-radius:999px;
+}
+.head-hint b{color:var(--ink)}
+
+/* ============ 页签 ============ */
+.tabs{
+  position:sticky;top:0;z-index:40;
+  display:flex;gap:7px;overflow-x:auto;scrollbar-width:none;
+  max-width:1180px;margin:14px auto 0;padding:11px 22px 12px;
+  background:color-mix(in srgb,var(--bg) 88%,transparent);
+  -webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);
+  border-bottom:1px solid var(--line);
+}
+.tabs::-webkit-scrollbar{display:none}
+.tab{
+  flex:0 0 auto;display:inline-flex;align-items:center;gap:7px;
+  border:1px solid var(--line);background:var(--card);color:var(--ink2);
+  border-radius:999px;padding:8px 13px 8px 10px;font-size:13.5px;font-weight:700;
+  cursor:pointer;white-space:nowrap;transition:all .16s ease;
+}
+.tab .tab-n{
+  display:grid;place-items:center;width:21px;height:21px;border-radius:50%;
+  background:var(--bg2);color:var(--ink2);font-size:11.5px;font-weight:900;
+}
+.tab:hover{border-color:var(--line2);color:var(--ink);transform:translateY(-1px)}
+.tab.active{background:var(--ink);border-color:var(--ink);color:var(--bg);box-shadow:0 6px 18px rgba(0,0,0,.15)}
+.tab.active .tab-n{background:var(--hl);color:#20242a}
+
+/* ============ 主体 ============ */
+.main{max-width:1080px;margin:0 auto;padding:26px 22px 70px}
+.card-panel{display:none;animation:panelIn .32s ease both}
+.card-panel.active{display:block}
+@keyframes panelIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+
+.card-hero{
+  position:relative;overflow:hidden;
+  border:1px solid var(--line);border-radius:var(--r-lg);
+  background:linear-gradient(135deg,var(--card) 0%,var(--bg2) 100%);
+  padding:26px 28px 24px;box-shadow:var(--shadow);
+}
+.card-hero::before{
+  content:"";position:absolute;right:-46px;top:-56px;width:190px;height:190px;border-radius:50%;
+  background:var(--accent-card,var(--c-proc));opacity:.1;
+}
+.card-hero::after{
+  content:"";position:absolute;right:26px;top:26px;width:12px;height:12px;border-radius:50%;
+  background:var(--accent-card,var(--c-proc));opacity:.55;box-shadow:-22px 0 0 var(--accent-card,var(--c-proc));
+}
+.card-no{
+  display:inline-block;font-size:12px;font-weight:900;letter-spacing:.14em;
+  color:var(--accent-card,var(--c-proc));border-bottom:2px solid currentColor;padding-bottom:2px;
+}
+.card-hero h2{
+  margin:8px 0 8px;font-family:"Songti SC","Noto Serif SC",Georgia,serif;
+  font-size:clamp(25px,3.2vw,36px);line-height:1.2;letter-spacing:.01em;
+}
+.card-hero p{margin:0;color:var(--ink2);font-size:14.5px;max-width:760px}
+.chips{display:flex;flex-wrap:wrap;gap:7px;margin-top:14px}
+.chip{
+  font-size:12.5px;font-weight:700;color:var(--ink2);
+  background:var(--card);border:1px solid var(--line);border-radius:999px;padding:4px 10px;
+}
+.chip.key{color:var(--accent-card,var(--c-proc));border-color:currentColor;background:transparent}
+
+.sec{margin-top:36px}
+.sec-head{display:flex;align-items:center;gap:12px}
+.sec-num{
+  flex:0 0 auto;width:34px;height:34px;border-radius:50%;display:grid;place-items:center;
+  background:var(--ink);color:var(--bg);font-size:14px;font-weight:900;
+  box-shadow:3px 3px 0 var(--hl);
+}
+.sec-head h3{margin:0;font-size:clamp(19px,2.3vw,23px);letter-spacing:.01em}
+.sec-desc{margin:5px 0 16px 46px;color:var(--ink2);font-size:13.5px}
+
+/* ============ 动画卡 ============ */
+.anim{
+  background:var(--card);border:1px solid var(--line);border-radius:20px;
+  padding:14px 14px 12px;margin-bottom:18px;box-shadow:var(--shadow);
+  scroll-margin-top:86px;
+}
+.anim-head{display:flex;align-items:center;gap:10px;padding:2px 4px 11px;flex-wrap:wrap}
+.anim-no{
+  flex:0 0 auto;font-size:11.5px;font-weight:900;letter-spacing:.09em;color:var(--ink2);
+  border:1px solid var(--line2);border-radius:999px;padding:2px 8px;
+}
+.anim-head h4{margin:0;font-size:16.5px;line-height:1.35}
+.anim-len{margin-left:auto;font-size:11.5px;color:var(--muted);font-weight:700}
+.stage{
+  position:relative;background:var(--stage);border:1px solid var(--line);border-radius:14px;
+  overflow:hidden;
+  background-image:radial-gradient(var(--stage-grid) 1px,transparent 1px);
+  background-size:18px 18px;
+}
+.stage svg{display:block;width:100%;height:auto;font-family:inherit}
+.subtitle{
+  margin:11px 2px 0;padding:10px 14px;min-height:58px;
+  display:flex;align-items:center;
+  border-left:4px solid var(--accent);border-radius:0 10px 10px 0;
+  background:var(--bg2);
+  font-size:clamp(16px,2.15vw,20px);font-weight:800;line-height:1.5;letter-spacing:.01em;
+}
+.controls{display:flex;align-items:center;gap:7px;padding:12px 2px 2px;flex-wrap:wrap}
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:6px;
+  border:1px solid var(--line2);background:var(--card);color:var(--ink);
+  border-radius:10px;padding:8px 12px;font-size:13.5px;font-weight:800;line-height:1.2;
+  cursor:pointer;transition:all .14s ease;white-space:nowrap;
+}
+.btn:hover{border-color:var(--accent);transform:translateY(-1px)}
+.btn:active{transform:none}
+.btn.primary{background:var(--ink);border-color:var(--ink);color:var(--bg)}
+.btn.primary:hover{background:var(--accent);border-color:var(--accent);color:#fff}
+.btn.ghost{background:transparent;border-color:var(--line);color:var(--ink2)}
+.btn.small{padding:6px 10px;font-size:12.5px;border-radius:8px}
+.btn:disabled{opacity:.35;cursor:not-allowed;transform:none}
+.step-count{font-size:12px;font-weight:800;color:var(--ink2);min-width:46px;text-align:center}
+.dots{display:flex;align-items:center;gap:5px;margin-left:auto}
+.dot{
+  width:8px;height:8px;padding:0;border:0;border-radius:50%;background:var(--line2);
+  cursor:pointer;transition:all .16s ease;
+}
+.dot:hover{background:var(--muted)}
+.dot.on{background:var(--accent);transform:scale(1.35)}
+.speed{display:inline-flex;align-items:center;gap:5px;font-size:11.5px;color:var(--ink2);font-weight:700;margin-left:2px}
+.speed select{
+  border:1px solid var(--line);background:var(--card);color:var(--ink);
+  border-radius:8px;padding:4px 5px;font-size:12px;font-weight:700;cursor:pointer;
+}
+
+/* SVG 内部动画 */
+.pop{animation:pop .46s cubic-bezier(.2,.8,.2,1) both;transform-box:fill-box;transform-origin:center}
+.fade{animation:fade .5s ease both}
+.grow{animation:grow .72s cubic-bezier(.2,.8,.2,1) both;transform-box:fill-box;transform-origin:left center}
+.pulse{animation:pulse 1.7s ease-in-out infinite;transform-box:fill-box;transform-origin:center}
+.blink{animation:blink 1.05s ease-in-out infinite}
+.slide{animation:slide .55s cubic-bezier(.2,.8,.2,1) both}
+@keyframes pop{from{opacity:0;transform:scale(.82)}to{opacity:1;transform:scale(1)}}
+@keyframes fade{from{opacity:0}to{opacity:1}}
+@keyframes grow{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.055)}}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.28}}
+@keyframes slide{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+
+/* ============ 对比 ============ */
+.compare{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:13px}
+.cmp-col{
+  border:1px solid var(--line);border-radius:16px;padding:16px 17px;background:var(--card);
+  box-shadow:var(--shadow);position:relative;overflow:hidden;
+}
+.cmp-col::before{content:"";position:absolute;left:0;top:0;bottom:0;width:5px;background:var(--cc)}
+.cmp-top{display:flex;align-items:center;gap:11px;margin-bottom:10px}
+.cmp-icon{flex:0 0 auto;width:50px;height:50px;display:grid;place-items:center;background:var(--bg2);border-radius:13px}
+.cmp-icon svg{width:38px;height:38px}
+.cmp-top h4{margin:0;font-size:17px;color:var(--cc)}
+.cmp-top span{display:block;font-size:11.5px;font-weight:800;color:var(--ink2);letter-spacing:.03em}
+.cmp-col ul{margin:0;padding-left:1.1em;display:grid;gap:4px}
+.cmp-col li{font-size:13.5px;line-height:1.55}
+.cmp-col li::marker{color:var(--cc)}
+.facts{display:grid;gap:7px;margin-top:13px}
+.fact{
+  display:flex;align-items:flex-start;gap:9px;
+  border:1px solid var(--line);border-left:4px solid var(--line2);
+  border-radius:10px;padding:9px 11px;background:var(--card);
+}
+.fact.ok{border-left-color:var(--ok);background:color-mix(in srgb,var(--ok-bg) 72%,var(--card))}
+.fact.bad{border-left-color:var(--bad);background:color-mix(in srgb,var(--bad-bg) 72%,var(--card))}
+.fact.bad{border-style:dashed;border-left-style:solid}
+.fact-ico{
+  flex:0 0 auto;width:20px;height:20px;border-radius:50%;display:grid;place-items:center;
+  font-size:12px;font-weight:900;color:#fff;margin-top:1px;
+}
+.fact.ok .fact-ico{background:var(--ok)}
+.fact.bad .fact-ico{background:var(--bad)}
+.fact-text{font-size:13.5px;font-weight:600;line-height:1.5;flex:1}
+.fact-tag{
+  flex:0 0 auto;font-size:10.5px;font-weight:900;letter-spacing:.08em;
+  border:1px solid currentColor;border-radius:999px;padding:1px 7px;margin-top:1px;
+}
+.fact.ok .fact-tag{color:var(--ok)}
+.fact.bad .fact-tag{color:var(--bad)}
+
+/* ============ 口诀 ============ */
+.mnemonic{
+  position:relative;border:2px dashed var(--warn);border-radius:20px;
+  padding:25px 27px 24px;background:linear-gradient(135deg,var(--hl-bg),var(--card) 72%);
+  overflow:hidden;
+}
+.mnemonic::before{
+  content:"“";position:absolute;right:18px;top:-26px;font-family:Georgia,serif;
+  font-size:130px;line-height:1;color:var(--warn);opacity:.13;
+}
+.mn-label{
+  display:flex;width:fit-content;align-items:center;gap:7px;font-size:11.5px;font-weight:900;
+  letter-spacing:.16em;color:var(--warn);margin-bottom:7px;
+}
+.mn-label::before{content:"";width:20px;height:2px;background:var(--warn)}
+.mnemonic p{
+  margin:0;font-size:clamp(21px,3vw,31px);line-height:1.55;font-weight:900;letter-spacing:.03em;
+  font-family:"Songti SC","Noto Serif SC",Georgia,serif;
+  background:linear-gradient(180deg,transparent 58%,var(--hl) 58%,var(--hl) 92%,transparent 92%);
+  display:inline;box-decoration-break:clone;-webkit-box-decoration-break:clone;
+}
+.mnemonic .mn-note{display:block;margin-top:10px;font-size:12.5px;color:var(--ink2);font-weight:600;letter-spacing:0}
+
+/* ============ 小测 ============ */
+.quiz{
+  border:1px solid var(--line);border-radius:18px;background:var(--card);
+  padding:18px 20px 16px;box-shadow:var(--shadow);
+}
+.quiz-meta{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.q-no{font-size:12px;font-weight:900;letter-spacing:.08em;color:var(--accent)}
+.q-src{font-size:11px;font-weight:800;color:var(--ink2);border:1px solid var(--line);border-radius:999px;padding:2px 8px}
+.q-text{margin:11px 0 13px;font-size:clamp(17px,2.1vw,19.5px);font-weight:800;line-height:1.6}
+.opts{display:grid;gap:8px}
+.opt{
+  display:flex;align-items:center;gap:10px;text-align:left;
+  border:1px solid var(--line);border-radius:11px;background:var(--bg);
+  padding:10px 12px;font-size:15px;font-weight:700;line-height:1.45;cursor:pointer;
+  transition:border-color .14s ease,background .14s ease,transform .14s ease;
+  position:relative;
+}
+.opt:hover:not(.locked){border-color:var(--accent);transform:translateX(2px)}
+.opt .key{
+  flex:0 0 auto;width:25px;height:25px;border-radius:7px;display:grid;place-items:center;
+  background:var(--card);border:1px solid var(--line);font-size:11.5px;font-weight:900;color:var(--ink2);
+}
+.opt .opt-t{flex:1}
+.opt .mark{font-size:16px;font-weight:900;display:none}
+.opt.locked{cursor:default}
+.opt.picked{border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent)}
+.opt.picked .key{border-color:var(--accent);color:var(--accent)}
+.opt.correct{border-color:var(--ok);background:var(--ok-bg)}
+.opt.correct .key{border-color:var(--ok);color:var(--ok)}
+.opt.correct .mark{display:block;color:var(--ok)}
+.opt.wrong{border-color:var(--bad);background:var(--bad-bg)}
+.opt.wrong .key{border-color:var(--bad);color:var(--bad)}
+.opt.wrong .mark{display:block;color:var(--bad)}
+.opt.dim{opacity:.55}
+.feedback{
+  margin-top:12px;border-radius:11px;padding:11px 13px;border:1px solid var(--line);
+  border-left:4px solid var(--line2);background:var(--bg2);
+  animation:panelIn .25s ease both;
+}
+.feedback.ok{border-left-color:var(--ok);background:var(--ok-bg)}
+.feedback.bad{border-left-color:var(--bad);background:var(--bad-bg)}
+.feedback strong{display:block;font-size:14px;margin-bottom:2px}
+.feedback.ok strong{color:var(--ok)}
+.feedback.bad strong{color:var(--bad)}
+.feedback p{margin:0;font-size:13.5px;line-height:1.55;font-weight:600}
+.feedback .ans{font-weight:900}
+.quiz-foot{display:flex;align-items:center;gap:8px;margin-top:13px;flex-wrap:wrap}
+.quiz-score{
+  display:flex;align-items:center;gap:16px;flex-wrap:wrap;
+  border:1px solid var(--line);border-radius:16px;background:var(--bg2);padding:18px;
+}
+.score-big{
+  font-family:Georgia,serif;font-size:50px;font-weight:800;line-height:1;
+  color:var(--accent);min-width:92px;text-align:center;
+}
+.score-big small{font-size:15px;color:var(--ink2);font-weight:700}
+.quiz-score h4{margin:0 0 3px;font-size:18px}
+.quiz-score p{margin:0;color:var(--ink2);font-size:13px}
+
+/* 双空题 */
+.subq{border:1px dashed var(--line2);border-radius:12px;padding:10px 12px;margin-top:9px;background:var(--bg)}
+.subq-label{font-size:14px;font-weight:800;margin-bottom:8px}
+.subq .opts{grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:6px}
+.subq .opt{padding:7px 9px;font-size:13.5px}
+.subq .opt .key{width:21px;height:21px;font-size:10.5px}
+
+/* ============ 综合自测 ============ */
+.test-shell{border:1px solid var(--line);border-radius:20px;background:var(--card);padding:20px;box-shadow:var(--shadow)}
+.test-top{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.test-top h3{margin:0;font-size:20px}
+.test-stats{display:flex;gap:6px;flex-wrap:wrap}
+.stat{font-size:12px;font-weight:800;border:1px solid var(--line);background:var(--bg);border-radius:999px;padding:3px 9px;color:var(--ink2)}
+.stat b{color:var(--ink)}
+.bar{height:9px;border-radius:999px;background:var(--bg2);overflow:hidden;margin:14px 0 16px;border:1px solid var(--line)}
+.bar>i{display:block;height:100%;background:linear-gradient(90deg,var(--accent),var(--c-run));border-radius:999px;transition:width .35s ease}
+.test-question{animation:panelIn .25s ease both}
+.test-result{animation:panelIn .3s ease both}
+.result-hero{display:flex;align-items:center;gap:20px;flex-wrap:wrap;padding:6px 2px 18px}
+.result-score{
+  font-family:Georgia,serif;font-size:64px;line-height:1;font-weight:800;color:var(--accent);
+}
+.result-score small{font-size:18px;color:var(--ink2)}
+.result-copy h3{margin:0 0 4px;font-size:22px}
+.result-copy p{margin:0;color:var(--ink2);font-size:14px}
+.wrong-list{margin-top:16px;display:grid;gap:9px}
+.wrong-item{
+  border:1px solid var(--line);border-left:4px solid var(--bad);border-radius:11px;
+  padding:11px 13px;background:var(--bad-bg);
+}
+.wrong-item .wi-top{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:4px}
+.wrong-item .wi-src{font-size:10.5px;font-weight:900;color:var(--bad);letter-spacing:.06em}
+.wrong-item .wi-q{font-size:13.5px;font-weight:800;line-height:1.5}
+.wrong-item .wi-a{font-size:12.5px;color:var(--ink2);margin-top:5px;line-height:1.55}
+.wrong-item .wi-a b{color:var(--ok)}
+.wrong-item .wi-b{color:var(--bad)}
+.test-empty{text-align:center;padding:26px 10px;color:var(--ink2)}
+.test-empty .big{font-size:46px;line-height:1;margin-bottom:8px;color:var(--ok)}
+.test-cats{display:flex;flex-wrap:wrap;gap:7px;margin-top:12px}
+.test-cats span{font-size:12px;font-weight:700;border:1px solid var(--line);background:var(--bg);border-radius:999px;padding:4px 10px;color:var(--ink2)}
+
+/* ============ Toast ============ */
+.toast{
+  position:fixed;z-index:90;left:50%;bottom:18px;transform:translateX(-50%);
+  width:min(720px,calc(100% - 24px));
+  display:flex;align-items:flex-start;gap:11px;
+  background:var(--card);border:1px solid var(--line2);border-left:5px solid var(--bad);
+  border-radius:14px;padding:12px 14px;box-shadow:var(--shadow-lg);
+  animation:toastIn .3s cubic-bezier(.2,.8,.2,1) both;
+}
+@keyframes toastIn{from{opacity:0;transform:translate(-50%,14px)}to{opacity:1;transform:translate(-50%,0)}}
+.toast-ico{
+  flex:0 0 auto;width:26px;height:26px;border-radius:50%;background:var(--bad);color:#fff;
+  display:grid;place-items:center;font-weight:900;font-size:14px;margin-top:1px;
+}
+.toast-body{flex:1;min-width:0}
+.toast-body strong{display:block;font-size:13.5px;line-height:1.4}
+.toast-body p{margin:2px 0 0;font-size:12.5px;color:var(--ink2);line-height:1.5}
+.toast-actions{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+
+/* ============ 页脚 ============ */
+.foot{
+  max-width:1080px;margin:0 auto;padding:22px 22px 38px;border-top:1px solid var(--line);
+  color:var(--muted);font-size:12px;display:flex;gap:8px;flex-wrap:wrap;
+}
+
+/* ============ 响应式 ============ */
+@media (max-width:760px){
+  .site-head{padding:20px 15px 4px}
+  .head-inner{gap:12px}
+  .brand{gap:11px}
+  .brand-mark{width:48px;height:48px;border-radius:13px;font-size:16px}
+  .head-hint{margin-left:59px;gap:5px}
+  .head-hint span{font-size:11px;padding:3px 8px}
+  .theme-btn{padding:7px 10px}
+  .theme-txt{display:none}
+  .tabs{padding:9px 15px 10px;gap:6px}
+  .tab{padding:7px 11px 7px 8px;font-size:12.5px}
+  .tab .tab-n{width:19px;height:19px;font-size:10.5px}
+  .main{padding:20px 14px 56px}
+  .card-hero{padding:20px 18px 19px;border-radius:19px}
+  .card-hero::after{right:18px;top:20px}
+  .sec-desc{margin-left:0}
+  .sec{margin-top:30px}
+  .anim{padding:11px 10px 10px;border-radius:16px;scroll-margin-top:76px}
+  .anim-head h4{font-size:15.5px}
+  .anim-len{display:none}
+  .subtitle{font-size:16px;padding:9px 11px;min-height:64px}
+  .controls{gap:5px}
+  .btn{padding:7px 10px;font-size:12.5px}
+  .step-count{font-size:11px;min-width:40px}
+  .dots{gap:4px}
+  .dot{width:7px;height:7px}
+  .speed{margin-left:auto}
+  .mnemonic{padding:20px 18px;border-radius:16px}
+  .compare{grid-template-columns:1fr}
+  .quiz{padding:15px 14px;border-radius:15px}
+  .test-shell{padding:15px 14px;border-radius:16px}
+  .result-score{font-size:52px}
+  .toast{bottom:10px;padding:10px 11px;gap:8px;border-radius:12px}
+  .toast-actions{width:100%;justify-content:flex-end}
+  .toast{flex-wrap:wrap}
+  .toast-body{flex-basis:calc(100% - 40px)}
+}
+@media (max-width:420px){
+  h1{font-size:clamp(19px,5.3vw,21px);letter-spacing:0}
+  .sub{font-size:12px}
+  .head-hint{display:none}
+  .card-hero::after{display:none}
+  .brand-mark{width:44px;height:44px}
+  .stage{border-radius:11px}
+  .opt{font-size:14px;padding:9px 10px}
+}
+@media (hover:none){
+  .btn:hover{transform:none;border-color:var(--line2)}
+  .btn.primary:hover{background:var(--ink);border-color:var(--ink);color:var(--bg)}
+  .opt:hover:not(.locked){transform:none;border-color:var(--line);background:var(--bg)}
+  .opt.picked:hover:not(.locked){border-color:var(--accent);background:var(--accent-soft)}
+  .tab:hover{transform:none;border-color:var(--line);color:var(--ink2)}
+  .tab.active:hover{color:var(--bg)}
+}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.001ms!important;animation-iteration-count:1!important;transition-duration:.001ms!important;scroll-behavior:auto!important}
+}
+</style>
+<script>
+  try {
+    var savedTheme = localStorage.getItem("os-theme");
+    var darkPref = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
+    document.documentElement.dataset.theme = savedTheme || (darkPref ? "dark" : "light");
+  } catch (e) {}
+</script>
+</head>
+<body>
+<div class="paper" aria-hidden="true"></div>
+
+<header class="site-head">
+  <div class="head-inner">
+    <div class="brand">
+      <div class="brand-mark" aria-hidden="true">OS</div>
+      <div class="brand-text">
+        <div class="eyebrow">期末急救 · 可视化记忆</div>
+        <h1>操作系统 · 高频概念图鉴</h1>
+        <p class="sub">6 张概念卡 + 综合自测 &nbsp;·&nbsp; 先看画面，再记口诀，最后做题</p>
+      </div>
+    </div>
+    <button class="theme-btn" id="themeBtn" type="button" aria-label="切换深色模式">
+      <span class="theme-ico" aria-hidden="true">☾</span><span class="theme-txt">深色</span>
+    </button>
+  </div>
+  <div class="head-hint">
+    <span><b>播放</b> 看动画</span>
+    <span><b>答错</b> 自动回放</span>
+    <span><b>口诀</b> 在每张卡底部</span>
+  </div>
+</header>
+
+<nav class="tabs" id="tabs" role="tablist" aria-label="概念卡导航"></nav>
+
+<main id="main" class="main" aria-live="polite"></main>
+
+<footer class="foot">
+  <span>依据课程复习提纲整理 · 仅用于期末复习</span>
+  <span class="foot-dot">·</span>
+  <span>点页签切换，手机竖屏可用</span>
+</footer>
+
+<div id="toast" class="toast" role="status" aria-live="polite" hidden>
+  <div class="toast-ico" id="toastIco" aria-hidden="true">✗</div>
+  <div class="toast-body">
+    <strong id="toastTitle"></strong>
+    <p id="toastText"></p>
+  </div>
+  <div class="toast-actions">
+    <button class="btn small" id="toastBack" type="button">回到小测</button>
+    <button class="btn small ghost" id="toastClose" type="button" aria-label="关闭提示">关闭</button>
+  </div>
+</div>
+
+<svg class="svg-defs" aria-hidden="true" focusable="false">
+  <defs>
+    <marker id="ah-ink" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 Z" fill="#6b7280"/></marker>
+    <marker id="ah-blue" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 Z" fill="#3b82f6"/></marker>
+    <marker id="ah-darkblue" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 Z" fill="#2563eb"/></marker>
+    <marker id="ah-red" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 Z" fill="#e11d48"/></marker>
+    <marker id="ah-green" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 Z" fill="#059669"/></marker>
+    <marker id="ah-amber" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 Z" fill="#d97706"/></marker>
+    <marker id="ah-purple" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 Z" fill="#7c3aed"/></marker>
+    <marker id="ah-teal" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 Z" fill="#0891b2"/></marker>
+    <marker id="ah-muted" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 Z" fill="#94a3b8"/></marker>
+  </defs>
+</svg>
+
+<script>/* ============================================================
+   内容层：SVG 动画、对比、口诀、题库
+   ============================================================ */
+"use strict";
+
+const SVGC = {
+  ink: "var(--ink)", ink2: "var(--ink2)", muted: "var(--c-muted)",
+  card: "var(--card)", stage: "var(--stage)",
+  proc: "var(--c-proc)", thread: "var(--c-thread)", res: "var(--c-res)",
+  ready: "var(--c-ready)", run: "var(--c-run)", block: "var(--c-block)",
+  create: "var(--c-create)", term: "var(--c-term)",
+  mem: "var(--c-mem)", seg: "var(--c-seg)", file: "var(--c-file)",
+  disk: "var(--c-disk)", cpu: "var(--c-cpu)", buf: "var(--c-buf)",
+  user: "var(--c-user)", kernel: "var(--c-kernel)",
+  ok: "var(--c-ok)", bad: "var(--c-bad)", warn: "var(--c-warn)",
+  accent: "var(--accent)", line2: "var(--line2)"
+};
+
+/* ---------- SVG 小工具 ---------- */
+function tx(x, y, str, o = {}) {
+  const s = o.s === undefined ? 16 : o.s;
+  const a = o.a || "middle";
+  const c = o.c || SVGC.ink;
+  const w = o.w === undefined ? 700 : o.w;
+  const op = o.op === undefined ? 1 : o.op;
+  const ls = o.ls || 0;
+  const ff = o.ff ? ` font-family="${o.ff}"` : "";
+  return `<text x="${x}" y="${y}" font-size="${s}" text-anchor="${a}" fill="${c}" font-weight="${w}" opacity="${op}" letter-spacing="${ls}"${ff} dominant-baseline="middle">${str}</text>`;
+}
+function tlines(x, y, lines, o = {}) {
+  const lh = o.lh || 22;
+  return lines.map((l, i) => tx(x, y + i * lh, l, o)).join("");
+}
+function box(x, y, w, h, o = {}) {
+  const fill = o.fill === undefined ? "none" : o.fill;
+  const stroke = o.stroke === undefined ? SVGC.ink2 : o.stroke;
+  const sw = o.sw === undefined ? 2 : o.sw;
+  const rx = o.rx === undefined ? 12 : o.rx;
+  const op = o.op === undefined ? 1 : o.op;
+  const dash = o.dash ? ` stroke-dasharray="${o.dash}"` : "";
+  const cls = o.cls ? ` class="${o.cls}"` : "";
+  return `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="${rx}" fill="${fill}" stroke="${stroke}" stroke-width="${sw}" opacity="${op}"${dash}${cls}/>`;
+}
+function ln(x1, y1, x2, y2, o = {}) {
+  const c = o.c || SVGC.ink2, sw = o.sw || 2, op = o.op === undefined ? 1 : o.op;
+  const dash = o.dash ? ` stroke-dasharray="${o.dash}"` : "";
+  return `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${c}" stroke-width="${sw}" opacity="${op}"${dash} stroke-linecap="round"/>`;
+}
+function arrow(x1, y1, x2, y2, o = {}) {
+  const key = o.key || "ink";
+  const c = o.c || SVGC.ink2;
+  const sw = o.sw || 2.4;
+  const op = o.op === undefined ? 1 : o.op;
+  const dash = o.dash ? ` stroke-dasharray="${o.dash}"` : "";
+  const cls = o.cls ? ` class="${o.cls}"` : "";
+  return `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${c}" stroke-width="${sw}" opacity="${op}"${dash}${cls} stroke-linecap="round" marker-end="url(#ah-${key})"/>`;
+}
+function parrow(d, o = {}) {
+  const key = o.key || "ink";
+  const c = o.c || SVGC.ink2;
+  const sw = o.sw || 2.4;
+  const op = o.op === undefined ? 1 : o.op;
+  const dash = o.dash ? ` stroke-dasharray="${o.dash}"` : "";
+  const cls = o.cls ? ` class="${o.cls}"` : "";
+  return `<path d="${d}" fill="none" stroke="${c}" stroke-width="${sw}" opacity="${op}"${dash}${cls} stroke-linecap="round" marker-end="url(#ah-${key})"/>`;
+}
+function textWidth(str, size) {
+  let w = 0;
+  for (const ch of String(str)) {
+    w += /[⺀-鿿＀-￯]/.test(ch) ? size : size * 0.6;
+  }
+  return w;
+}
+function tag(x, y, text, o = {}) {
+  const s = o.s || 12.5;
+  const w = textWidth(text, s) + 16;
+  const h = s + 11;
+  const fill = o.fill || "var(--card)";
+  const stroke = o.stroke || SVGC.muted;
+  const c = o.c || SVGC.ink;
+  return `<g class="fade"><rect x="${x - w / 2}" y="${y - h / 2}" width="${w}" height="${h}" rx="7" fill="${fill}" stroke="${stroke}" stroke-width="1" opacity=".97"/>${tx(x, y + 1, text, { s, c, w: 700 })}</g>`;
+}
+function mark(x, y, ok, o = {}) {
+  const r = o.r || 12;
+  const c = o.c || (ok ? SVGC.ok : SVGC.bad);
+  return `<g class="pop"><circle cx="${x}" cy="${y}" r="${r}" fill="${c}"/>${tx(x, y + 1, ok ? "✓" : "✗", { s: r + 2, c: "#fff", w: 900 })}</g>`;
+}
+function stateNode(x, y, r, label, color, o = {}) {
+  const active = !!o.active;
+  const dashed = !!o.dashed;
+  const sub = o.sub || "";
+  const fs = o.fs || (r >= 48 ? 19 : r >= 42 ? 17 : 13);
+  return `<g class="${active ? "pop" : ""}">
+    <circle cx="${x}" cy="${y}" r="${r}" fill="${color}" opacity="${active ? 0.18 : 0.07}"/>
+    <circle cx="${x}" cy="${y}" r="${r}" fill="none" stroke="${color}" stroke-width="${active ? 4 : 2.6}" ${dashed ? 'stroke-dasharray="7 6"' : ""}/>
+    ${tx(x, y - (sub ? 7 : 0), label, { s: fs, c: color, w: 800 })}
+    ${sub ? tx(x, y + 19, sub, { s: 11.5, c: SVGC.ink2, w: 700 }) : ""}
+  </g>`;
+}
+function pillNode(x, y, w, h, label, color, o = {}) {
+  const active = !!o.active;
+  const sub = o.sub || "";
+  return `<g class="${active ? "pop" : ""}">
+    <rect x="${x}" y="${y}" width="${w}" height="${h}" rx="${h / 2}" fill="${color}" opacity="${active ? 0.2 : 0.08}"/>
+    <rect x="${x}" y="${y}" width="${w}" height="${h}" rx="${h / 2}" fill="none" stroke="${color}" stroke-width="${active ? 3.6 : 2.3}"/>
+    ${tx(x + w / 2, y + h / 2 - (sub ? 5 : 0), label, { s: o.fs || 14, c: color, w: 800 })}
+    ${sub ? tx(x + w / 2, y + h / 2 + 13, sub, { s: 10.5, c: SVGC.ink2, w: 700 }) : ""}
+  </g>`;
+}
+function resSquare(x, y, w, h, label, dots = 1, o = {}) {
+  const color = o.c || SVGC.res;
+  let dotMarkup = "";
+  for (let i = 0; i < dots; i++) {
+    const dx = x + w / 2 + (i - (dots - 1) / 2) * 17;
+    dotMarkup += `<circle cx="${dx}" cy="${y + h * 0.62}" r="4.5" fill="${color}"/>`;
+  }
+  return `<g class="${o.active ? "pop" : ""}">
+    <rect x="${x}" y="${y}" width="${w}" height="${h}" rx="7" fill="${color}" opacity="${o.active ? 0.18 : 0.08}"/>
+    <rect x="${x}" y="${y}" width="${w}" height="${h}" rx="7" fill="none" stroke="${color}" stroke-width="${o.active ? 3.6 : 2.4}"/>
+    ${tx(x + w / 2, y + (dots ? 18 : h / 2), label, { s: 13.5, c: color, w: 800 })}
+    ${dotMarkup}
+  </g>`;
+}
+function docShape(x, y, w, h, color, o = {}) {
+  const fold = o.fold || 22;
+  const lines = o.lines || 3;
+  let lm = "";
+  for (let i = 0; i < lines; i++) {
+    lm += `<path d="M${x + 20},${y + h * 0.42 + i * 18} H${x + w - 22 - (i === lines - 1 ? 28 : 0)}" stroke="${color}" stroke-width="2.4" stroke-linecap="round" opacity=".45"/>`;
+  }
+  return `<g class="${o.active ? "pop" : ""}">
+    <path d="M${x},${y} H${x + w - fold} L${x + w},${y + fold} V${y + h} H${x} Z" fill="var(--card)" stroke="${color}" stroke-width="2.6" stroke-linejoin="round"/>
+    <path d="M${x + w - fold},${y} V${y + fold} H${x + w}" fill="none" stroke="${color}" stroke-width="2.2"/>
+    ${lm}
+    ${o.label ? tx(x + w / 2, y + h + 22, o.label, { s: o.fs || 14, c: color, w: 800 }) : ""}
+  </g>`;
+}
+function cpuChip(x, y, w, h, label, o = {}) {
+  return `<g class="${o.active ? "pop" : ""}">
+    <rect x="${x}" y="${y}" width="${w}" height="${h}" rx="8" fill="${SVGC.cpu}" opacity=".1"/>
+    <rect x="${x}" y="${y}" width="${w}" height="${h}" rx="8" fill="none" stroke="${SVGC.cpu}" stroke-width="2.4"/>
+    <path d="M${x + w * 0.28},${y} v-7 M${x + w * 0.5},${y} v-7 M${x + w * 0.72},${y} v-7" stroke="${SVGC.cpu}" stroke-width="2" stroke-linecap="round"/>
+    <path d="M${x + w * 0.28},${y + h} v7 M${x + w * 0.5},${y + h} v7 M${x + w * 0.72},${y + h} v7" stroke="${SVGC.cpu}" stroke-width="2" stroke-linecap="round"/>
+    ${tx(x + w / 2, y + h / 2, label, { s: o.fs || 14, c: SVGC.cpu, w: 900 })}
+  </g>`;
+}
+const FR = (t, svg, d = 3400) => ({ t, svg, d });
+
+/* ============================================================
+   卡① 进程与线程
+   ============================================================ */
+
+/* ---- 1.1 五状态 ---- */
+function stateDiagram(activeEdge, activeNodes) {
+  const edges = [
+    { id: "admit", d: "M124,110 H187", c: SVGC.create, key: "ink", label: "创建完成", lx: 155, ly: 85 },
+    { id: "dispatch", d: "M283,110 H347", c: SVGC.run, key: "green", label: "被调度", lx: 315, ly: 85 },
+    { id: "preempt", d: "M378,64 C352,22 292,22 252,64", c: SVGC.ready, key: "amber", label: "时间片到 / 被抢占", lx: 316, ly: 14 },
+    { id: "block", d: "M395,158 V237", c: SVGC.block, key: "red", label: "等 I/O 或资源", lx: 500, ly: 198 },
+    { id: "wake", d: "M359,262 C300,244 248,208 241,158", c: SVGC.ready, key: "amber", label: "I/O 完成 / 资源到", lx: 291, ly: 238 },
+    { id: "exit", d: "M443,110 H526", c: SVGC.term, key: "muted", label: "结束", lx: 485, ly: 85 }
+  ];
+  let edgeMarkup = "";
+  edges.forEach(e => {
+    const on = activeEdge === e.id;
+    const isPath = e.d.includes("C");
+    if (isPath) {
+      edgeMarkup += parrow(e.d, {
+        c: on ? e.c : SVGC.ink2, key: on ? e.key : "ink",
+        sw: on ? 4.2 : 2.2, op: on ? 1 : (activeEdge ? 0.28 : 0.52),
+        cls: on ? "draw" : "", dash: ""
+      });
+    } else {
+      edgeMarkup += arrow(
+        ...(() => {
+          const m = e.d.match(/M([\d.]+),([\d.]+)\s*H([\d.]+)/);
+          if (m) return [+m[1], +m[2], +m[3], +m[2]];
+          const v = e.d.match(/M([\d.]+),([\d.]+)\s*V([\d.]+)/);
+          return [+v[1], +v[2], +v[1], +v[3]];
+        })(),
+        { c: on ? e.c : SVGC.ink2, key: on ? e.key : "ink", sw: on ? 4.2 : 2.2, op: on ? 1 : (activeEdge ? 0.28 : 0.52), dash: "", cls: on ? "draw" : "" }
+      );
+    }
+  });
+  const labels = edges.map(e => tag(e.lx, e.ly, e.label, {
+    c: activeEdge === e.id ? e.c : SVGC.ink2,
+    stroke: activeEdge === e.id ? e.c : SVGC.muted,
+    op: activeEdge === e.id ? 1 : 0.72,
+    s: 12
+  })).join("");
+
+  const nodes = [
+    { x: 80, y: 110, r: 44, label: "创建", c: SVGC.create, id: "create" },
+    { x: 235, y: 110, r: 48, label: "就绪", c: SVGC.ready, id: "ready" },
+    { x: 395, y: 110, r: 48, label: "运行", c: SVGC.run, id: "run" },
+    { x: 395, y: 285, r: 48, label: "阻塞", c: SVGC.block, id: "block" },
+    { x: 570, y: 110, r: 44, label: "终止", c: SVGC.term, id: "term" }
+  ];
+  return `
+    <g opacity=".45">${tx(320, 372, "合法转换用实线；不存在的转换在下一步单独标出", { s: 12, c: SVGC.ink2, w: 600 })}</g>
+    ${edgeMarkup}
+    ${nodes.map(n => stateNode(n.x, n.y, n.r, n.label, n.c, { active: activeNodes.includes(n.id) })).join("")}
+    ${labels}`;
+}
+
+function forbiddenDiagram() {
+  function panel(x, title, left, right, note) {
+    const y = 78, w = 288, h = 250;
+    return `<g class="pop">
+      ${box(x, y, w, h, { fill: "var(--card)", stroke: SVGC.bad, sw: 2, rx: 16, dash: "7 6" })}
+      ${tx(x + w / 2, y + 28, title, { s: 17, c: SVGC.bad, w: 900 })}
+      ${stateNode(x + 68, y + 112, 39, left, left === "阻塞" ? SVGC.block : left === "就绪" ? SVGC.ready : SVGC.run, { fs: 15 })}
+      ${stateNode(x + w - 68, y + 112, 39, right, right === "阻塞" ? SVGC.block : right === "运行" ? SVGC.run : SVGC.ready, { fs: 15 })}
+      ${arrow(x + 112, y + 112, x + w - 112, y + 112, { c: SVGC.bad, key: "red", sw: 3, dash: "6 5" })}
+      ${mark(x + w / 2, y + 112, false, { r: 14 })}
+      ${tlines(x + w / 2, y + 190, note, { s: 12.5, c: SVGC.ink2, w: 600, lh: 19 })}
+    </g>`;
+  }
+  return `
+    ${panel(20, "✗ 阻塞 → 运行", "阻塞", "运行", ["阻塞在等事件，", "不会因为 CPU 空就直接运行"])}
+    ${panel(332, "✗ 就绪 → 阻塞", "就绪", "阻塞", ["就绪只差 CPU，", "不会主动去等 I/O 或资源"])}
+    ${tx(320, 365, "记：就绪等 CPU，阻塞等事件", { s: 15, c: SVGC.warn, w: 900 })}`;
+}
+
+/* ---- 1.2 挂起 ---- */
+function suspendDiagram(mode) {
+  const arrows = [];
+  const faint = 0.26;
+  arrows.push(arrow(163, 150, 479, 150, {
+    c: mode === "s-ready" ? SVGC.ready : SVGC.ink2,
+    key: mode === "s-ready" ? "amber" : "ink",
+    sw: mode === "s-ready" ? 4 : 2.2,
+    op: mode === "s-ready" ? 1 : faint,
+    cls: mode === "s-ready" ? "draw" : ""
+  }));
+  arrows.push(arrow(163, 295, 479, 295, {
+    c: mode === "s-block" ? SVGC.block : SVGC.ink2,
+    key: mode === "s-block" ? "red" : "ink",
+    sw: mode === "s-block" ? 4 : 2.2,
+    op: mode === "s-block" ? 1 : faint,
+    cls: mode === "s-block" ? "draw" : ""
+  }));
+  if (mode === "activate") {
+    arrows.push(arrow(479, 120, 163, 120, { c: SVGC.thread, key: "teal", sw: 4, cls: "draw" }));
+    arrows.push(arrow(479, 328, 163, 328, { c: SVGC.thread, key: "teal", sw: 4, cls: "draw" }));
+  }
+  return `
+    ${box(20, 56, 352, 312, { stroke: SVGC.mem, sw: 2, rx: 18, dash: "7 7", op: 0.75 })}
+    ${box(428, 56, 192, 312, { stroke: SVGC.disk, sw: 2, rx: 18, dash: "7 7", op: 0.75 })}
+    ${tx(40, 78, "内存", { s: 16, a: "start", c: SVGC.mem, w: 900 })}
+    ${tx(444, 78, "外存（磁盘）", { s: 16, a: "start", c: SVGC.disk, w: 900 })}
+    ${stateNode(116, 150, 44, "活动就绪", SVGC.ready, { active: mode === "s-ready" })}
+    ${stateNode(116, 295, 44, "活动阻塞", SVGC.block, { active: mode === "s-block" })}
+    ${stateNode(526, 150, 44, "静止就绪", SVGC.ready, { dashed: true, active: mode === "s-ready" })}
+    ${stateNode(526, 295, 44, "静止阻塞", SVGC.block, { dashed: true, active: mode === "s-block" })}
+    ${arrows.join("")}
+    ${tag(321, 126, "挂起", { s: 12, c: mode === "s-ready" ? SVGC.ready : SVGC.ink2 })}
+    ${tag(321, 271, "挂起", { s: 12, c: mode === "s-block" ? SVGC.block : SVGC.ink2 })}
+    ${mode === "activate" ? tag(321, 96, "激活", { s: 12, c: SVGC.thread }) : ""}
+    ${mode === "activate" ? tag(321, 350, "激活", { s: 12, c: SVGC.thread }) : ""}
+    ${mode === "s-ready" ? tag(321, 184, "就绪也能挂起", { s: 13, c: SVGC.ready, stroke: SVGC.ready }) : ""}
+    ${mode === "s-block" ? tag(321, 184, "阻塞也能挂起", { s: 13, c: SVGC.block, stroke: SVGC.block }) : ""}`;
+}
+
+function suspendSummary() {
+  const items = [
+    { y: 116, a: "活动就绪", b: "静止就绪", ca: SVGC.ready, cb: SVGC.ready, note: "挂起 / 激活" },
+    { y: 256, a: "活动阻塞", b: "静止阻塞", ca: SVGC.block, cb: SVGC.block, note: "挂起 / 激活" }
+  ];
+  return `
+    ${tx(320, 56, "挂起后的四种状态", { s: 20, w: 900 })}
+    ${tx(320, 82, "内存里的叫“活动”，外存里的叫“静止”", { s: 13, c: SVGC.ink2, w: 600 })}
+    ${items.map(it => `
+      ${pillNode(58, it.y, 150, 54, it.a, it.ca, { active: true, fs: 14 })}
+      ${pillNode(432, it.y, 150, 54, it.b, it.cb, { fs: 14 })}
+      ${arrow(216, it.y + 27, 386, it.y + 27, { c: SVGC.warn, key: "amber", sw: 2.6 })}
+      ${arrow(386, it.y + 27, 216, it.y + 27, { c: SVGC.warn, key: "amber", sw: 2.6 })}
+      ${tag(320, it.y - 14, it.note, { s: 12, c: SVGC.warn, stroke: SVGC.warn })}
+    `).join("")}
+    ${tag(320, 338, "就绪、阻塞都可以挂起；挂起不是终止", { s: 14, c: SVGC.warn, stroke: SVGC.warn })}`;
+}
+
+/* ---- 1.3 进程 vs 程序 vs 线程 ---- */
+function procProgramDiagram(stage) {
+  if (stage === 1) {
+    return `
+      ${tx(320, 62, "程序", { s: 28, w: 900, c: SVGC.create })}
+      ${docShape(220, 100, 200, 160, SVGC.create, { lines: 3, label: "指令 + 数据" })}
+      ${tag(320, 300, "静态：只是磁盘上的一组指令和数据", { s: 14, c: SVGC.create, stroke: SVGC.create })}
+      ${tag(320, 338, "像菜谱：放在那里，不会自己动", { s: 13, c: SVGC.ink2 })}`;
+  }
+  if (stage === 2) {
+    return `
+      ${docShape(34, 158, 112, 92, SVGC.create, { lines: 2, label: "程序", fs: 12 })}
+      ${arrow(152, 204, 208, 204, { c: SVGC.proc, key: "darkblue", sw: 3 })}
+      ${tag(180, 180, "运行", { s: 12, c: SVGC.proc, stroke: SVGC.proc })}
+      ${box(208, 72, 402, 288, { fill: SVGC.proc, stroke: SVGC.proc, sw: 2.6, rx: 24, op: 0.06 })}
+      ${box(208, 72, 402, 288, { stroke: SVGC.proc, sw: 2.6, rx: 24 })}
+      ${tx(409, 102, "进程", { s: 23, c: SVGC.proc, w: 900 })}
+      ${tag(550, 102, "动态", { s: 12, c: SVGC.proc, stroke: SVGC.proc })}
+      ${box(236, 134, 158, 48, { fill: "var(--card)", stroke: SVGC.proc, sw: 2, rx: 10 })}
+      ${tx(315, 158, "地址空间", { s: 14, c: SVGC.proc })}
+      ${box(424, 134, 158, 48, { fill: "var(--card)", stroke: SVGC.proc, sw: 2, rx: 10 })}
+      ${tx(503, 158, "打开的文件", { s: 14, c: SVGC.proc })}
+      ${box(236, 214, 170, 56, { fill: SVGC.proc, stroke: SVGC.proc, sw: 2.8, rx: 11, op: 0.14 })}
+      ${tx(321, 242, "PCB", { s: 19, c: SVGC.proc, w: 900 })}
+      ${tag(474, 242, "唯一标志", { s: 12, c: SVGC.proc, stroke: SVGC.proc })}
+      ${tx(409, 314, "程序的一次运行 = 资源 + 执行过程", { s: 14, c: SVGC.ink2, w: 700 })}`;
+  }
+  if (stage === 3) {
+    return `
+      ${box(62, 72, 516, 288, { fill: SVGC.proc, stroke: SVGC.proc, sw: 2.6, rx: 24, op: 0.05 })}
+      ${box(62, 72, 516, 288, { stroke: SVGC.proc, sw: 2.6, rx: 24 })}
+      ${tx(320, 102, "一个进程里可以有多个线程", { s: 19, c: SVGC.proc, w: 900 })}
+      ${pillNode(102, 176, 128, 52, "线程 T1", SVGC.thread, { active: true })}
+      ${pillNode(256, 176, 128, 52, "线程 T2", SVGC.thread, { active: true })}
+      ${pillNode(410, 176, 128, 52, "线程 T3", SVGC.thread, { active: false })}
+      ${arrow(166, 248, 166, 286, { c: SVGC.thread, key: "teal", sw: 2.4 })}
+      ${arrow(320, 248, 320, 286, { c: SVGC.thread, key: "teal", sw: 2.4 })}
+      ${arrow(474, 248, 474, 286, { c: SVGC.thread, key: "teal", sw: 2.4 })}
+      ${tag(320, 312, "线程 = 进程里的执行流，是独立调度的基本单位", { s: 14, c: SVGC.thread, stroke: SVGC.thread })}
+      ${tx(320, 348, "CPU 调度的是线程，不是整个进程", { s: 12.5, c: SVGC.ink2, w: 700 })}`;
+  }
+  if (stage === 4) {
+    return `
+      ${box(56, 62, 528, 310, { stroke: SVGC.proc, sw: 2.6, rx: 24 })}
+      ${box(78, 78, 484, 54, { fill: SVGC.proc, stroke: SVGC.proc, sw: 2, rx: 12, op: 0.12 })}
+      ${tx(320, 105, "共享：地址空间、文件等资源", { s: 15, c: SVGC.proc, w: 800 })}
+      ${[
+        { x: 88, label: "线程 T1" },
+        { x: 252, label: "线程 T2" },
+        { x: 416, label: "线程 T3" }
+      ].map(t => `
+        ${pillNode(t.x, 156, 136, 42, t.label, SVGC.thread, { fs: 13 })}
+        ${box(t.x + 10, 220, 116, 46, { fill: "var(--card)", stroke: SVGC.thread, sw: 1.8, rx: 8 })}
+        ${tx(t.x + 68, 243, "自己的栈", { s: 12, c: SVGC.thread, w: 700 })}
+        ${box(t.x + 10, 278, 116, 46, { fill: "var(--card)", stroke: SVGC.thread, sw: 1.8, rx: 8 })}
+        ${tx(t.x + 68, 301, "寄存器", { s: 12, c: SVGC.thread, w: 700 })}
+      `).join("")}
+      ${tx(320, 354, "共享资源，但各自的栈和寄存器不共享", { s: 13, c: SVGC.ink2, w: 700 })}`;
+  }
+  return `
+    ${[
+      { x: 18, name: "程序", color: SVGC.create, shape: "doc", points: ["静态", "指令 + 数据", "不会自己运行"] },
+      { x: 224, name: "进程", color: SVGC.proc, shape: "circle", points: ["动态执行过程", "一套资源 + PCB", "资源拥有的独立单位"] },
+      { x: 430, name: "线程", color: SVGC.thread, shape: "pill", points: ["进程内的执行流", "独立调度的基本单位", "共享进程资源"] }
+    ].map(c => `
+      ${box(c.x, 74, 192, 228, { fill: "var(--card)", stroke: c.color, sw: 2.2, rx: 16 })}
+      ${tx(c.x + 96, 104, c.name, { s: 20, c: c.color, w: 900 })}
+      ${c.shape === "circle"
+        ? stateNode(c.x + 96, 156, 27, "进程", c.color, { active: true, fs: 12 })
+        : c.shape === "pill"
+          ? pillNode(c.x + 46, 138, 100, 36, c.name, c.color, { fs: 12 })
+          : docShape(c.x + 66, 126, 60, 62, c.color, { lines: 2, fold: 14 })}
+      ${tlines(c.x + 96, 216, c.points, { s: 12, c: SVGC.ink2, w: 600, lh: 23 })}
+    `).join("")}
+    ${tag(320, 340, "引入线程后，进程仍是拥有资源的独立单位", { s: 15, c: SVGC.warn, stroke: SVGC.warn })}`;
+}
+
+/* ---- 1.4 原语 ---- */
+function primitiveDiagram(stage) {
+  const code = [
+    "关中断",
+    "分配 PCB",
+    "插入就绪队列",
+    "开中断"
+  ];
+  const codePanel = (highlight) => `
+    ${box(118, 82, 404, 220, { fill: "var(--card)", stroke: SVGC.proc, sw: 2.2, rx: 16 })}
+    ${tx(320, 108, "原语：创建进程", { s: 15, c: SVGC.proc, w: 800 })}
+    ${code.map((line, i) => `
+      <circle cx="154" cy="${144 + i * 38}" r="11" fill="${highlight === i ? SVGC.proc : "var(--bg2)"}" stroke="${SVGC.proc}" stroke-width="1.5"/>
+      ${tx(154, 145 + i * 38, String(i + 1), { s: 10.5, c: highlight === i ? "#fff" : SVGC.proc, w: 900 })}
+      ${tx(178, 145 + i * 38, line, { s: 16, a: "start", c: highlight === i ? SVGC.proc : SVGC.ink, w: 700 })}
+    `).join("")}`;
+  if (stage === 1) {
+    return `
+      ${tx(320, 50, "原语（Primitive）", { s: 20, w: 900 })}
+      ${codePanel(-1)}
+      ${tag(320, 332, "由若干条指令组成", { s: 14, c: SVGC.proc, stroke: SVGC.proc })}
+      ${tag(320, 366, "关键词：执行过程中不可被中断", { s: 13, c: SVGC.warn, stroke: SVGC.warn })}`;
+  }
+  if (stage === 2) {
+    return `
+      ${codePanel(0)}
+      ${parrow("M596,196 C552,196 530,196 506,196", { c: SVGC.bad, key: "red", sw: 3.4 })}
+      ${mark(566, 168, false, { r: 14 })}
+      ${tag(566, 132, "中断请求", { s: 12, c: SVGC.bad, stroke: SVGC.bad })}
+      <g class="pop">
+        <path d="M474,150 L502,178 M502,150 L474,178" stroke="${SVGC.bad}" stroke-width="4" stroke-linecap="round"/>
+        <path d="M452,128 C432,154 432,234 452,260" fill="none" stroke="${SVGC.bad}" stroke-width="5" stroke-linecap="round" opacity=".45"/>
+      </g>
+      ${tag(320, 332, "执行时屏蔽中断：外面进不来，里面不被打断", { s: 14, c: SVGC.bad, stroke: SVGC.bad })}`;
+  }
+  return `
+    ${tx(320, 58, "哪些是原语？", { s: 20, w: 900 })}
+    ${[
+      { x: 26, label: "进程创建", icon: "+" },
+      { x: 230, label: "进程阻塞", icon: "Ⅱ" },
+      { x: 434, label: "进程唤醒", icon: "◉" }
+    ].map((c, i) => `
+      <g class="pop" style="animation-delay:${i * 0.08}s">
+        ${box(c.x, 94, 180, 190, { fill: "var(--card)", stroke: SVGC.proc, sw: 2.2, rx: 16 })}
+        <circle cx="${c.x + 90}" cy="150" r="31" fill="${SVGC.proc}" opacity=".13"/>
+        <circle cx="${c.x + 90}" cy="150" r="31" fill="none" stroke="${SVGC.proc}" stroke-width="2.2"/>
+        ${tx(c.x + 90, 151, c.icon, { s: 28, c: SVGC.proc, w: 900 })}
+        ${tx(c.x + 90, 213, c.label, { s: 16, c: SVGC.proc, w: 800 })}
+        ${tx(c.x + 90, 241, "原语", { s: 12, c: SVGC.ink2, w: 700 })}
+      </g>
+    `).join("")}
+    ${tag(320, 330, "它们都会改变进程状态，必须原子地完成", { s: 13, c: SVGC.warn, stroke: SVGC.warn })}
+    ${tag(320, 366, "所以执行时屏蔽中断", { s: 13, c: SVGC.ink2 })}`;
+}
+
+/* ---- 卡① 动画 ---- */
+const P1_ANIMS = [
+  {
+    id: "p1a1", no: "1.1", title: "五状态转换：六条合法边 + 两条禁区",
+    frames: [
+      FR("进程有五个状态：创建、就绪、运行、阻塞、终止。先记住它们的位置。", stateDiagram(null, ["create", "ready", "run", "block", "term"])),
+      FR("创建完成、拿到除 CPU 外的资源 → 就绪。", stateDiagram("admit", ["create", "ready"])),
+      FR("就绪被调度程序选中，分到 CPU → 运行。", stateDiagram("dispatch", ["ready", "run"])),
+      FR("时间片用完或被更高优先级抢占：运行 → 就绪，不是阻塞。", stateDiagram("preempt", ["run", "ready"])),
+      FR("运行中等待 I/O 或申请资源得不到 → 阻塞。", stateDiagram("block", ["run", "block"])),
+      FR("I/O 完成或资源到手：阻塞 → 就绪，仍然不能直接运行。", stateDiagram("wake", ["block", "ready"])),
+      FR("进程结束 → 终止。", stateDiagram("exit", ["run", "term"])),
+      FR("两条不存在的转换：阻塞 → 运行、就绪 → 阻塞。", forbiddenDiagram(), 4200)
+    ]
+  },
+  {
+    id: "p1a2", no: "1.2", title: "挂起：内存 ↔ 外存的四种状态",
+    frames: [
+      FR("挂起 = 把进程换到外存，腾出内存。就绪和阻塞都可能被挂起。", suspendDiagram("initial")),
+      FR("活动就绪被换到外存 → 静止就绪。", suspendDiagram("s-ready")),
+      FR("活动阻塞被换到外存 → 静止阻塞。", suspendDiagram("s-block")),
+      FR("需要时再激活：静止就绪 → 活动就绪，静止阻塞 → 活动阻塞。", suspendDiagram("activate")),
+      FR("四种状态：活动就绪、静止就绪、活动阻塞、静止阻塞。", suspendSummary(), 4000)
+    ]
+  },
+  {
+    id: "p1a3", no: "1.3", title: "程序 vs 进程 vs 线程",
+    frames: [
+      FR("程序是静态的：磁盘上的指令和数据，像一张菜谱，不会自己动。", procProgramDiagram(1)),
+      FR("进程是程序的一次运行，是动态的；PCB 是进程存在的唯一标志。", procProgramDiagram(2)),
+      FR("线程是进程里的执行流，是独立调度的基本单位。", procProgramDiagram(3)),
+      FR("同一进程的线程共享地址空间和资源，但各有自己的栈和寄存器。", procProgramDiagram(4)),
+      FR("引入线程后，进程仍是拥有资源的独立单位。", procProgramDiagram(5), 4000)
+    ]
+  },
+  {
+    id: "p1a4", no: "1.4", title: "原语：不可被中断的指令段",
+    frames: [
+      FR("原语由若干条指令组成，执行过程中不可被中断。", primitiveDiagram(1)),
+      FR("为了不被打断，原语执行时会屏蔽中断。", primitiveDiagram(2)),
+      FR("进程创建、进程阻塞、进程唤醒，都是原语。", primitiveDiagram(3), 4000)
+    ]
+  }
+];
+
+const CARD1 = {
+  id: "p1", num: "①", short: "进程与线程", kicker: "状态 · 挂起 · PCB · 原语",
+  title: "进程与线程",
+  color: "var(--c-proc)",
+  intro: "把进程想成“正在运行的程序 + 它占的资源”，线程则是进程里真正被 CPU 调度的执行流。这一张先把状态图和“谁管资源、谁管干活”钉死。",
+  chips: ["五状态", "挂起四态", "进程 vs 线程", "PCB 唯一标志", "原语"],
+  anims: P1_ANIMS,
+  compare: {
+    cols: [
+      {
+        name: "进程", color: "var(--c-proc)", shape: "circle", tag: "资源 + 动态执行",
+        points: [
+          "一套资源：地址空间、打开的文件",
+          "一个动态执行过程",
+          "PCB 是进程存在的唯一标志",
+          "引入线程后，仍是拥有资源的独立单位"
+        ]
+      },
+      {
+        name: "线程", color: "var(--c-thread)", shape: "pill", tag: "执行流",
+        points: [
+          "进程里的执行流",
+          "独立调度的基本单位",
+          "同一进程的线程共享地址空间和资源",
+          "每个线程有自己的栈和寄存器"
+        ]
+      }
+    ],
+    facts: [
+      { ok: true, text: "同一进程的线程共享地址空间和资源" },
+      { ok: false, text: "每个线程有自己独立的地址空间" },
+      { ok: true, text: "程序是静态的，进程是动态的" },
+      { ok: false, text: "有了线程后，线程成为拥有资源的独立单位" },
+      { ok: true, text: "PCB 是进程存在的唯一标志" }
+    ]
+  },
+  mnemonic: "进程管资源，线程管干活；阻塞等事件，就绪等 CPU。",
+  mnNote: "两条不存在的转换：阻塞→运行、就绪→阻塞。",
+  quiz: ["q1", "q3", "q4", "q6", "q7"]
+};
+
+/* ============================================================
+   卡② 死锁 + 卡③ I/O
+   ============================================================ */
+
+function miniProc(x, y, label, o = {}) {
+  const r = o.r || 26;
+  const color = o.color || SVGC.proc;
+  const dots = o.dots || 0;
+  const active = o.active !== false;
+  let dm = "";
+  for (let i = 0; i < dots; i++) {
+    const dx = x + (i - (dots - 1) / 2) * 12;
+    dm += `<circle cx="${dx}" cy="${y + 13}" r="4" fill="${o.dotColor || SVGC.res}"/>`;
+  }
+  return `<g class="${active ? "pop" : ""}">
+    <circle cx="${x}" cy="${y}" r="${r}" fill="${color}" opacity=".08"/>
+    <circle cx="${x}" cy="${y}" r="${r}" fill="none" stroke="${color}" stroke-width="${o.sw || 2.4}"/>
+    ${tx(x, y - (dots ? 5 : 0), label, { s: o.fs || 13, c: color, w: 800 })}
+    ${dm}
+  </g>`;
+}
+function printerIcon(x, y, s, color = SVGC.res, active = true) {
+  return `<g class="${active ? "pop" : ""}">
+    <rect x="${x}" y="${y}" width="${s}" height="${s * 0.64}" rx="4" fill="${SVGC.card}" stroke="${color}" stroke-width="2"/>
+    <rect x="${x + s * 0.22}" y="${y + s * 0.12}" width="${s * 0.56}" height="${s * 0.22}" rx="2" fill="${color}" opacity=".25" stroke="${color}" stroke-width="1.4"/>
+    <circle cx="${x + s * 0.8}" cy="${y + s * 0.48}" r="2.2" fill="${color}"/>
+    <rect x="${x + s * 0.18}" y="${y - s * 0.18}" width="${s * 0.64}" height="${s * 0.2}" rx="2" fill="${SVGC.card}" stroke="${color}" stroke-width="1.6"/>
+  </g>`;
+}
+
+/* ============================================================
+   2.1 资源分配图
+   ============================================================ */
+function ragDiagram(stage) {
+  const showAlloc = stage >= 3 || stage === 6;
+  const showReq = stage >= 4 || stage === 6;
+  const cycle = stage === 5;
+  const keyA = cycle ? "red" : "purple";
+  const keyR = cycle ? "red" : "darkblue";
+  const cA = cycle ? SVGC.bad : SVGC.res;
+  const cR = cycle ? SVGC.bad : SVGC.proc;
+
+  const edges = [];
+  if (showAlloc) {
+    edges.push(arrow(300, 130, 204, 175, { c: cA, key: keyA, sw: cycle ? 4 : 2.8 }));
+    edges.push(arrow(358, 274, 440, 221, { c: cA, key: keyA, sw: cycle ? 4 : 2.8 }));
+  }
+  if (showReq) {
+    edges.push(arrow(200, 221, 282, 270, { c: cR, key: keyR, sw: cycle ? 4 : 2.8 }));
+    edges.push(arrow(443, 165, 345, 118, { c: cR, key: keyR, sw: cycle ? 4 : 2.8 }));
+  }
+
+  const labels = [];
+  if (stage === 3) {
+    labels.push(tag(247, 145, "已分配", { c: SVGC.res, stroke: SVGC.res }));
+    labels.push(tag(405, 255, "已分配", { c: SVGC.res, stroke: SVGC.res }));
+  }
+  if (stage === 4) {
+    labels.push(tag(236, 254, "请求", { c: SVGC.proc, stroke: SVGC.proc }));
+    labels.push(tag(400, 133, "请求", { c: SVGC.proc, stroke: SVGC.proc }));
+  }
+  if (stage === 6) {
+    labels.push(tag(250, 143, "已分配 R→P", { c: SVGC.res, stroke: SVGC.res }));
+    labels.push(tag(237, 254, "请求 P→R", { c: SVGC.proc, stroke: SVGC.proc }));
+    labels.push(tag(404, 133, "请求 P→R", { c: SVGC.proc, stroke: SVGC.proc }));
+    labels.push(tag(410, 255, "已分配 R→P", { c: SVGC.res, stroke: SVGC.res }));
+  }
+
+  let legend = "";
+  if (stage <= 1 || stage === 6) {
+    legend = `
+      ${stateNode(132, 360, 17, "", SVGC.proc, { active: false })}
+      ${tx(156, 360, "进程", { s: 12.5, a: "start", c: SVGC.proc })}
+      ${resSquare(246, 346, 32, 28, "", 0)}
+      ${tx(286, 360, "资源", { s: 12.5, a: "start", c: SVGC.res })}
+      ${arrow(380, 360, 420, 360, { c: SVGC.proc, key: "darkblue", sw: 2.4 })}
+      ${tx(426, 360, "请求 P→R", { s: 12, a: "start", c: SVGC.ink2 })}
+      ${arrow(520, 386, 480, 386, { c: SVGC.res, key: "purple", sw: 2.4 })}
+      ${tx(526, 386, "已分配 R→P", { s: 12, a: "start", c: SVGC.ink2 })}`;
+  }
+  const bottomNote = stage === 2
+    ? tag(320, 364, "资源框里的圆点 = 该类资源的实例数（这里各 1 个）", { s: 13, c: SVGC.ink2 })
+    : stage === 3
+      ? tag(320, 364, "R → P：资源已经分配给它", { s: 13, c: SVGC.res, stroke: SVGC.res })
+      : stage === 4
+        ? tag(320, 364, "P → R：进程正在请求这个资源", { s: 13, c: SVGC.proc, stroke: SVGC.proc })
+        : "";
+
+  return `
+    ${edges.join("")}
+    ${stateNode(160, 195, 48, "P1", SVGC.proc, { active: stage === 5 || stage === 6 })}
+    ${stateNode(480, 195, 48, "P2", SVGC.proc, { active: stage === 5 || stage === 6 })}
+    ${resSquare(275, 66, 90, 64, "R1", stage >= 2 ? 1 : 0, { active: cycle })}
+    ${resSquare(275, 266, 90, 64, "R2", stage >= 2 ? 1 : 0, { active: cycle })}
+    ${labels.join("")}
+    ${cycle ? tag(320, 195, "P1→R2→P2→R1 形成环 → 死锁", { s: 13.5, c: SVGC.bad, stroke: SVGC.bad, fill: "var(--card)" }) : ""}
+    ${stage === 2 ? tx(320, 198, "各 1 个实例", { s: 12, c: SVGC.muted, w: 600 }) : ""}
+    ${legend}
+    ${bottomNote}`;
+}
+
+/* ============================================================
+   2.2 图的简化
+   ============================================================ */
+function simplifyDiagram(stage) {
+  const showP2 = stage <= 2;
+  const showP1 = stage <= 4;
+  const showAlloc = stage <= 3;
+  const showReq = stage <= 2;
+  const showNewAlloc = stage === 4;
+  const r2Free = stage >= 3;
+  const r1Free = stage >= 5;
+
+  let markup = `
+    ${box(112, 46, 102, 64, { fill: "var(--card)", stroke: SVGC.res, sw: 2.4, rx: 8 })}
+    ${tx(163, 68, "R1", { s: 14, c: SVGC.res, w: 800 })}
+    ${r1Free
+      ? `<circle cx="163" cy="92" r="4.5" fill="var(--stage)" stroke="${SVGC.res}" stroke-width="2"/>`
+      : `<circle cx="163" cy="92" r="4.5" fill="${SVGC.res}"/>`}
+    ${box(406, 136, 102, 64, { fill: "var(--card)", stroke: SVGC.res, sw: 2.4, rx: 8 })}
+    ${tx(457, 158, "R2", { s: 14, c: SVGC.res, w: 800 })}
+    ${r2Free
+      ? `<circle cx="457" cy="182" r="4.5" fill="var(--stage)" stroke="${SVGC.res}" stroke-width="2"/>`
+      : `<circle cx="457" cy="182" r="4.5" fill="${SVGC.res}"/>`}
+  `;
+  if (showAlloc) markup += arrow(163, 110, 175, 134, { c: SVGC.res, key: "purple", sw: 2.8 });
+  if (showReq) markup += arrow(221, 174, 404, 170, { c: SVGC.proc, key: "darkblue", sw: 2.8 });
+  if (stage <= 2) markup += arrow(457, 200, 480, 254, { c: SVGC.res, key: "purple", sw: 2.8 });
+  if (showNewAlloc) markup += arrow(406, 166, 221, 178, { c: SVGC.ok, key: "green", sw: 3.4 });
+
+  if (showP1) {
+    markup += stateNode(175, 180, 46, "P1", SVGC.proc, { active: stage === 4 });
+    markup += stage === 4 ? tag(178, 238, "P1 已满足", { s: 12, c: SVGC.ok, stroke: SVGC.ok }) : "";
+  }
+  if (showP2) {
+    markup += stateNode(480, 300, 46, "P2", SVGC.proc, { active: stage === 2 });
+    markup += stage === 2 ? tag(480, 242, "P2 没有请求", { s: 13, c: SVGC.ok, stroke: SVGC.ok }) : "";
+  }
+  if (stage === 3) markup += tag(480, 300, "P2 跑完 → 释放 R2", { s: 13, c: SVGC.ok, stroke: SVGC.ok });
+  if (stage === 5) {
+    markup += tag(320, 200, "所有进程都能跑完 = 可完全简化 = 无死锁", { s: 14.5, c: SVGC.ok, stroke: SVGC.ok });
+    markup += mark(320, 250, true, { r: 18 });
+  }
+  if (stage === 6) {
+    markup += `${box(30, 72, 278, 240, { fill: "var(--card)", stroke: SVGC.ok, sw: 2.2, rx: 16 })}
+      ${tcOr(160, 112, "可完全简化", SVGC.ok)}
+      ${mark(160, 166, true, { r: 18 })}
+      ${tlines(160, 218, ["所有进程都能跑完", "没有死锁"], { s: 13, c: SVGC.ink2, w: 600, lh: 23 })}
+      ${box(332, 72, 278, 240, { fill: "var(--card)", stroke: SVGC.bad, sw: 2.2, rx: 16, dash: "7 6" })}
+      ${tx(471, 112, "不可完全简化", { s: 18, c: SVGC.bad, w: 900 })}
+      ${mark(471, 166, false, { r: 18 })}
+      ${tlines(471, 218, ["总剩下边擦不掉", "存在死锁"], { s: 13, c: SVGC.ink2, w: 600, lh: 23 })}`;
+  }
+  return markup;
+}
+function tcOr(x, y, str, c) { return tx(x, y, str, { s: 18, c, w: 900 }); }
+
+/* ============================================================
+   2.3 四个必要条件与策略
+   ============================================================ */
+const DL_CONDITIONS = [
+  { t: "互斥", d: "资源一次只能给一个进程用", b: "一般不能破坏", icon: "1" },
+  { t: "请求并保持", d: "占着资源，又去申请新的资源", b: "破坏：一次性申请全部（预先分配）", icon: "2" },
+  { t: "不可剥夺", d: "拿到就不放，不能被强行收回", b: "破坏：申请不到就释放已占资源，或强行剥夺", icon: "3" },
+  { t: "环路等待", d: "进程首尾相接，循环等资源", b: "破坏：资源按编号顺序申请", icon: "4" }
+];
+function conditionsDiagram(active) {
+  const positions = [[18, 58], [326, 58], [18, 210], [326, 210]];
+  const cards = DL_CONDITIONS.map((c, i) => {
+    const [x, y] = positions[i];
+    const on = active === i;
+    const dim = active >= 0 && !on;
+    return `<g class="${on ? "pop" : ""}" opacity="${dim ? 0.38 : 1}">
+      ${box(x, y, 296, 140, { fill: on ? "var(--bg2)" : "var(--card)", stroke: on ? SVGC.warn : SVGC.line2, sw: on ? 3.4 : 1.8, rx: 15 })}
+      <circle cx="${x + 30}" cy="${y + 30}" r="15" fill="${on ? SVGC.warn : "var(--bg2)"}" stroke="${SVGC.warn}" stroke-width="1.5"/>
+      ${tx(x + 30, y + 31, c.icon, { s: 12, c: on ? "#fff" : SVGC.warn, w: 900 })}
+      ${tx(x + 54, y + 30, c.t, { s: 18, a: "start", c: on ? SVGC.warn : SVGC.ink, w: 900 })}
+      ${tx(x + 18, y + 66, c.d, { s: 12.5, a: "start", c: SVGC.ink2, w: 600 })}
+      ${tx(x + 18, y + 104, c.b, { s: 11.5, a: "start", c: i === 0 ? SVGC.bad : SVGC.ok, w: 700 })}
+    </g>`;
+  }).join("");
+  return cards + (active >= 0
+    ? tag(320, 374, active === 0 ? "互斥一般不能破坏；另外三条可以针对性破坏" : `第 ${active + 1} 条：${DL_CONDITIONS[active].b}`, { s: 13, c: SVGC.warn, stroke: SVGC.warn })
+    : tag(320, 374, "四个条件同时成立，才可能发生死锁", { s: 13, c: SVGC.ink2 }));
+}
+function strategiesDiagram() {
+  const items = [
+    { t: "预防", d: "破坏四个必要条件之一", c: SVGC.ok },
+    { t: "避免", d: "银行家算法，每次分配前检查安全", c: SVGC.proc },
+    { t: "检测", d: "资源分配图化简", c: SVGC.warn },
+    { t: "解除", d: "剥夺资源、撤销进程", c: SVGC.bad }
+  ];
+  return items.map((it, i) => {
+    const x = i % 2 === 0 ? 18 : 326, y = i < 2 ? 58 : 210;
+    return `<g class="pop" style="animation-delay:${i * .07}s">
+      ${box(x, y, 296, 140, { fill: "var(--card)", stroke: it.c, sw: 2.2, rx: 15 })}
+      <circle cx="${x + 34}" cy="${y + 34}" r="18" fill="${it.c}" opacity=".14"/>
+      <circle cx="${x + 34}" cy="${y + 34}" r="18" fill="none" stroke="${it.c}" stroke-width="2"/>
+      ${tx(x + 34, y + 35, String(i + 1), { s: 13, c: it.c, w: 900 })}
+      ${tx(x + 64, y + 34, it.t, { s: 19, a: "start", c: it.c, w: 900 })}
+      ${tx(x + 20, y + 88, it.d, { s: 12.5, a: "start", c: SVGC.ink2, w: 600 })}
+    </g>`;
+  }).join("") + tag(320, 374, "四种策略：预防、避免、检测、解除", { s: 13, c: SVGC.ink2 });
+}
+
+/* ============================================================
+   2.4 资源数公式
+   ============================================================ */
+function resourceDiagram(stage) {
+  if (stage === 1) {
+    return `
+      ${tx(320, 52, "保证不死锁的资源数公式", { s: 19, w: 900 })}
+      ${box(70, 100, 500, 100, { fill: "var(--card)", stroke: SVGC.warn, sw: 2.4, rx: 18 })}
+      ${tx(320, 152, "N × (k − 1) + 1 ≤ R", { s: 35, c: SVGC.warn, w: 900, ff: "Georgia,serif" })}
+      ${[
+        ["N", "进程数"],
+        ["k", "每个进程最多需要"],
+        ["R", "系统资源总数"]
+      ].map((v, i) => `
+        <g class="pop" style="animation-delay:${i * .08}s">
+          ${box(64 + i * 176, 242, 160, 84, { fill: "var(--card)", stroke: SVGC.line2, sw: 1.8, rx: 12 })}
+          ${tx(144 + i * 176, 270, v[0], { s: 24, c: SVGC.proc, w: 900 })}
+          ${tx(144 + i * 176, 300, v[1], { s: 12, c: SVGC.ink2, w: 600 })}
+        </g>`).join("")}
+      ${tag(320, 362, "最坏情况：每个进程先拿 k−1 个，都差最后 1 个", { s: 13, c: SVGC.ink2 })}`;
+  }
+  if (stage === 2) {
+    const xs = [110, 250, 390, 530];
+    return `
+      ${tx(320, 50, "最坏情况：每个进程都拿 k−1 个", { s: 18, w: 900 })}
+      ${xs.map((x, i) => miniProc(x, 170, `P${i + 1}`, { dots: 2, r: 31 })).join("")}
+      ${xs.map((x, i) => tag(x, 235, "k−1 = 2", { s: 11.5, c: SVGC.res, stroke: SVGC.res })).join("")}
+      ${tag(320, 318, "每个都还差最后 1 个，谁也不够跑完", { s: 15, c: SVGC.bad, stroke: SVGC.bad })}
+      ${tag(320, 362, "这里的例子：k = 3，N = 4", { s: 13, c: SVGC.ink2 })}`;
+  }
+  if (stage === 3) {
+    const xs = [110, 250, 390, 530];
+    return `
+      ${tx(320, 50, "再加 1 个资源，就一定有进程能凑齐", { s: 18, w: 900 })}
+      ${xs.map((x, i) => miniProc(x, 170, `P${i + 1}`, { dots: 2, r: 31, color: i === 1 ? SVGC.run : SVGC.proc })).join("")}
+      <circle cx="320" cy="286" r="12" fill="${SVGC.res}" opacity=".18" stroke="${SVGC.res}" stroke-width="2.2"/>
+      ${tx(320, 287, "1", { s: 13, c: SVGC.res, w: 900 })}
+      ${parrow("M320,272 C320,238 290,218 254,205", { c: SVGC.ok, key: "green", sw: 3 })}
+      ${mark(320, 342, true, { r: 14 })}
+      ${tag(320, 374, "拿到最后 1 个 → 跑完 → 释放 → 其他人也能跑完", { s: 13, c: SVGC.ok, stroke: SVGC.ok })}`;
+  }
+  if (stage === 4) {
+    const xs = [62, 148, 234, 320, 406, 492, 578];
+    return `
+      ${tx(320, 46, "例（25 卷）：7 台打印机，每进程最多 2 台", { s: 17, w: 900 })}
+      ${tx(320, 74, "N × 1 + 1 ≤ 7  →  N ≤ 6", { s: 20, c: SVGC.warn, w: 900, ff: "Georgia,serif" })}
+      ${xs.slice(0, 6).map((x, i) => `
+        ${miniProc(x, 145, `P${i + 1}`, { dots: 0, r: 27 })}
+        ${printerIcon(x - 14, 188, 28, SVGC.res)}
+      `).join("")}
+      ${printerIcon(306, 300, 30, SVGC.ok)}
+      ${tag(320, 344, "还剩 1 台：一定有人拿到第 2 台，跑完释放", { s: 13, c: SVGC.ok, stroke: SVGC.ok })}
+      ${tag(320, 378, "6 个进程各占 1 台，N = 6 是安全的", { s: 12.5, c: SVGC.ink2 })}`;
+  }
+  if (stage === 5) {
+    const xs = [55, 143, 231, 319, 407, 495, 583];
+    return `
+      ${tx(320, 46, "如果是 7 个进程：全部卡住", { s: 18, c: SVGC.bad, w: 900 })}
+      ${tx(320, 76, "7 × 1 + 1 = 8 > 7", { s: 19, c: SVGC.bad, w: 900, ff: "Georgia,serif" })}
+      ${xs.map((x, i) => `
+        ${miniProc(x, 158, `P${i + 1}`, { dots: 0, r: 25, color: SVGC.bad })}
+        ${printerIcon(x - 13, 199, 26, SVGC.bad)}
+      `).join("")}
+      ${mark(320, 296, false, { r: 18 })}
+      ${tag(320, 344, "每人 1 台，谁都要不到第 2 台 → 死锁", { s: 15, c: SVGC.bad, stroke: SVGC.bad })}
+      ${tag(320, 378, "所以 N 最多取 6", { s: 13, c: SVGC.ink2 })}`;
+  }
+  const xs = [70, 166, 262, 358, 454, 550];
+  return `
+    ${tx(320, 44, "例（23 卷）：19 台，每进程共需 4 台", { s: 17, w: 900 })}
+    ${tx(320, 74, "3N + 1 ≤ 19  →  N ≤ 6", { s: 21, c: SVGC.warn, w: 900, ff: "Georgia,serif" })}
+    ${xs.map((x, i) => miniProc(x, 156, `P${i + 1}`, { dots: 3, r: 28 })).join("")}
+    ${tag(320, 218, "最坏：6 × 3 = 18 台，还剩 1 台", { s: 13, c: SVGC.res, stroke: SVGC.res })}
+    ${tx(320, 286, "19 台 − 18 台 = 1 台", { s: 17, c: SVGC.proc, w: 900 })}
+    ${tag(320, 334, "N = 6 时一定有人凑齐第 4 台；N = 7 需要 22 台，不够", { s: 13, c: SVGC.ok, stroke: SVGC.ok })}
+    ${tag(320, 372, "答案：N 最多 6", { s: 15, c: SVGC.warn, stroke: SVGC.warn })}`;
+}
+
+const CARD2_ANIMS = [
+  {
+    id: "p2a1", no: "2.1", title: "资源分配图：圆、方框、两种箭头",
+    frames: [
+      FR("资源分配图：进程用圆，资源用方框；先认这两种形状。", ragDiagram(1)),
+      FR("资源框里的圆点表示实例数。这个例子里 R1、R2 各只有 1 个。", ragDiagram(2)),
+      FR("R → P 的箭头表示“这个资源已经分配给它”。", ragDiagram(3)),
+      FR("P → R 的箭头表示“这个进程正在请求这个资源”。", ragDiagram(4)),
+      FR("P1 占着 R1、请求 R2；P2 占着 R2、请求 R1。形成环 → 死锁。", ragDiagram(5), 4200),
+      FR("记：P→R 是请求，R→P 是已分配。", ragDiagram(6), 4000)
+    ]
+  },
+  {
+    id: "p2a2", no: "2.2", title: "图的简化：擦边判断死锁",
+    frames: [
+      FR("简化方法：找一个“所有请求都能满足”的进程，让它跑完、释放资源，再擦掉它的边。", simplifyDiagram(1)),
+      FR("P2 没有任何请求，它的请求全部满足，可以运行。", simplifyDiagram(2)),
+      FR("P2 跑完，释放 R2；擦掉 P2 和它相关的边。", simplifyDiagram(3)),
+      FR("R2 空出来了，P1 的请求得到满足。", simplifyDiagram(4)),
+      FR("重复下去，所有进程都能跑完、所有边都擦掉 = 可完全简化 = 无死锁。", simplifyDiagram(5), 4000),
+      FR("如果怎么找都还有边擦不掉 = 不可完全简化 = 死锁。", simplifyDiagram(6), 4200)
+    ]
+  },
+  {
+    id: "p2a3", no: "2.3", title: "四个必要条件与四种策略",
+    frames: [
+      FR("四个必要条件同时成立，才可能死锁：互斥、请求并保持、不可剥夺、环路等待。", conditionsDiagram(-1)),
+      FR("互斥：资源一次只能给一个进程用——一般不能破坏。", conditionsDiagram(0)),
+      FR("请求并保持：占着资源又申请新的。破坏办法：一次性申请全部资源（预先分配）。", conditionsDiagram(1)),
+      FR("不可剥夺：拿到就不放。破坏办法：申请不到就释放已占资源，或强行剥夺。", conditionsDiagram(2)),
+      FR("环路等待：首尾相接等资源。破坏办法：资源按编号顺序申请。", conditionsDiagram(3)),
+      FR("四种策略：预防破坏必要条件；避免用银行家算法；检测靠化简；解除靠剥夺或撤销。", strategiesDiagram(), 4400)
+    ]
+  },
+  {
+    id: "p2a4", no: "2.4", title: "资源数公式与两个真题例子",
+    frames: [
+      FR("每个进程最多需要 k 个资源，系统共有 R 个。", resourceDiagram(1)),
+      FR("最坏情况：每个进程各拿 k−1 个，都还差最后 1 个。", resourceDiagram(2)),
+      FR("只要再多 1 个资源，就一定能让某个进程凑齐、跑完、释放。", resourceDiagram(3)),
+      FR("25 卷：7 台打印机，每进程最多 2 台。N×1+1≤7 → N 最多 6。", resourceDiagram(4), 4200),
+      FR("如果放 7 个进程，每人占 1 台，全部卡住——这就是 7 > 6。", resourceDiagram(5), 4200),
+      FR("23 卷：19 台，每进程共需 4 台。3N+1≤19 → N 最多 6。", resourceDiagram(6), 4400)
+    ]
+  }
+];
+
+const CARD2 = {
+  id: "p2", num: "②", short: "死锁", kicker: "资源图 · 化简 · 四个条件 · 公式",
+  title: "死锁",
+  color: "var(--c-block)",
+  intro: "死锁这张最容易“背了不会用”。先会用圆和方框画资源分配图，再记住化简和公式，选择题基本就稳了。",
+  chips: ["资源分配图", "图化简", "四个必要条件", "银行家算法", "N×(k−1)+1≤R"],
+  anims: CARD2_ANIMS,
+  compare: {
+    cols: [
+      {
+        name: "死锁", color: "var(--c-bad)", shape: "circle", tag: "已经卡住",
+        points: [
+          "相关进程互相等待，谁也走不了",
+          "只是相关进程卡住",
+          "不是所有进程都停",
+          "更不等于整个系统崩溃"
+        ]
+      },
+      {
+        name: "不安全状态", color: "var(--c-warn)", shape: "square", tag: "可能死锁",
+        points: [
+          "只是“可能”进入死锁",
+          "不等于已经死锁",
+          "银行家算法在分配前检查安全"
+        ]
+      }
+    ],
+    facts: [
+      { ok: true, text: "死锁时只是相关进程卡住，不是所有进程都停" },
+      { ok: false, text: "死锁一定会导致整个系统崩溃" },
+      { ok: true, text: "不安全状态只是可能死锁，并不等于死锁" },
+      { ok: false, text: "系统处于不安全状态，就已经死锁了" },
+      { ok: true, text: "资源分配图不可完全简化是题目给出的死锁充分条件" }
+    ]
+  },
+  mnemonic: "互斥保持不剥夺，再加环路就死锁；预先分配破保持。",
+  mnNote: "死锁只卡住相关进程，不等于系统崩溃；不安全状态也不等于死锁。",
+  quiz: ["q8", "q9", "q10", "q11", "q12"]
+};
+
+/* ============================================================
+   卡③ I/O
+   ============================================================ */
+function ioModes(active) {
+  const rows = [
+    { label: "程序直接控制", y: 96 },
+    { label: "中断驱动", y: 164 },
+    { label: "DMA", y: 232 },
+    { label: "通道", y: 300 }
+  ];
+  const X = 152, W = 458, H = 26;
+  function dimFor(i) { return active >= 0 && active !== i ? 0.3 : 1; }
+  const bars = rows.map((r, i) => {
+    let content = "";
+    if (i === 0) {
+      content = `<rect x="${X}" y="${r.y}" width="${W}" height="${H}" rx="5" fill="${SVGC.proc}" class="grow"/>
+        ${tx(X + W / 2, r.y + H / 2, "反复查询设备状态 · 全程忙等", { s: 11.5, c: "#fff", w: 800 })}`;
+    } else if (i === 1) {
+      for (let b = 0; b < 4; b++) {
+        for (let j = 0; j < 4; j++) {
+          content += `<rect x="${X + b * 114.5 + j * 27}" y="${r.y}" width="8" height="${H}" rx="2" fill="${SVGC.proc}" class="grow"/>`;
+        }
+      }
+      content += `<rect x="${X}" y="${r.y}" width="${W}" height="${H}" rx="5" fill="none" stroke="${SVGC.line2}" stroke-width="1"/>`;
+    } else if (i === 2) {
+      for (let b = 0; b < 4; b++) {
+        const bx = X + b * 114.5;
+        content += `<rect x="${bx}" y="${r.y}" width="14" height="${H}" rx="3" fill="${SVGC.proc}" class="grow"/>`;
+        content += `<rect x="${bx + 102}" y="${r.y}" width="11" height="${H}" rx="3" fill="${SVGC.proc}" class="grow"/>`;
+      }
+      content += `<rect x="${X}" y="${r.y}" width="${W}" height="${H}" rx="5" fill="none" stroke="${SVGC.line2}" stroke-width="1"/>`;
+    } else {
+      content = `<rect x="${X}" y="${r.y}" width="16" height="${H}" rx="3" fill="${SVGC.proc}" class="grow"/>
+        <rect x="${X + W - 14}" y="${r.y}" width="14" height="${H}" rx="3" fill="${SVGC.proc}" class="grow"/>
+        <rect x="${X}" y="${r.y}" width="${W}" height="${H}" rx="5" fill="none" stroke="${SVGC.line2}" stroke-width="1"/>`;
+    }
+    const on = active === i;
+    return `<g opacity="${dimFor(i)}">
+      ${on ? box(X - 9, r.y - 8, W + 18, H + 16, { stroke: SVGC.accent, sw: 2, rx: 9, dash: "5 4" }) : ""}
+      ${tx(140, r.y + H / 2, r.label, { s: 13, a: "end", c: on ? SVGC.accent : SVGC.ink, w: on ? 900 : 700 })}
+      ${content}
+    </g>`;
+  }).join("");
+
+  return `
+    ${tx(320, 40, "读 4 个数据块：CPU 在四种方式下忙不忙？", { s: 17, w: 900 })}
+    ${rectLegend(360, 62, SVGC.proc, "CPU 忙")}
+    ${rectLegend(455, 62, "var(--line2)", "CPU 空闲 / 设备在工作")}
+    ${boxesAndBlocks()}
+    ${bars}
+    ${tag(320, 372, "CPU 干预：直接控制 > 中断 > DMA > 通道", { s: 13, c: SVGC.ink2 })}`;
+}
+function rectLegend(x, y, c, label) {
+  return `<rect x="${x}" y="${y - 7}" width="15" height="12" rx="3" fill="${c}"/>${tx(x + 21, y, label, { s: 11.5, a: "start", c: SVGC.ink2, w: 600 })}`;
+}
+function boxesAndBlocks() {
+  const X = 152, W = 458;
+  let out = "";
+  for (let b = 0; b <= 4; b++) {
+    out += ln(X + b * 114.5, 88, X + b * 114.5, 332, { c: SVGC.line2, sw: 1, op: 0.45, dash: "2 4" });
+  }
+  for (let b = 0; b < 4; b++) {
+    out += tx(X + b * 114.5 + 57, 348, `块 ${b + 1}`, { s: 10.5, c: SVGC.muted, w: 600 });
+  }
+  return out;
+}
+
+function bufferDiagram(stage) {
+  if (stage === 1) {
+    return `
+      ${box(44, 148, 110, 84, { fill: SVGC.cpu, stroke: SVGC.cpu, sw: 2.4, rx: 12, op: 0.12 })}
+      ${tx(99, 190, "CPU", { s: 20, c: SVGC.cpu, w: 900 })}
+      ${box(494, 142, 104, 96, { fill: SVGC.disk, stroke: SVGC.disk, sw: 2.4, rx: 12, op: 0.1 })}
+      ${tx(546, 180, "打印机", { s: 16, c: SVGC.disk, w: 900 })}
+      ${tx(546, 208, "慢", { s: 12, c: SVGC.ink2, w: 700 })}
+      ${arrow(160, 190, 486, 190, { c: SVGC.ink2, key: "ink", sw: 2.8 })}
+      ${tag(323, 162, "直接送数据", { s: 12, c: SVGC.ink2 })}
+      ${box(30, 134, 138, 112, { stroke: SVGC.bad, sw: 2.2, rx: 14, dash: "5 4" })}
+      ${tag(99, 276, "CPU 只能干等", { s: 13, c: SVGC.bad, stroke: SVGC.bad })}
+      ${tag(320, 340, "CPU 速度远高于打印机 → 不匹配", { s: 14, c: SVGC.bad, stroke: SVGC.bad })}`;
+  }
+  if (stage === 2) {
+    return `
+      ${box(36, 148, 104, 84, { fill: SVGC.cpu, stroke: SVGC.cpu, sw: 2.4, rx: 12, op: 0.12 })}
+      ${tx(88, 190, "CPU", { s: 19, c: SVGC.cpu, w: 900 })}
+      ${box(258, 134, 120, 112, { fill: SVGC.buf, stroke: SVGC.buf, sw: 2.6, rx: 12, op: 0.1 })}
+      ${tx(318, 158, "缓冲区", { s: 15, c: SVGC.buf, w: 900 })}
+      ${[0, 1, 2].map(i => `<rect x="278" y="${174 + i * 20}" width="80" height="13" rx="3" fill="${SVGC.buf}" opacity=".3"/>`).join("")}
+      ${box(498, 142, 100, 96, { fill: SVGC.disk, stroke: SVGC.disk, sw: 2.4, rx: 12, op: 0.1 })}
+      ${tx(548, 180, "打印机", { s: 15, c: SVGC.disk, w: 900 })}
+      ${tx(548, 208, "慢慢取", { s: 12, c: SVGC.ink2, w: 700 })}
+      ${arrow(144, 190, 252, 190, { c: SVGC.proc, key: "darkblue", sw: 3 })}
+      ${arrow(382, 190, 492, 190, { c: SVGC.buf, key: "amber", sw: 2.4, dash: "6 4" })}
+      ${tag(197, 162, "快速放下", { s: 12, c: SVGC.proc, stroke: SVGC.proc })}
+      ${tag(437, 162, "慢慢取走", { s: 12, c: SVGC.buf, stroke: SVGC.buf })}
+      ${tag(318, 286, "CPU 把数据丢进缓冲区，就去干别的", { s: 14, c: SVGC.buf, stroke: SVGC.buf })}`;
+  }
+  if (stage === 3) {
+    const X = 120, W = 450;
+    return `
+      ${tx(320, 46, "单缓冲的时间轴", { s: 18, w: 900 })}
+      ${tx(68, 118, "CPU", { s: 14, a: "end", c: SVGC.cpu, w: 800 })}
+      ${tx(68, 218, "打印机", { s: 14, a: "end", c: SVGC.disk, w: 800 })}
+      <rect x="${X}" y="102" width="${W}" height="30" rx="5" fill="var(--bg2)" stroke="${SVGC.line2}"/>
+      <rect x="${X}" y="202" width="${W}" height="30" rx="5" fill="var(--bg2)" stroke="${SVGC.line2}"/>
+      ${[
+        [0, 55], [110, 55], [220, 55], [330, 55]
+      ].map(([dx, w]) => `<rect x="${X + dx}" y="102" width="${w}" height="30" rx="4" fill="${SVGC.proc}" opacity=".8"/>`).join("")}
+      ${[
+        [70, 120], [200, 120], [330, 120]
+      ].map(([dx, w]) => `<rect x="${X + dx}" y="202" width="${w}" height="30" rx="4" fill="${SVGC.disk}" opacity=".7"/>`).join("")}
+      ${tx(X + 27, 117, "装", { s: 11, c: "#fff", w: 900 })}
+      ${tx(X + 130, 117, "装", { s: 11, c: "#fff", w: 900 })}
+      ${tx(X + 247, 117, "装", { s: 11, c: "#fff", w: 900 })}
+      ${tx(X + 357, 117, "装", { s: 11, c: "#fff", w: 900 })}
+      ${tx(X + 130, 217, "慢慢打印", { s: 11, c: "#fff", w: 800 })}
+      ${tag(X + 230, 158, "CPU 装完就走，不用等打印", { s: 13, c: SVGC.ok, stroke: SVGC.ok })}
+      ${tag(320, 292, "缓冲技术解决 CPU 与外设速度不匹配", { s: 15, c: SVGC.warn, stroke: SVGC.warn })}
+      ${tag(320, 332, "单缓冲：一块缓冲区，装和取轮流用", { s: 12.5, c: SVGC.ink2 })}`;
+  }
+  if (stage === 4) {
+    return `
+      ${box(30, 150, 92, 90, { fill: SVGC.cpu, stroke: SVGC.cpu, sw: 2.4, rx: 12, op: 0.12 })}
+      ${tx(76, 195, "CPU", { s: 17, c: SVGC.cpu, w: 900 })}
+      ${box(194, 92, 146, 82, { fill: SVGC.buf, stroke: SVGC.buf, sw: 2.4, rx: 12, op: 0.1 })}
+      ${tx(267, 122, "缓冲 B1", { s: 14, c: SVGC.buf, w: 800 })}
+      ${tx(267, 148, "正在装", { s: 11.5, c: SVGC.proc, w: 700 })}
+      ${box(194, 230, 146, 82, { fill: SVGC.buf, stroke: SVGC.buf, sw: 2.4, rx: 12, op: 0.1 })}
+      ${tx(267, 260, "缓冲 B2", { s: 14, c: SVGC.buf, w: 800 })}
+      ${tx(267, 286, "正在取", { s: 11.5, c: SVGC.disk, w: 700 })}
+      ${box(500, 150, 100, 96, { fill: SVGC.disk, stroke: SVGC.disk, sw: 2.4, rx: 12, op: 0.1 })}
+      ${tx(550, 188, "打印机", { s: 15, c: SVGC.disk, w: 900 })}
+      ${arrow(126, 180, 188, 140, { c: SVGC.proc, key: "darkblue", sw: 2.8 })}
+      ${arrow(340, 266, 494, 206, { c: SVGC.buf, key: "amber", sw: 2.8, dash: "6 4" })}
+      ${arrow(262, 178, 262, 226, { c: SVGC.thread, key: "teal", sw: 2, dash: "4 4" })}
+      ${arrow(272, 226, 272, 178, { c: SVGC.thread, key: "teal", sw: 2, dash: "4 4" })}
+      ${tag(312, 202, "交换", { s: 11.5, c: SVGC.thread, stroke: SVGC.thread })}
+      ${tag(320, 348, "双缓冲：一块在装，一块在取，CPU 等得更少", { s: 14, c: SVGC.ok, stroke: SVGC.ok })}`;
+  }
+  return `
+    ${tx(320, 56, "缓冲技术", { s: 20, w: 900 })}
+    ${[
+      { t: "单缓冲", d: "一块缓冲区，装和取轮流", c: SVGC.buf },
+      { t: "双缓冲", d: "两块轮流，一块装一块取", c: SVGC.thread },
+      { t: "目的", d: "解决 CPU 与外设速度不匹配", c: SVGC.ok }
+    ].map((it, i) => `
+      <g class="pop" style="animation-delay:${i * .08}s">
+        ${box(22 + i * 202, 104, 188, 170, { fill: "var(--card)", stroke: it.c, sw: 2.2, rx: 15 })}
+        ${tx(116 + i * 202, 148, it.t, { s: 19, c: it.c, w: 900 })}
+        ${tlines(116 + i * 202, 200, it.d.match(/.{1,7}/g), { s: 12.5, c: SVGC.ink2, w: 600, lh: 22 })}
+      </g>`).join("")}
+    ${tag(320, 332, "CPU 把数据丢进缓冲区就去干别的，外设慢慢取", { s: 13.5, c: SVGC.ink2 })}`;
+}
+
+function spoolDiagram(stage) {
+  if (stage === 5) {
+    return `
+      ${tx(320, 54, "SPOOLing 的效果", { s: 20, w: 900 })}
+      ${[
+        { t: "独占 → 共享", d: "打印机不再被一个进程长期占住", c: SVGC.ok },
+        { t: "提高 I/O 速度", d: "进程只写到磁盘，不必等打印", c: SVGC.proc },
+        { t: "虚拟设备", d: "把独占设备变成共享设备", c: SVGC.thread }
+      ].map((it, i) => `
+        <g class="pop" style="animation-delay:${i * .08}s">
+          ${box(20 + i * 202, 96, 190, 190, { fill: "var(--card)", stroke: it.c, sw: 2.2, rx: 15 })}
+          ${tx(115 + i * 202, 140, it.t, { s: 17, c: it.c, w: 900 })}
+          ${tlines(115 + i * 202, 196, it.d.match(/.{1,7}/g), { s: 12.5, c: SVGC.ink2, w: 600, lh: 22 })}
+        </g>`).join("")}
+      ${tag(320, 340, "输出井在磁盘，输出缓冲区在内存", { s: 14, c: SVGC.warn, stroke: SVGC.warn })}`;
+  }
+  const procs = [108, 200, 292];
+  const showWell = stage >= 2;
+  const showDaemon = stage >= 3;
+  return `
+    ${procs.map((y, i) => `
+      ${miniProc(70, y, `P${i + 1}`, { r: 27, color: stage === 1 && i > 0 ? SVGC.bad : SVGC.proc })}
+      ${arrow(102, y, 246, y, {
+        c: stage === 1 && i > 0 ? SVGC.muted : SVGC.proc,
+        key: "darkblue", sw: 2.2,
+        op: stage === 1 && i > 0 ? 0.3 : 1
+      })}
+    `).join("")}
+    ${showWell ? `
+      ${box(246, 70, 176, 270, { fill: SVGC.disk, stroke: SVGC.disk, sw: 2.4, rx: 14, op: 0.07 })}
+      ${tx(334, 92, "输出井（磁盘）", { s: 14, c: SVGC.disk, w: 900 })}
+      ${[0, 1, 2].map(i => {
+        const yy = 116 + i * 62;
+        return `<g class="pop" style="animation-delay:${i * .07}s">
+          <rect x="270" y="${yy}" width="128" height="44" rx="7" fill="var(--card)" stroke="${SVGC.disk}" stroke-width="1.7"/>
+          ${tx(286, yy + 22, `作业 ${i + 1}`, { s: 12, a: "start", c: SVGC.disk, w: 700 })}
+          <path d="M370,${yy + 15} h14 M370,${yy + 22} h14 M370,${yy + 29} h9" stroke="${SVGC.disk}" stroke-width="2" stroke-linecap="round" opacity=".6"/>
+        </g>`;
+      }).join("")}
+    ` : `
+      ${box(246, 70, 176, 270, { stroke: SVGC.line2, sw: 2, rx: 14, dash: "6 6", op: 0.5 })}
+      ${tx(334, 200, "还没有输出井", { s: 13, c: SVGC.muted, w: 600 })}
+    `}
+    ${box(488, 150, 112, 100, { fill: SVGC.disk, stroke: SVGC.disk, sw: 2.4, rx: 12, op: 0.1 })}
+    ${tx(544, 184, "打印机", { s: 15, c: SVGC.disk, w: 900 })}
+    ${tx(544, 212, "独占设备", { s: 11.5, c: stage === 1 ? SVGC.bad : SVGC.ink2, w: 700 })}
+    ${stage === 1 ? `
+      <g class="pop">
+        <rect x="536" y="168" width="16" height="12" rx="2" fill="none" stroke="${SVGC.bad}" stroke-width="2"/>
+        <path d="M540,168 v-5 a4,4 0 1 1 8,0 v5" fill="none" stroke="${SVGC.bad}" stroke-width="2"/>
+      </g>
+      ${tag(320, 360, "多个进程抢一台打印机：谁占住，别人只能等", { s: 13, c: SVGC.bad, stroke: SVGC.bad })}
+    ` : ""}
+    ${stage === 2 ? tag(320, 366, "先写到磁盘上的输出井，不直接抢打印机", { s: 13, c: SVGC.disk, stroke: SVGC.disk }) : ""}
+    ${showDaemon ? `
+      <circle cx="434" cy="306" r="34" fill="${SVGC.thread}" opacity=".12" stroke="${SVGC.thread}" stroke-width="2"/>
+      ${tx(434, 299, "守护", { s: 11.5, c: SVGC.thread, w: 900 })}
+      ${tx(434, 315, "进程", { s: 11.5, c: SVGC.thread, w: 900 })}
+      ${arrow(472, 306, 486, 232, { c: SVGC.thread, key: "teal", sw: 2.6 })}
+    ` : ""}
+    ${stage === 3 ? tag(320, 366, "守护进程从输出井里逐个取出，交给打印机", { s: 13, c: SVGC.thread, stroke: SVGC.thread }) : ""}
+    ${stage === 4 ? `
+      ${tag(186, 360, "输出缓冲区 → 内存", { s: 13, c: SVGC.proc, stroke: SVGC.proc })}
+      ${tag(452, 360, "输入井 / 输出井 → 磁盘", { s: 13, c: SVGC.disk, stroke: SVGC.disk })}
+    ` : ""}`;
+}
+
+function deviceIndep(stage) {
+  return `
+    ${tx(320, 40, "设备独立性：程序只认逻辑名", { s: 18, w: 900 })}
+    ${box(28, 110, 196, 168, { fill: "var(--card)", stroke: SVGC.proc, sw: 2.4, rx: 14 })}
+    ${tx(126, 138, "用户程序", { s: 15, c: SVGC.proc, w: 900 })}
+    ${tx(46, 178, 'open("printer")', { s: 14, a: "start", c: SVGC.ink, w: 700, ff: "Consolas,monospace" })}
+    ${tx(46, 210, "write(data)", { s: 14, a: "start", c: SVGC.ink2, w: 700, ff: "Consolas,monospace" })}
+    ${tx(46, 242, "close()", { s: 14, a: "start", c: SVGC.ink2, w: 700, ff: "Consolas,monospace" })}
+    ${stage === 3 ? tag(126, 300, "程序一个字都没改", { s: 13, c: SVGC.ok, stroke: SVGC.ok }) : tag(126, 300, "只写逻辑设备名", { s: 13, c: SVGC.proc, stroke: SVGC.proc })}
+    ${arrow(228, 194, 276, 194, { c: SVGC.proc, key: "darkblue", sw: 2.6 })}
+    ${box(280, 104, 166, 182, { fill: "var(--card)", stroke: SVGC.warn, sw: 2.4, rx: 14 })}
+    ${tx(363, 132, "系统映射表", { s: 14, c: SVGC.warn, w: 900 })}
+    ${box(300, 154, 126, 40, { fill: "var(--bg2)", stroke: SVGC.line2, sw: 1.5, rx: 8 })}
+    ${tx(363, 174, "printer", { s: 13, c: SVGC.proc, w: 800 })}
+    ${arrow(363, 198, 363, 224, { c: SVGC.warn, key: "amber", sw: 2.2 })}
+    ${box(300, 228, 126, 40, { fill: "var(--bg2)", stroke: stage === 3 ? SVGC.thread : SVGC.ok, sw: 2, rx: 8 })}
+    ${tx(363, 248, stage === 3 ? "打印机 B" : "打印机 A", { s: 13, c: stage === 3 ? SVGC.thread : SVGC.ok, w: 800 })}
+    ${arrow(450, 194, 492, stage === 3 ? 272 : 160, { c: SVGC.warn, key: "amber", sw: 2.6, dash: "6 4" })}
+    ${deviceBox(496, 112, "打印机 A", "LPT1", stage !== 3, SVGC.ok)}
+    ${deviceBox(496, 236, "打印机 B", "USB", stage === 3, SVGC.thread)}
+    ${tag(320, 342, stage === 3
+      ? "换了物理设备，只改映射：程序仍然使用 printer 这个名字"
+      : "系统把逻辑设备名映射到某台具体的物理设备", { s: 13.5, c: stage === 3 ? SVGC.ok : SVGC.ink2, stroke: stage === 3 ? SVGC.ok : SVGC.muted })}`;
+}
+function deviceBox(x, y, name, port, active, c) {
+  return `<g class="${active ? "pop" : ""}" opacity="${active ? 1 : 0.42}">
+    ${box(x, y, 112, 86, { fill: "var(--card)", stroke: c, sw: active ? 2.8 : 1.6, rx: 12 })}
+    ${tx(x + 56, y + 26, name, { s: 12.5, c, w: 800 })}
+    ${tx(x + 56, y + 50, port, { s: 11.5, c: SVGC.ink2, w: 600 })}
+    <rect x="${x + 40}" y="${y + 62}" width="32" height="10" rx="2" fill="${c}" opacity=".25"/>
+  </g>`;
+}
+
+function diskTime(stage) {
+  const cx = 176, cy = 196;
+  const trackR = stage === 2 ? 66 : 78;
+  const sectorA = stage === 3 ? 130 : 48;
+  const [sx1, sy1] = polar(cx, cy, trackR, sectorA);
+  const [sx2, sy2] = polar(cx, cy, trackR, sectorA + 34);
+  const sectorColor = stage === 4 ? SVGC.run : stage === 3 ? SVGC.ready : SVGC.buf;
+  const timeline = `
+    ${tx(140, 352, "寻道", { s: 11, a: "end", c: stage === 2 ? SVGC.proc : SVGC.ink2, w: 800 })}
+    ${tx(330, 352, "旋转延迟", { s: 11, c: stage === 3 ? SVGC.ready : SVGC.ink2, w: 800 })}
+    ${tx(500, 352, "传输", { s: 11, c: stage === 4 ? SVGC.run : SVGC.ink2, w: 800 })}
+    <rect x="150" y="366" width="440" height="18" rx="4" fill="var(--bg2)" stroke="${SVGC.line2}"/>
+    <rect x="150" y="366" width="120" height="18" rx="4" fill="${SVGC.proc}" opacity="${stage === 2 ? .95 : .28}"/>
+    <rect x="270" y="366" width="180" height="18" fill="${SVGC.ready}" opacity="${stage === 3 ? .95 : .28}"/>
+    <rect x="450" y="366" width="80" height="18" fill="${SVGC.run}" opacity="${stage === 4 ? .95 : .28}"/>
+    <rect x="530" y="366" width="60" height="18" rx="4" fill="var(--line2)" opacity=".6"/>`;
+  let lead = "";
+  if (stage === 1) {
+    lead = tag(320, 42, "访问时间 = 寻道时间 + 旋转延迟 + 传输时间", { s: 17, c: SVGC.warn, stroke: SVGC.warn });
+  } else if (stage === 2) {
+    lead = tag(320, 42, "① 寻道：磁头移到目标磁道", { s: 16, c: SVGC.proc, stroke: SVGC.proc });
+  } else if (stage === 3) {
+    lead = tag(320, 42, "② 旋转延迟：等目标扇区转到磁头下（取决于当前位置）", { s: 14.5, c: SVGC.ready, stroke: SVGC.ready });
+  } else if (stage === 4) {
+    lead = tag(320, 42, "③ 传输：真正读写数据", { s: 16, c: SVGC.run, stroke: SVGC.run });
+  } else {
+    lead = tag(320, 42, "磁盘调度算法只优化寻道时间", { s: 17, c: SVGC.warn, stroke: SVGC.warn });
+  }
+  return `
+    ${lead}
+    <circle cx="${cx}" cy="${cy}" r="106" fill="${SVGC.disk}" opacity=".07"/>
+    <circle cx="${cx}" cy="${cy}" r="106" fill="none" stroke="${SVGC.disk}" stroke-width="2.4"/>
+    ${[44, 66, 88].map(r => `<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="${SVGC.disk}" stroke-width="1.2" opacity=".35" stroke-dasharray="3 4"/>`).join("")}
+    <circle cx="${cx}" cy="${cy}" r="15" fill="var(--stage)" stroke="${SVGC.disk}" stroke-width="2"/>
+    ${stage === 2 ? `<circle cx="${cx}" cy="${cy}" r="66" fill="none" stroke="${SVGC.proc}" stroke-width="5" opacity=".85" class="pulse"/>` : ""}
+    <path d="M${sx1},${sy1} A${trackR},${trackR} 0 0 1 ${sx2},${sy2}" fill="none" stroke="${sectorColor}" stroke-width="16" stroke-linecap="round" class="${stage >= 3 ? "pulse" : ""}"/>
+    ${stage === 2 ? `<path d="M418,282 L${cx + 58},${cy + 38}" stroke="${SVGC.proc}" stroke-width="6" stroke-linecap="round"/><circle cx="${cx + 58}" cy="${cy + 38}" r="7" fill="${SVGC.proc}"/>` : `<path d="M444,272 L${cx + 82},${cy + 22}" stroke="${SVGC.cpu}" stroke-width="5" stroke-linecap="round"/><circle cx="${cx + 82}" cy="${cy + 22}" r="6" fill="${SVGC.cpu}"/>`}
+    ${stage === 1 ? tag(176, 332, "盘面", { s: 11, c: SVGC.disk }) : ""}
+    ${timeline}
+    ${stage === 5 ? tag(320, 322, "旋转延迟取决于磁头当前位置，一次具体访问并不固定", { s: 13, c: SVGC.bad, stroke: SVGC.bad }) : ""}`;
+}
+function polar(cx, cy, r, deg) {
+  const a = (deg - 90) * Math.PI / 180;
+  return [cx + r * Math.cos(a), cy + r * Math.sin(a)];
+}
+
+const CARD3_ANIMS = [
+  {
+    id: "p3a1", no: "3.1", title: "四种 I/O 控制方式：CPU 到底忙不忙",
+    frames: [
+      FR("任务：从设备读 4 个数据块。比较四种方式下 CPU 的忙闲。", ioModes(-1)),
+      FR("程序直接控制：CPU 反复查询设备状态，全程忙等。", ioModes(0), 4000),
+      FR("中断驱动：设备每完成一个字（或字节）就打断 CPU 一次。", ioModes(1), 4000),
+      FR("DMA：控制器直接在主存和设备之间搬一整块，CPU 只在开始发命令、结束时处理一次中断。", ioModes(2), 4400),
+      FR("通道：专用 I/O 处理器执行通道程序，完成一组相关 I/O 后才通知 CPU，干预最少。", ioModes(3), 4400),
+      FR("从直接控制到通道，CPU 的干预越来越少；通道实现主存与外设之间的信息传输。", ioModes(-1), 4400)
+    ]
+  },
+  {
+    id: "p3a2", no: "3.2", title: "缓冲：解决 CPU 与外设速度不匹配",
+    frames: [
+      FR("CPU 速度远高于打印机，直接送数据，CPU 只能干等。", bufferDiagram(1)),
+      FR("加一块缓冲区：CPU 把数据放进去就去干别的，打印机慢慢取。", bufferDiagram(2)),
+      FR("看时间轴：CPU 装完就走，不用等打印机。", bufferDiagram(3)),
+      FR("双缓冲：一块在装、一块在取，CPU 等得更少。", bufferDiagram(4), 4200),
+      FR("缓冲技术解决 CPU 与外设速度不匹配。", bufferDiagram(5), 4000)
+    ]
+  },
+  {
+    id: "p3a3", no: "3.3", title: "SPOOLing：独占设备变共享",
+    frames: [
+      FR("多个进程都要打印，打印机是独占设备：一个占住，别人只能等。", spoolDiagram(1)),
+      FR("数据不直接送打印机，先写到磁盘上的“输出井”。", spoolDiagram(2)),
+      FR("打印机守护进程从输出井里逐个取出，交给打印机。", spoolDiagram(3), 4200),
+      FR("注意位置：输入/输出缓冲区在内存，输入井和输出井在磁盘。", spoolDiagram(4), 4200),
+      FR("效果：独占变共享，提高 I/O 速度，实现虚拟设备。", spoolDiagram(5), 4000)
+    ]
+  },
+  {
+    id: "p3a4", no: "3.4", title: "设备独立性：逻辑名 → 物理设备",
+    frames: [
+      FR("程序里写逻辑设备名，比如 printer，不直接写某台机器。", deviceIndep(1)),
+      FR("系统查映射表，把逻辑名映射到一台具体的物理设备。", deviceIndep(2)),
+      FR("换了物理设备，只改映射；程序仍然用 printer 这个名字，一行不用改。", deviceIndep(3), 4200)
+    ]
+  },
+  {
+    id: "p3a5", no: "3.5", title: "磁盘访问时间与调度优化谁",
+    frames: [
+      FR("磁盘访问时间 = 寻道时间 + 旋转延迟 + 传输时间。", diskTime(1)),
+      FR("寻道：磁头移动到目标磁道。", diskTime(2)),
+      FR("旋转延迟：等目标扇区转到磁头下面；取决于当前位置。", diskTime(3)),
+      FR("传输：真正读写数据。", diskTime(4)),
+      FR("磁盘调度算法只优化寻道时间；旋转延迟一次一个样，并不固定。", diskTime(5), 4400)
+    ]
+  }
+];
+
+const CARD3 = {
+  id: "p3", num: "③", short: "I/O", kicker: "四种方式 · 缓冲 · SPOOLing · 磁盘",
+  title: "I/O 管理",
+  color: "var(--c-disk)",
+  intro: "I/O 的选择题喜欢问“谁干预最少”“缓冲区在哪”“调度算法优化哪一段”。把四条时间轴和 SPOOLing 的图记住，比背定义快。",
+  chips: ["程序直接控制", "中断驱动", "DMA", "通道", "缓冲", "SPOOLing"],
+  anims: CARD3_ANIMS,
+  compare: {
+    cols: [
+      {
+        name: "DMA", color: "var(--c-res)", shape: "square", tag: "管一整块",
+        points: [
+          "DMA 控制器直接在主存和设备间搬运",
+          "一次搬一整块数据",
+          "开始发命令、结束处理一次中断",
+          "CPU 干预较少"
+        ]
+      },
+      {
+        name: "通道", color: "var(--c-thread)", shape: "cpu", tag: "管一组",
+        points: [
+          "专用的 I/O 处理器",
+          "执行通道程序",
+          "完成一组相关 I/O 后才通知 CPU",
+          "对 CPU 的干预最少"
+        ]
+      }
+    ],
+    facts: [
+      { ok: true, text: "DMA 一次搬运一整块数据，CPU 只在首尾介入" },
+      { ok: false, text: "通道每传一个字就中断 CPU 一次" },
+      { ok: true, text: "输入/输出缓冲区在内存，输入井和输出井在磁盘" },
+      { ok: false, text: "SPOOLing 的输出缓冲区也放在磁盘上" },
+      { ok: true, text: "磁盘调度算法只优化寻道时间" },
+      { ok: false, text: "磁盘一次 I/O 的旋转延迟在硬件设计时就固定了" }
+    ]
+  },
+  mnemonic: "DMA 管一块，通道管一组；独占变共享，用 SPOOLing。",
+  mnNote: "缓冲解决速度不匹配；SPOOLing 把独占设备变成共享设备。",
+  quiz: ["q28", "q29", "q30", "q31"]
+};
+
+/* ============================================================
+   卡④ 内存管理 + 卡⑤ 文件
+   ============================================================ */
+
+/* ---------------- 4.1 碎片 ---------------- */
+function fragmentDiagram(stage) {
+  if (stage === 1) {
+    const segs = [
+      { x: 46, w: 132, used: true }, { x: 178, w: 58, used: false },
+      { x: 236, w: 108, used: true }, { x: 344, w: 44, used: false },
+      { x: 388, w: 126, used: true }, { x: 514, w: 76, used: false }
+    ];
+    return `
+      ${tx(320, 52, "内存分配久了，空闲区会变碎", { s: 18, w: 900 })}
+      ${segs.map(s => `
+        ${box(s.x, 128, s.w, 108, { fill: s.used ? SVGC.mem : "var(--bg2)", stroke: s.used ? SVGC.mem : SVGC.muted, sw: 1.8, rx: 5, op: s.used ? 0.16 : 1 })}
+        ${tx(s.x + s.w / 2, 182, s.used ? "已分配" : "空闲", { s: 12, c: s.used ? SVGC.mem : SVGC.ink2, w: 700 })}
+      `).join("")}
+      ${tag(320, 286, "两种碎片：块内没用满（内部） / 块与块之间用不上（外部）", { s: 13, c: SVGC.ink2 })}
+      ${tag(320, 330, "下面分别看内部碎片和外部碎片", { s: 13, c: SVGC.warn, stroke: SVGC.warn })}`;
+  }
+  if (stage === 2) {
+    return `
+      ${tx(320, 52, "内部碎片：分到的块里没用满", { s: 18, c: SVGC.bad, w: 900 })}
+      ${box(120, 100, 400, 182, { fill: "var(--card)", stroke: SVGC.mem, sw: 2.4, rx: 10 })}
+      <rect x="120" y="100" width="320" height="182" fill="${SVGC.mem}" opacity=".16"/>
+      <rect x="440" y="100" width="80" height="182" fill="${SVGC.bad}" opacity=".2"/>
+      ${[0, 1, 2, 3, 4, 5].map(i => ln(120 + i * 66.6, 100, 120 + i * 66.6, 282, { c: SVGC.line2, sw: 1, op: 0.3 })).join("")}
+      ${tx(280, 172, "3.2 KB 用上", { s: 15, c: SVGC.mem, w: 900 })}
+      ${tx(280, 204, "这一页装的内容", { s: 11.5, c: SVGC.ink2, w: 600 })}
+      ${tx(480, 172, "0.8", { s: 13, c: SVGC.bad, w: 900 })}
+      ${tx(480, 194, "KB", { s: 12, c: SVGC.bad, w: 900 })}
+      ${tag(480, 236, "浪费", { s: 12, c: SVGC.bad, stroke: SVGC.bad })}
+      ${tag(320, 314, "一页 4 KB：最后一页只用了 3.2 KB，剩下 0.8 KB 就是内部碎片", { s: 12.5, c: SVGC.ink2 })}
+      ${tag(320, 354, "分页只消除外部碎片，内部碎片仍然存在", { s: 14, c: SVGC.bad, stroke: SVGC.bad })}`;
+  }
+  if (stage === 3) {
+    const segs = [
+      { x: 44, w: 104 }, { x: 148, w: 30 }, { x: 178, w: 96 },
+      { x: 274, w: 26 }, { x: 300, w: 118 }, { x: 418, w: 34 },
+      { x: 452, w: 146 }
+    ];
+    return `
+      ${tx(320, 52, "外部碎片：块与块之间的小空闲区", { s: 18, c: SVGC.bad, w: 900 })}
+      ${segs.map((s, i) => `
+        ${box(s.x, 118, s.w, 96, { fill: i % 2 === 0 ? SVGC.mem : "var(--bg2)", stroke: i % 2 === 0 ? SVGC.mem : SVGC.bad, sw: i % 2 === 0 ? 1.8 : 2, rx: 5, op: i % 2 === 0 ? 0.15 : 1, dash: i % 2 === 0 ? "" : "4 3" })}
+        ${i % 2 === 0 ? tx(s.x + s.w / 2, 166, "占用", { s: 11.5, c: SVGC.mem, w: 700 }) : ""}
+      `).join("")}
+      ${[178, 274, 418].map(x => arrow(x + 13, 236, x + 13, 270, { c: SVGC.bad, key: "red", sw: 2.2 })).join("")}
+      ${tag(320, 300, "空闲块都太小，凑不出一块连续的大空间", { s: 13, c: SVGC.bad, stroke: SVGC.bad })}
+      ${tag(320, 340, "现在需要一个 6 KB 的连续空间 → 分配失败", { s: 14, c: SVGC.bad, stroke: SVGC.bad })}
+      ${mark(560, 286, false, { r: 14 })}`;
+  }
+  return `
+    ${tx(320, 52, "一句话分清两种碎片", { s: 19, w: 900 })}
+    ${box(24, 88, 286, 236, { fill: "var(--card)", stroke: SVGC.mem, sw: 2.2, rx: 16 })}
+    ${tx(167, 120, "内部碎片", { s: 18, c: SVGC.mem, w: 900 })}
+    ${mark(167, 162, true, { r: 13 })}
+    ${tx(190, 162, "分页：最后一页装不满", { s: 12.5, a: "start", c: SVGC.ink2 })}
+    ${mark(167, 204, false, { r: 13 })}
+    ${tx(190, 204, "不是块与块之间的问题", { s: 12.5, a: "start", c: SVGC.ink2 })}
+    ${tag(167, 262, "藏在块内部", { s: 13, c: SVGC.mem, stroke: SVGC.mem })}
+    ${box(330, 88, 286, 236, { fill: "var(--card)", stroke: SVGC.bad, sw: 2.2, rx: 16, dash: "6 5" })}
+    ${tx(473, 120, "外部碎片", { s: 18, c: SVGC.bad, w: 900 })}
+    ${mark(473, 162, true, { r: 13 })}
+    ${tx(496, 162, "动态分区、分段会出现", { s: 12.5, a: "start", c: SVGC.ink2 })}
+    ${mark(473, 204, false, { r: 13 })}
+    ${tx(496, 204, "分页不会产生外部碎片", { s: 12.5, a: "start", c: SVGC.ink2 })}
+    ${tag(473, 262, "散落在块与块之间", { s: 13, c: SVGC.bad, stroke: SVGC.bad })}
+    ${tag(320, 356, "结论：分页只消除外部碎片，内部碎片仍存在", { s: 15, c: SVGC.warn, stroke: SVGC.warn })}`;
+}
+
+/* ---------------- 4.2 分页 vs 分段 ---------------- */
+function pageSegDiagram(stage) {
+  if (stage === 1) {
+    let cells = "";
+    for (let r = 0; r < 3; r++) {
+      for (let c = 0; c < 5; c++) {
+        cells += `<rect x="${92 + c * 92}" y="${100 + r * 60}" width="88" height="56" rx="4" fill="${SVGC.mem}" opacity=".08" stroke="${SVGC.mem}" stroke-width="1.5"/>${tx(136 + c * 92, 128 + r * 60, `页 ${r * 5 + c}`, { s: 11.5, c: SVGC.mem, w: 700 })}`;
+      }
+    }
+    return `
+      ${tx(320, 48, "分页：切成固定大小", { s: 18, c: SVGC.mem, w: 900 })}
+      ${cells}
+      ${tag(320, 300, "大小固定 · 由系统划分 · 对用户透明", { s: 13, c: SVGC.mem, stroke: SVGC.mem })}
+      <rect x="92" y="330" width="456" height="30" rx="4" fill="var(--card)" stroke="${SVGC.mem}" stroke-width="2"/>
+      <rect x="92" y="330" width="152" height="30" rx="4" fill="${SVGC.mem}" opacity=".18"/>
+      ${tx(168, 345, "页号", { s: 12, c: SVGC.mem, w: 800 })}
+      ${tx(396, 345, "页内地址", { s: 12, c: SVGC.mem, w: 800 })}
+      ${tag(320, 380, "逻辑地址是一维的：一个数就能表示", { s: 11.5, c: SVGC.ink2 })}`;
+  }
+  if (stage === 2) {
+    return `
+      ${tx(320, 48, "分段：按逻辑切成不等长的段", { s: 18, c: SVGC.seg, w: 900 })}
+      ${box(110, 84, 200, 82, { fill: SVGC.seg, stroke: SVGC.seg, sw: 2.2, rx: 8, op: 0.12 })}
+      ${tx(210, 125, "代码段", { s: 15, c: SVGC.seg, w: 800 })}
+      ${box(110, 176, 320, 78, { fill: SVGC.seg, stroke: SVGC.seg, sw: 2.2, rx: 8, op: 0.12 })}
+      ${tx(270, 215, "数据段", { s: 15, c: SVGC.seg, w: 800 })}
+      ${box(110, 264, 150, 60, { fill: SVGC.seg, stroke: SVGC.seg, sw: 2.2, rx: 8, op: 0.12 })}
+      ${tx(185, 294, "栈段", { s: 15, c: SVGC.seg, w: 800 })}
+      ${box(450, 110, 156, 166, { fill: "var(--card)", stroke: SVGC.seg, sw: 2, rx: 12 })}
+      ${tx(528, 138, "地址", { s: 13, c: SVGC.seg, w: 800 })}
+      ${tx(528, 186, "（段号，", { s: 18, c: SVGC.ink, w: 800 })}
+      ${tx(528, 218, "段内地址）", { s: 18, c: SVGC.ink, w: 800 })}
+      ${tx(528, 252, "二维", { s: 13, c: SVGC.bad, w: 800 })}
+      ${tag(320, 350, "按逻辑划分 · 长度不等 · 地址是（段号, 段内地址）", { s: 13, c: SVGC.seg, stroke: SVGC.seg })}`;
+  }
+  return `
+    ${tx(320, 46, "段内地址越界检查", { s: 18, c: SVGC.bad, w: 900 })}
+    ${box(50, 92, 260, 160, { fill: "var(--card)", stroke: SVGC.seg, sw: 2.2, rx: 12 })}
+    ${tx(180, 120, "段表", { s: 15, c: SVGC.seg, w: 900 })}
+    ${ln(66, 136, 294, 136, { c: SVGC.line2, sw: 1 })}
+    ${tx(110, 160, "段号", { s: 12, c: SVGC.ink2, w: 700 })}
+    ${tx(240, 160, "段长", { s: 12, c: SVGC.ink2, w: 700 })}
+    ${tx(110, 204, "2", { s: 18, c: SVGC.seg, w: 900 })}
+    ${tx(240, 204, "600", { s: 18, c: SVGC.seg, w: 900 })}
+    ${box(360, 100, 240, 128, { fill: "var(--card)", stroke: SVGC.bad, sw: 2.2, rx: 12 })}
+    ${tx(480, 130, "逻辑地址", { s: 12, c: SVGC.ink2, w: 700 })}
+    ${tx(480, 174, "段 2，段内 800", { s: 17, c: SVGC.bad, w: 900 })}
+    ${tx(480, 208, "800 > 600", { s: 20, c: SVGC.bad, w: 900, ff: "Georgia,serif" })}
+    ${arrow(310, 180, 356, 180, { c: SVGC.bad, key: "red", sw: 2.4 })}
+    ${mark(547, 74, false, { r: 16 })}
+    ${tag(320, 270, "段内地址大于段长 → 越界中断", { s: 15, c: SVGC.bad, stroke: SVGC.bad })}
+    ${tag(320, 320, "分段要检查段长；分页的页内偏移不会超过页大小", { s: 12, c: SVGC.ink2 })}
+    ${tag(320, 358, "所以分段地址是二维的，还要做越界检查", { s: 12.5, c: SVGC.seg, stroke: SVGC.seg })}`;
+}
+
+/* ---------------- 4.3 地址变换 ---------------- */
+function addressDiagram(stage) {
+  if (stage === 3) {
+    return `
+      ${tx(320, 46, "段页式：段表 → 页表 → 数据", { s: 18, w: 900 })}
+      ${box(36, 120, 140, 100, { fill: "var(--card)", stroke: SVGC.seg, sw: 2.2, rx: 12 })}
+      ${tx(106, 150, "段表", { s: 16, c: SVGC.seg, w: 900 })}
+      ${tx(106, 184, "查段号", { s: 12, c: SVGC.ink2, w: 600 })}
+      ${box(246, 120, 140, 100, { fill: "var(--card)", stroke: SVGC.mem, sw: 2.2, rx: 12 })}
+      ${tx(316, 150, "页表", { s: 16, c: SVGC.mem, w: 900 })}
+      ${tx(316, 184, "查页号", { s: 12, c: SVGC.ink2, w: 600 })}
+      ${box(456, 120, 140, 100, { fill: "var(--card)", stroke: SVGC.run, sw: 2.2, rx: 12 })}
+      ${tx(526, 150, "内存数据", { s: 16, c: SVGC.run, w: 900 })}
+      ${tx(526, 184, "取数据", { s: 12, c: SVGC.ink2, w: 600 })}
+      ${arrow(178, 170, 242, 170, { c: SVGC.ink2, key: "ink", sw: 2.6 })}
+      ${arrow(388, 170, 452, 170, { c: SVGC.ink2, key: "ink", sw: 2.6 })}
+      ${tag(210, 214, "① 内存", { s: 12, c: SVGC.seg, stroke: SVGC.seg })}
+      ${tag(420, 214, "② 内存", { s: 12, c: SVGC.mem, stroke: SVGC.mem })}
+      ${tag(526, 268, "③ 内存", { s: 12, c: SVGC.run, stroke: SVGC.run })}
+      ${tag(320, 318, "段页式访问一个数据需要 3 次内存", { s: 16, c: SVGC.warn, stroke: SVGC.warn })}
+      ${tag(320, 358, "不设快表时，页式是 2 次；段页式多查一张段表", { s: 12.5, c: SVGC.ink2 })}`;
+  }
+  const step = stage === 2;
+  return `
+    ${tx(320, 42, "页式地址变换：页表放在内存", { s: 18, w: 900 })}
+    ${box(24, 148, 98, 76, { fill: SVGC.cpu, stroke: SVGC.cpu, sw: 2.2, rx: 10, op: 0.12 })}
+    ${tx(73, 186, "CPU", { s: 17, c: SVGC.cpu, w: 900 })}
+    ${box(152, 50, 136, 62, { fill: "var(--card)", stroke: SVGC.warn, sw: 2.2, rx: 10 })}
+    ${tx(220, 72, "页表寄存器", { s: 13, c: SVGC.warn, w: 800 })}
+    ${tx(220, 94, "页表基址", { s: 11.5, c: SVGC.ink2, w: 600 })}
+    ${box(318, 80, 166, 178, { fill: "var(--card)", stroke: SVGC.mem, sw: 2.2, rx: 10 })}
+    ${tx(401, 104, "页表（在内存）", { s: 12.5, c: SVGC.mem, w: 800 })}
+    ${ln(334, 118, 468, 118, { c: SVGC.line2, sw: 1 })}
+    ${[
+      ["页 0", "块 5"], ["页 1", "块 8"], ["页 2", "块 3"], ["页 3", "块 9"]
+    ].map((r, i) => `${tx(364, 140 + i * 28, r[0], { s: 12, c: SVGC.ink2, w: 600 })}${tx(438, 140 + i * 28, r[1], { s: 12, c: SVGC.mem, w: 800 })}`).join("")}
+    ${box(520, 248, 96, 76, { fill: SVGC.run, stroke: SVGC.run, sw: 2.2, rx: 10, op: 0.12 })}
+    ${tx(568, 276, "内存", { s: 13, c: SVGC.run, w: 800 })}
+    ${tx(568, 300, "数据", { s: 13, c: SVGC.run, w: 800 })}
+    ${arrow(122, 180, 148, 138, { c: SVGC.warn, key: "amber", sw: 2.4 })}
+    ${arrow(288, 112, 314, 130, { c: SVGC.mem, key: "purple", sw: 2.4 })}
+    ${parrow("M484,212 C520,230 552,236 568,244", { c: SVGC.run, key: "green", sw: 2.4 })}
+    ${step ? `
+      ${tag(401, 286, "① 访问页表：第 1 次内存", { s: 12.5, c: SVGC.mem, stroke: SVGC.mem })}
+      ${tag(566, 348, "② 访问数据：第 2 次内存", { s: 12.5, c: SVGC.run, stroke: SVGC.run })}
+      ${tag(320, 352, "不设快表：访问一个数据至少 2 次内存", { s: 16, c: SVGC.warn, stroke: SVGC.warn })}
+    ` : tag(320, 340, "页表基址在页表寄存器里，页表本身放在内存", { s: 13.5, c: SVGC.ink2 })}`;
+}
+
+/* ---------------- 4.4 重定位 ---------------- */
+function relocationDiagram(stage) {
+  if (stage === 1) {
+    return `
+      ${tx(320, 48, "静态重定位：装入时一次完成", { s: 18, c: SVGC.proc, w: 900 })}
+      ${box(70, 100, 210, 150, { fill: "var(--card)", stroke: SVGC.proc, sw: 2.2, rx: 12 })}
+      ${tx(175, 126, "程序装入内存", { s: 14, c: SVGC.proc, w: 800 })}
+      ${tx(175, 164, "基址 1000", { s: 16, c: SVGC.ink, w: 800 })}
+      ${tx(175, 202, "逻辑地址 200", { s: 13, c: SVGC.ink2, w: 600 })}
+      ${arrow(282, 176, 354, 176, { c: SVGC.ink2, key: "ink", sw: 2.6 })}
+      ${box(360, 100, 210, 150, { fill: "var(--card)", stroke: SVGC.ok, sw: 2.2, rx: 12 })}
+      ${tx(465, 126, "装入时改写", { s: 14, c: SVGC.ok, w: 800 })}
+      ${tx(465, 172, "1200", { s: 28, c: SVGC.ok, w: 900, ff: "Georgia,serif" })}
+      ${tx(465, 208, "以后访问的就是 1200", { s: 12, c: SVGC.ink2, w: 600 })}
+      ${tag(320, 290, "装入时一次加上基址，地址从此固定", { s: 14, c: SVGC.proc, stroke: SVGC.proc })}
+      ${tag(320, 334, "特点：装入时完成，运行时不再计算", { s: 13, c: SVGC.ink2 })}`;
+  }
+  if (stage === 2) {
+    return `
+      ${tx(320, 48, "动态重定位：运行时每次访问都算", { s: 18, c: SVGC.ok, w: 900 })}
+      ${box(56, 120, 150, 90, { fill: "var(--card)", stroke: SVGC.warn, sw: 2.2, rx: 12 })}
+      ${tx(131, 150, "基址寄存器", { s: 13, c: SVGC.warn, w: 800 })}
+      ${tx(131, 184, "1000", { s: 24, c: SVGC.warn, w: 900 })}
+      ${box(56, 240, 150, 90, { fill: "var(--card)", stroke: SVGC.proc, sw: 2.2, rx: 12 })}
+      ${tx(131, 270, "逻辑地址", { s: 13, c: SVGC.proc, w: 800 })}
+      ${tx(131, 304, "200", { s: 24, c: SVGC.proc, w: 900 })}
+      ${box(330, 176, 80, 80, { fill: "var(--card)", stroke: SVGC.ink, sw: 2.2, rx: 12 })}
+      ${tx(370, 216, "+", { s: 28, c: SVGC.ink, w: 900 })}
+      ${arrow(210, 166, 330, 200, { c: SVGC.warn, key: "amber", sw: 2.4 })}
+      ${arrow(210, 286, 330, 232, { c: SVGC.proc, key: "darkblue", sw: 2.4 })}
+      ${arrow(414, 216, 474, 216, { c: SVGC.ok, key: "green", sw: 2.8 })}
+      ${box(480, 176, 120, 80, { fill: "var(--card)", stroke: SVGC.ok, sw: 2.2, rx: 12 })}
+      ${tx(540, 208, "物理地址", { s: 12, c: SVGC.ink2, w: 600 })}
+      ${tx(540, 234, "1200", { s: 21, c: SVGC.ok, w: 900 })}
+      ${tag(320, 348, "硬件在每次访问时：逻辑地址 + 基址 → 物理地址", { s: 14, c: SVGC.ok, stroke: SVGC.ok })}
+      ${tag(320, 382, "这是运行时进行的，不是装入时一次完成", { s: 13, c: SVGC.bad, stroke: SVGC.bad })}`;
+  }
+  return `
+    ${tx(320, 52, "静态 vs 动态重定位", { s: 19, w: 900 })}
+    ${box(24, 88, 286, 240, { fill: "var(--card)", stroke: SVGC.proc, sw: 2.2, rx: 16 })}
+    ${tx(167, 122, "静态重定位", { s: 19, c: SVGC.proc, w: 900 })}
+    ${mark(167, 170, true, { r: 13 })}
+    ${tx(190, 170, "装入时一次加上基址", { s: 13, a: "start", c: SVGC.ink2 })}
+    ${mark(167, 212, true, { r: 13 })}
+    ${tx(190, 212, "地址从此固定", { s: 13, a: "start", c: SVGC.ink2 })}
+    ${tag(167, 274, "装入时完成", { s: 14, c: SVGC.proc, stroke: SVGC.proc })}
+    ${box(330, 88, 286, 240, { fill: "var(--card)", stroke: SVGC.ok, sw: 2.2, rx: 16 })}
+    ${tx(473, 122, "动态重定位", { s: 19, c: SVGC.ok, w: 900 })}
+    ${mark(473, 170, true, { r: 13 })}
+    ${tx(496, 170, "每次访问时硬件相加", { s: 13, a: "start", c: SVGC.ink2 })}
+    ${mark(473, 212, true, { r: 13 })}
+    ${tx(496, 212, "逻辑地址 + 基址", { s: 13, a: "start", c: SVGC.ink2 })}
+    ${tag(473, 274, "运行时进行", { s: 14, c: SVGC.ok, stroke: SVGC.ok })}
+    ${tag(320, 360, "考试问“动态重定位什么时候进行”→ 作业执行过程中", { s: 14, c: SVGC.warn, stroke: SVGC.warn })}`;
+}
+
+/* ---------------- 4.5 缺页中断 ---------------- */
+function pageFaultDiagram(step) {
+  const rowY = [126, 158, 190, 222];
+  const highlightRow = step === 2 || step === 5;
+  const pageRows = [
+    ["页 0", "在内存"], ["页 1", "在内存"], ["页 2", "在内存"], ["页 3", step >= 5 ? "已调入" : "不在内存"]
+  ];
+  let mem = "";
+  for (let i = 0; i < 4; i++) {
+    const x = 346 + (i % 2) * 106;
+    const y = 94 + Math.floor(i / 2) * 98;
+    const victim = i === 2 && step === 4;
+    const target = i === 3 && step >= 5;
+    const c = target ? SVGC.ok : victim ? SVGC.bad : SVGC.mem;
+    mem += `<rect x="${x}" y="${y}" width="84" height="74" rx="6" fill="${c}" opacity="${target ? .18 : victim ? .16 : .07}" stroke="${c}" stroke-width="${target || victim ? 2.8 : 1.5}"/>
+      ${tx(x + 42, y + 20, `块 ${i}`, { s: 10.5, c: SVGC.ink2, w: 600 })}
+      ${tx(x + 42, y + 46, i === 2 ? "脏页" : i === 3 && step >= 5 ? "页 3" : "页 " + i, { s: 11, c: target ? SVGC.ok : victim ? SVGC.bad : SVGC.mem, w: 700 })}`;
+  }
+  return `
+    ${tag(320, 32, `缺页中断 · 第 ${step} / 6 步`, { s: 13, c: SVGC.warn, stroke: SVGC.warn })}
+    ${box(24, 148, 86, 66, { fill: SVGC.cpu, stroke: SVGC.cpu, sw: 2.2, rx: 10, op: step === 1 || step === 6 ? .2 : .1 })}
+    ${tx(67, 181, "CPU", { s: 15, c: SVGC.cpu, w: 900 })}
+    ${box(138, 64, 164, 168, { fill: "var(--card)", stroke: SVGC.mem, sw: 2, rx: 10 })}
+    ${tx(220, 86, "页表（在内存）", { s: 12, c: SVGC.mem, w: 800 })}
+    ${ln(150, 100, 290, 100, { c: SVGC.line2, sw: 1 })}
+    ${pageRows.map((r, i) => `
+      ${highlightRow && i === 3 ? `<rect x="146" y="${rowY[i] - 13}" width="148" height="26" rx="5" fill="${step >= 5 ? SVGC.ok : SVGC.bad}" opacity=".14"/>` : ""}
+      ${tx(170, rowY[i], r[0], { s: 11, c: SVGC.ink2, w: 600 })}
+      ${tx(278, rowY[i], r[1], { s: 11, c: i === 3 ? (step >= 5 ? SVGC.ok : SVGC.bad) : SVGC.ink2, w: 700 })}
+    `).join("")}
+    ${box(330, 64, 222, 218, { stroke: SVGC.mem, sw: 1.4, rx: 10, dash: "4 5", op: .6 })}
+    ${tx(441, 53, "内存", { s: 12, c: SVGC.mem, w: 800 })}
+    ${mem}
+    ${box(288, 300, 82, 46, { fill: SVGC.warn, stroke: SVGC.warn, sw: 2.2, rx: 10, op: step === 3 ? .22 : .08 })}
+    ${tx(329, 317, "OS", { s: 13, c: SVGC.warn, w: 900 })}
+    ${tx(329, 334, "缺页处理", { s: 9, c: SVGC.ink2, w: 600 })}
+    ${box(500, 300, 116, 52, { fill: SVGC.disk, stroke: SVGC.disk, sw: 2.2, rx: 10, op: step === 4 || step === 5 ? .18 : .08 })}
+    ${tx(558, 319, "磁盘", { s: 12.5, c: SVGC.disk, w: 900 })}
+    ${tx(558, 337, "有页 3", { s: 9.5, c: SVGC.ink2, w: 600 })}
+    ${arrow(110, 181, 134, 154, { c: SVGC.proc, key: "darkblue", sw: 2.4 })}
+    ${step === 3 ? arrow(302, 226, 320, 296, { c: SVGC.bad, key: "red", sw: 2.8 }) : ""}
+    ${step === 4 ? arrow(370, 322, 496, 322, { c: SVGC.disk, key: "amber", sw: 2.6 }) : ""}
+    ${step === 4 ? parrow("M410,268 C470,280 500,292 520,298", { c: SVGC.bad, key: "red", sw: 2, dash: "5 4" }) : ""}
+    ${step === 5 ? arrow(540, 298, 540, 270, { c: SVGC.ok, key: "green", sw: 2.6 }) : ""}
+    ${step === 5 ? arrow(330, 240, 304, 224, { c: SVGC.ok, key: "green", sw: 2, dash: "4 4" }) : ""}
+    ${step === 6 ? parrow("M112,174 C190,132 260,136 300,168", { c: SVGC.ok, key: "green", sw: 2.6 }) : ""}
+    ${step === 6 ? mark(67, 240, true, { r: 14 }) : ""}
+    ${step === 1 ? tag(200, 366, "① CPU 访问某页", { s: 13, c: SVGC.proc, stroke: SVGC.proc }) : ""}
+    ${step === 2 ? tag(200, 366, "② 查页表：这一页不在内存", { s: 13, c: SVGC.bad, stroke: SVGC.bad }) : ""}
+    ${step === 3 ? tag(320, 366, "③ 产生缺页中断，转入 OS", { s: 13, c: SVGC.bad, stroke: SVGC.bad }) : ""}
+    ${step === 4 ? tag(320, 372, "④ 从磁盘找页；没空闲块就换出，修改位=1 才写回", { s: 11.5, c: SVGC.warn, stroke: SVGC.warn }) : ""}
+    ${step === 5 ? tag(320, 366, "⑤ 调入所需页，并更新页表", { s: 13, c: SVGC.ok, stroke: SVGC.ok }) : ""}
+    ${step === 6 ? tag(320, 366, "⑥ 重新执行被中断的那条指令", { s: 13.5, c: SVGC.ok, stroke: SVGC.ok }) : ""}`;
+}
+
+/* ---------------- 4.6 抖动 ---------------- */
+function thrashDiagram(stage) {
+  if (stage === 1 || stage === 2) {
+    const n = stage === 1 ? 4 : 6;
+    const frames = stage === 1 ? 3 : 2;
+    const colors = Array(6).fill(SVGC.proc);
+    let zones = "";
+    for (let i = 0; i < n; i++) {
+      const x = 34 + (i % 3) * 194;
+      const y = 96 + Math.floor(i / 3) * 122;
+      zones += `<g class="pop" style="animation-delay:${i * .05}s">
+        ${box(x, y, 180, 104, { fill: "var(--card)", stroke: colors[i], sw: 1.8, rx: 10 })}
+        ${tx(x + 12, y + 18, `P${i + 1}`, { s: 12, a: "start", c: colors[i], w: 800 })}
+        ${Array.from({ length: frames }).map((_, j) => `<rect x="${x + 12 + j * 50}" y="${y + 38}" width="42" height="30" rx="4" fill="${colors[i]}" opacity=".14" stroke="${colors[i]}" stroke-width="1.3"/>`).join("")}
+        ${tx(x + 90, y + 88, `${frames} 个物理块`, { s: 10.5, c: SVGC.ink2, w: 600 })}
+      </g>`;
+    }
+    return `
+      ${tx(320, 48, stage === 1 ? "4 个进程，每个分到 3 个物理块" : "进程变多，每个进程只能分到 2 个物理块", { s: 17, w: 900 })}
+      ${zones}
+      ${stage === 2 ? tag(320, 368, "块太少 → 刚用到的页又被换出 → 缺页中断频繁", { s: 13, c: SVGC.bad, stroke: SVGC.bad }) : tag(320, 354, "分给每个进程的物理块越少，越容易缺页", { s: 13, c: SVGC.ink2 })}`;
+  }
+  if (stage === 3) {
+    const bars = [28, 42, 58, 76, 92];
+    return `
+      ${tx(320, 46, "缺页率随进程数上升（全局置换）", { s: 17, w: 900 })}
+      ${box(90, 90, 460, 220, { fill: "var(--card)", stroke: SVGC.line2, sw: 1.6, rx: 6 })}
+      ${[0, 1, 2, 3, 4].map(i => `${ln(120, 122 + i * 38, 530, 122 + i * 38, { c: SVGC.line2, sw: 1, op: .35, dash: "3 4" })}${tx(104, 122 + i * 38, `${(5 - i) * 20}%`, { s: 9.5, a: "end", c: SVGC.muted, w: 600 })}`).join("")}
+      ${bars.map((h, i) => `<rect x="${150 + i * 72}" y="${290 - h * 2}" width="38" height="${h * 2}" rx="4" fill="${SVGC.bad}" opacity="${.35 + i * .13}" class="grow"/>${tx(169 + i * 72, 300, `${i + 2}`, { s: 11, c: SVGC.ink2, w: 700 })}`).join("")}
+      ${tx(320, 330, "进程数 →", { s: 12, c: SVGC.ink2, w: 700 })}
+      ${tag(320, 368, "缺页中断频繁，系统大部分时间花在换页上 = 抖动", { s: 13.5, c: SVGC.bad, stroke: SVGC.bad })}`;
+  }
+  return `
+    ${tx(320, 52, "抖动（Thrashing）", { s: 20, w: 900 })}
+    ${[
+      { t: "原因一", d: "进程数太多", c: SVGC.bad },
+      { t: "原因二", d: "分给每个进程的物理块太少", c: SVGC.warn },
+      { t: "结果", d: "缺页中断频繁，大部分时间在换页", c: SVGC.res },
+      { t: "全局置换", d: "进程数增加，每个进程缺页率上升", c: SVGC.proc }
+    ].map((it, i) => {
+      const x = i % 2 === 0 ? 22 : 328, y = i < 2 ? 96 : 218;
+      return `<g class="pop" style="animation-delay:${i * .07}s">
+        ${box(x, y, 290, 104, { fill: "var(--card)", stroke: it.c, sw: 2.2, rx: 14 })}
+        ${tx(x + 20, y + 30, it.t, { s: 14, a: "start", c: it.c, w: 900 })}
+        ${tx(x + 20, y + 68, it.d, { s: 12.5, a: "start", c: SVGC.ink2, w: 600 })}
+      </g>`;
+    }).join("")}
+    ${tag(320, 362, "口诀：分页管内存，分段管逻辑；缺页要重做，修改才写回", { s: 13, c: SVGC.warn, stroke: SVGC.warn })}`;
+}
+
+const CARD4_ANIMS = [
+  {
+    id: "p4a1", no: "4.1", title: "内部碎片 vs 外部碎片",
+    frames: [
+      FR("内存分配久了，会出现两种碎片：块内没用满，和块与块之间用不上。", fragmentDiagram(1)),
+      FR("内部碎片：分到的块里没用满。比如分页的最后一页。", fragmentDiagram(2), 4200),
+      FR("外部碎片：块与块之间的小空闲区。比如动态分区、分段。", fragmentDiagram(3), 4200),
+      FR("结论：分页只消除外部碎片，内部碎片仍然存在。", fragmentDiagram(4), 4200)
+    ]
+  },
+  {
+    id: "p4a2", no: "4.2", title: "分页 vs 分段",
+    frames: [
+      FR("分页：大小固定，由系统划分，对用户透明，地址是一维的。", pageSegDiagram(1)),
+      FR("分段：按逻辑划分，长度不等，地址是（段号, 段内地址）。", pageSegDiagram(2)),
+      FR("段内地址大于段长，会产生越界中断。", pageSegDiagram(3), 4200)
+    ]
+  },
+  {
+    id: "p4a3", no: "4.3", title: "地址变换：2 次与 3 次内存",
+    frames: [
+      FR("页表放在内存，页表基址放在页表寄存器里。", addressDiagram(1)),
+      FR("不设快表：先访问页表 1 次，再访问数据 1 次，共 2 次内存。", addressDiagram(2), 4200),
+      FR("段页式：段表 + 页表 + 数据，共 3 次内存。", addressDiagram(3), 4200)
+    ]
+  },
+  {
+    id: "p4a4", no: "4.4", title: "静态 vs 动态重定位",
+    frames: [
+      FR("静态重定位：装入时一次加上基址，地址从此固定。", relocationDiagram(1)),
+      FR("动态重定位：每次访问时，硬件把逻辑地址加上基址，是运行时进行的。", relocationDiagram(2), 4200),
+      FR("对比记：静态在装入时一次完成，动态在每次访问时计算。", relocationDiagram(3), 4000)
+    ]
+  },
+  {
+    id: "p4a5", no: "4.5", title: "缺页中断：六步走完",
+    frames: [
+      FR("第 1 步：CPU 访问某页。", pageFaultDiagram(1)),
+      FR("第 2 步：查页表，发现“不在内存”。", pageFaultDiagram(2)),
+      FR("第 3 步：产生缺页中断，转入 OS。", pageFaultDiagram(3)),
+      FR("第 4 步：OS 从磁盘找到该页；没有空闲块就按置换算法选一页换出，修改位为 1 才写回。", pageFaultDiagram(4), 4800),
+      FR("第 5 步：把所需页调入，并更新页表。", pageFaultDiagram(5)),
+      FR("第 6 步：重新执行被中断的那条指令。", pageFaultDiagram(6), 4000)
+    ]
+  },
+  {
+    id: "p4a6", no: "4.6", title: "抖动：为什么越换越慢",
+    frames: [
+      FR("进程数不多时，每个进程还能分到几个物理块。", thrashDiagram(1)),
+      FR("进程变多，每个进程分到的物理块变少，缺页立刻变频繁。", thrashDiagram(2), 4200),
+      FR("缺页中断频繁，系统大部分时间花在换页上，这就是抖动。", thrashDiagram(3), 4200),
+      FR("原因：进程数太多或物理块太少；全局置换下，进程数增加会让每个进程缺页率上升。", thrashDiagram(4), 4400)
+    ]
+  }
+];
+
+const CARD4 = {
+  id: "p4", num: "④", short: "内存管理", kicker: "碎片 · 分页分段 · 缺页 · 抖动",
+  title: "内存管理",
+  color: "var(--c-mem)",
+  intro: "内存这张的数字题最多：碎片、2 次/3 次访存、重定位时机、缺页六步。先分清“分页管内存、分段管逻辑”，再记缺页要重做。",
+  chips: ["内/外部碎片", "分页 vs 分段", "2 次 vs 3 次访存", "动态重定位", "缺页六步", "抖动"],
+  anims: CARD4_ANIMS,
+  compare: {
+    cols: [
+      {
+        name: "分页", color: "var(--c-mem)", shape: "page", tag: "物理划分",
+        points: [
+          "大小固定",
+          "由系统划分，对用户透明",
+          "地址一维",
+          "只消除外部碎片，内部碎片仍存在"
+        ]
+      },
+      {
+        name: "分段", color: "var(--c-seg)", shape: "rect", tag: "逻辑划分",
+        points: [
+          "按逻辑划分，长度不等",
+          "地址是（段号, 段内地址）",
+          "段内地址大于段长 → 越界中断"
+        ]
+      }
+    ],
+    facts: [
+      { ok: true, text: "分页大小固定，由系统划分，对用户透明" },
+      { ok: false, text: "分页是按程序的逻辑模块划分的" },
+      { ok: true, text: "分页只消除外部碎片，内部碎片仍然存在" },
+      { ok: false, text: "分页既消除外部碎片，也消除内部碎片" },
+      { ok: true, text: "不设快表的页式管理访问一个数据至少 2 次内存" },
+      { ok: true, text: "段页式访问一个数据需要 3 次内存" }
+    ]
+  },
+  mnemonic: "分页管内存，分段管逻辑；缺页要重做，修改才写回。",
+  mnNote: "页表在内存、基址在寄存器；缺页处理完，重新执行被中断的那条指令。",
+  quiz: ["q21", "q22", "q23", "q25", "q27"]
+};
+
+/* ============================================================
+   卡⑤ 文件
+   ============================================================ */
+function logicalFile(stage) {
+  if (stage === 1) {
+    return `
+      ${tx(320, 52, "流式文件：无结构，就是一串字节", { s: 18, c: SVGC.file, w: 900 })}
+      ${box(60, 100, 520, 110, { fill: "var(--card)", stroke: SVGC.file, sw: 2.4, rx: 12 })}
+      ${[0, 1, 2, 3, 4, 5, 6, 7].map(i => `<rect x="${76 + i * 61}" y="120" width="54" height="70" rx="4" fill="${SVGC.file}" opacity="${i % 2 ? .08 : .16}" stroke="${SVGC.file}" stroke-width="1.2"/>${tx(103 + i * 61, 156, i % 2 ? "01" : "10", { s: 12, c: SVGC.file, w: 700, ff: "Consolas,monospace" })}`).join("")}
+      ${tx(320, 248, "没有记录边界，从头到尾按字节读写", { s: 13, c: SVGC.ink2, w: 600 })}
+      ${tag(320, 312, "流式文件：无结构，字节序列", { s: 15, c: SVGC.file, stroke: SVGC.file })}
+      ${tag(320, 354, "像一根没有刻度的长纸条", { s: 12.5, c: SVGC.ink2 })}`;
+  }
+  if (stage === 2) {
+    return `
+      ${tx(320, 52, "记录式文件：有结构", { s: 18, c: SVGC.seg, w: 900 })}
+      ${[0, 1, 2, 3].map(i => `
+        <g class="pop" style="animation-delay:${i * .07}s">
+          ${box(120, 92 + i * 58, 400, 48, { fill: "var(--card)", stroke: SVGC.seg, sw: 1.8, rx: 8 })}
+          <rect x="120" y="${92 + i * 58}" width="54" height="48" rx="8" fill="${SVGC.seg}" opacity=".16"/>
+          ${tx(147, 116 + i * 58, `记录 ${i + 1}`, { s: 11.5, c: SVGC.seg, w: 800 })}
+          ${[0, 1, 2].map(j => `<rect x="${196 + j * 100}" y="${104 + i * 58}" width="82" height="24" rx="4" fill="${SVGC.seg}" opacity=".09"/>`).join("")}
+        </g>`).join("")}
+      ${tag(320, 352, "记录式文件：由一条条记录组成，有结构", { s: 15, c: SVGC.seg, stroke: SVGC.seg })}`;
+  }
+  return `
+    ${tx(320, 52, "逻辑结构的目标", { s: 19, w: 900 })}
+    ${[
+      { t: "检索速度快", d: "找记录要快", c: SVGC.proc },
+      { t: "增删改方便", d: "插入、删除、修改省事", c: SVGC.run },
+      { t: "节省存储空间", d: "别浪费磁盘", c: SVGC.warn }
+    ].map((it, i) => `
+      <g class="pop" style="animation-delay:${i * .08}s">
+        ${box(22 + i * 202, 106, 188, 176, { fill: "var(--card)", stroke: it.c, sw: 2.2, rx: 15 })}
+        <circle cx="${116 + i * 202}" cy="156" r="26" fill="${it.c}" opacity=".14"/>
+        <circle cx="${116 + i * 202}" cy="156" r="26" fill="none" stroke="${it.c}" stroke-width="2"/>
+        ${tx(116 + i * 202, 157, ["快", "改", "省"][i], { s: 16, c: it.c, w: 900 })}
+        ${tx(116 + i * 202, 216, it.t, { s: 15, c: it.c, w: 800 })}
+        ${tx(116 + i * 202, 246, it.d, { s: 11.5, c: SVGC.ink2, w: 600 })}
+      </g>`).join("")}
+    ${tag(320, 330, "逻辑结构：面向用户，文件内部怎么组织", { s: 13.5, c: SVGC.ink2 })}`;
+}
+
+function physicalFile(stage) {
+  if (stage === 1) {
+    return `
+      ${tx(320, 50, "连续组织：块挨着块", { s: 18, c: SVGC.file, w: 900 })}
+      ${box(62, 126, 120, 54, { fill: "var(--card)", stroke: SVGC.file, sw: 2, rx: 8 })}
+      ${tx(122, 144, "目录项", { s: 11.5, c: SVGC.file, w: 800 })}
+      ${tx(122, 166, "起始块 2", { s: 11.5, c: SVGC.ink2, w: 600 })}
+      ${[0, 1, 2, 3, 4, 5, 6].map(i => {
+        const on = i >= 2 && i <= 5;
+        return `<rect x="${220 + i * 54}" y="128" width="48" height="50" rx="4" fill="${on ? SVGC.file : "var(--bg2)"}" opacity="${on ? .18 : 1}" stroke="${on ? SVGC.file : SVGC.line2}" stroke-width="${on ? 2 : 1.2}"/>${tx(244 + i * 54, 153, `块 ${i}`, { s: 9.5, c: on ? SVGC.file : SVGC.muted, w: 700 })}`;
+      }).join("")}
+      ${tag(320, 218, "文件的块连续存放 → 访问快，支持直接存取", { s: 13.5, c: SVGC.ok, stroke: SVGC.ok })}
+      ${tag(320, 264, "缺点：有外部碎片；需要预先知道文件大小", { s: 13, c: SVGC.bad, stroke: SVGC.bad })}
+      ${tag(320, 310, "连续组织方式支持直接存取", { s: 14, c: SVGC.file, stroke: SVGC.file })}`;
+  }
+  if (stage === 2) {
+    const blocks = [[90, 240], [210, 150], [340, 290], [460, 180], [540, 300]];
+    return `
+      ${tx(320, 50, "链接组织：块之间用指针串起来", { s: 18, c: SVGC.thread, w: 900 })}
+      ${box(24, 100, 96, 56, { fill: "var(--card)", stroke: SVGC.thread, sw: 2, rx: 8 })}
+      ${tx(72, 120, "目录项", { s: 11, c: SVGC.thread, w: 800 })}
+      ${tx(72, 140, "首块 2", { s: 10.5, c: SVGC.ink2, w: 600 })}
+      ${blocks.map((b, i) => `
+        <g class="pop" style="animation-delay:${i * .08}s">
+          <rect x="${b[0]}" y="${b[1]}" width="70" height="54" rx="5" fill="${SVGC.thread}" opacity=".12" stroke="${SVGC.thread}" stroke-width="1.8"/>
+          ${tx(b[0] + 35, b[1] + 18, `块 ${[2, 7, 4, 9, 6][i]}`, { s: 10.5, c: SVGC.thread, w: 700 })}
+          ${tx(b[0] + 35, b[1] + 37, i < 4 ? "下一块 →" : "END", { s: 9, c: SVGC.ink2, w: 600 })}
+        </g>`).join("")}
+      ${[
+        [160, 267, 206, 182], [280, 182, 336, 284], [410, 292, 456, 208], [530, 210, 536, 294]
+      ].map(p => arrow(p[0], p[1], p[2], p[3], { c: SVGC.thread, key: "teal", sw: 2, dash: "5 3" })).join("")}
+      ${tag(320, 338, "块之间用指针链接：顺着当前块找下一块", { s: 12.5, c: SVGC.thread, stroke: SVGC.thread })}
+      ${tag(320, 376, "链接：慢但灵活", { s: 14, c: SVGC.warn, stroke: SVGC.warn })}`;
+  }
+  if (stage === 3) {
+    const blocks = [
+      { x: 66, y: 66, label: "块 5", sx: 216, sy: 136, tx: 132, ty: 108 },
+      { x: 300, y: 292, label: "块 8", sx: 330, sy: 260, tx: 331, ty: 290 },
+      { x: 418, y: 74, label: "块 2", sx: 366, sy: 150, tx: 416, ty: 118 },
+      { x: 514, y: 282, label: "块 9", sx: 366, sy: 214, tx: 516, ty: 294 }
+    ];
+    return `
+      ${tx(320, 50, "索引组织：索引块里放一堆指针", { s: 18, c: SVGC.res, w: 900 })}
+      ${box(70, 150, 94, 62, { fill: "var(--card)", stroke: SVGC.res, sw: 2, rx: 8 })}
+      ${tx(117, 172, "目录项", { s: 11, c: SVGC.res, w: 800 })}
+      ${tx(117, 194, "索引块 1", { s: 10.5, c: SVGC.ink2, w: 600 })}
+      ${arrow(168, 182, 210, 182, { c: SVGC.res, key: "purple", sw: 2.2 })}
+      ${box(216, 116, 150, 144, { fill: "var(--card)", stroke: SVGC.res, sw: 2.2, rx: 10 })}
+      ${tx(291, 138, "索引块", { s: 12.5, c: SVGC.res, w: 800 })}
+      ${[0, 1, 2, 3].map(i => `${tx(244, 166 + i * 24, `→ 块 ${[5, 8, 2, 9][i]}`, { s: 11, a: "start", c: SVGC.ink2, w: 600 })}`).join("")}
+      ${blocks.map(b => `
+        <rect x="${b.x}" y="${b.y}" width="62" height="50" rx="4" fill="${SVGC.res}" opacity=".1" stroke="${SVGC.res}" stroke-width="1.5"/>
+        ${tx(b.x + 31, b.y + 27, b.label, { s: 9.5, c: SVGC.res, w: 700 })}
+        ${arrow(b.sx, b.sy, b.tx, b.ty, { c: SVGC.res, key: "purple", sw: 1.6, dash: "3 3" })}
+      `).join("")}
+      ${tag(320, 356, "索引：便于随机访问", { s: 13.5, c: SVGC.res, stroke: SVGC.res })}`;
+  }
+  return `
+    ${tx(320, 52, "三种物理结构一起记", { s: 19, w: 900 })}
+    ${[
+      { t: "连续", d: ["访问快", "支持直接存取", "有外部碎片", "需预知大小"], c: SVGC.ok },
+      { t: "链接", d: ["块之间用指针连接", "顺着指针找下一块", "慢但灵活"], c: SVGC.thread },
+      { t: "索引", d: ["索引块放指针", "便于随机访问"], c: SVGC.res }
+    ].map((it, i) => `
+      <g class="pop" style="animation-delay:${i * .08}s">
+        ${box(18 + i * 204, 92, 190, 240, { fill: "var(--card)", stroke: it.c, sw: 2.2, rx: 15 })}
+        ${tx(113 + i * 204, 126, it.t, { s: 19, c: it.c, w: 900 })}
+        ${tlines(113 + i * 204, 172, it.d, { s: 11.5, c: SVGC.ink2, w: 600, lh: 25 })}
+      </g>`).join("")}
+    ${tag(320, 360, "连续快但碎，链接慢但灵活，索引兼顾随机", { s: 13, c: SVGC.warn, stroke: SVGC.warn })}`;
+}
+
+function directoryDiagram(stage) {
+  if (stage === 1) {
+    return `
+      ${tx(320, 50, "单级目录：所有文件挤在一起", { s: 18, c: SVGC.bad, w: 900 })}
+      ${box(120, 88, 400, 230, { fill: "var(--card)", stroke: SVGC.bad, sw: 2.2, rx: 14 })}
+      ${tx(320, 112, "根目录", { s: 14, c: SVGC.bad, w: 800 })}
+      ${["report.txt", "photo.jpg", "report.txt"].map((f, i) => `
+        <g class="pop" style="animation-delay:${i * .08}s">
+          ${box(150, 134 + i * 54, 340, 42, { fill: i === 2 ? "var(--bad-bg)" : "var(--bg2)", stroke: i === 2 ? SVGC.bad : SVGC.line2, sw: i === 2 ? 2.2 : 1.2, rx: 6 })}
+          ${tx(172, 155 + i * 54, "文件", { s: 10, a: "start", c: SVGC.ink2, w: 600 })}
+          ${tx(230, 155 + i * 54, f, { s: 12.5, a: "start", c: i === 2 ? SVGC.bad : SVGC.ink, w: 700 })}
+          ${i === 2 ? mark(460, 155 + i * 54, false, { r: 11 }) : ""}
+        </g>`).join("")}
+      ${tag(320, 342, "所有文件放在一个目录里 → 重名冲突", { s: 14, c: SVGC.bad, stroke: SVGC.bad })}
+      ${tag(320, 378, "不同用户很难各自管理自己的文件", { s: 12, c: SVGC.ink2 })}`;
+  }
+  if (stage === 2) {
+    return `
+      ${tx(320, 48, "两级目录：主目录 + 每个用户自己的文件目录", { s: 17, w: 900 })}
+      ${box(240, 74, 160, 48, { fill: "var(--card)", stroke: SVGC.file, sw: 2.2, rx: 8 })}
+      ${tx(320, 98, "主目录", { s: 13, c: SVGC.file, w: 800 })}
+      ${arrow(278, 122, 168, 164, { c: SVGC.file, key: "ink", sw: 2 })}
+      ${arrow(362, 122, 472, 164, { c: SVGC.file, key: "ink", sw: 2 })}
+      ${[
+        { x: 72, name: "用户 A", files: ["a1.txt", "a2.txt"], c: SVGC.proc },
+        { x: 400, name: "用户 B", files: ["b1.txt", "b2.txt"], c: SVGC.thread }
+      ].map(u => `
+        <g class="pop">
+          ${box(u.x, 160, 152, 48, { fill: "var(--card)", stroke: u.c, sw: 2, rx: 8 })}
+          ${tx(u.x + 76, 178, u.name, { s: 12.5, c: u.c, w: 800 })}
+          ${tx(u.x + 76, 196, "用户名 + 指针", { s: 9.5, c: SVGC.ink2, w: 600 })}
+          ${box(u.x, 228, 152, 116, { fill: "var(--bg2)", stroke: u.c, sw: 1.5, rx: 8 })}
+          ${u.files.map((f, i) => tx(u.x + 76, 254 + i * 30, f, { s: 11, c: SVGC.ink, w: 600 })).join("")}
+        </g>`).join("")}
+      ${tag(320, 374, "主目录项 = 用户名 + 指向该用户文件目录的指针", { s: 13, c: SVGC.file, stroke: SVGC.file })}`;
+  }
+  return `
+    ${tx(320, 46, "多级（树形）目录", { s: 19, w: 900 })}
+    ${box(278, 70, 84, 40, { fill: "var(--card)", stroke: SVGC.file, sw: 2, rx: 7 })}
+    ${tx(320, 90, "/", { s: 16, c: SVGC.file, w: 900 })}
+    ${box(90, 150, 110, 40, { fill: "var(--card)", stroke: SVGC.proc, sw: 2, rx: 7 })}
+    ${tx(145, 170, "user1", { s: 12, c: SVGC.proc, w: 800 })}
+    ${box(440, 150, 110, 40, { fill: "var(--card)", stroke: SVGC.thread, sw: 2, rx: 7 })}
+    ${tx(495, 170, "user2", { s: 12, c: SVGC.thread, w: 800 })}
+    ${arrow(300, 110, 170, 146, { c: SVGC.muted, key: "ink", sw: 1.8 })}
+    ${arrow(340, 110, 470, 146, { c: SVGC.muted, key: "ink", sw: 1.8 })}
+    ${[
+      { x: 54, name: "report", c: SVGC.proc },
+      { x: 174, name: "notes", c: SVGC.proc },
+      { x: 404, name: "report", c: SVGC.thread },
+      { x: 524, name: "photo", c: SVGC.thread }
+    ].map(f => `
+      <g class="pop">
+        ${box(f.x, 240, 92, 44, { fill: "var(--card)", stroke: f.c, sw: 1.8, rx: 7 })}
+        ${tx(f.x + 46, 262, f.name, { s: 11.5, c: f.c, w: 700 })}
+      </g>`).join("")}
+    ${arrow(165, 190, 110, 236, { c: SVGC.proc, key: "ink", sw: 1.5 })}
+    ${arrow(180, 190, 215, 236, { c: SVGC.proc, key: "ink", sw: 1.5 })}
+    ${arrow(475, 190, 450, 236, { c: SVGC.thread, key: "ink", sw: 1.5 })}
+    ${arrow(510, 190, 570, 236, { c: SVGC.thread, key: "ink", sw: 1.5 })}
+    ${tag(320, 320, "同一个目录下不能重名；不同目录下可以同名", { s: 14, c: SVGC.ok, stroke: SVGC.ok })}
+    ${tag(220, 366, "/user1/report", { s: 11.5, c: SVGC.proc, stroke: SVGC.proc })}
+    ${tag(430, 366, "/user2/report", { s: 11.5, c: SVGC.thread, stroke: SVGC.thread })}`;
+}
+
+function inodeDiagram(stage) {
+  if (stage === 1) {
+    const attrs = [["文件名", "report"], ["大小", "12 KB"], ["创建时间", "10:02"], ["物理地址", "块 8"], ["权限", "rw-r--"], ["所有者", "user1"]];
+    return `
+      ${tx(320, 48, "目录项里塞满属性：目录很大", { s: 18, c: SVGC.bad, w: 900 })}
+      ${box(120, 82, 400, 262, { fill: "var(--card)", stroke: SVGC.bad, sw: 2.2, rx: 14 })}
+      ${tx(320, 108, "目录项（FCB）", { s: 14, c: SVGC.bad, w: 800 })}
+      ${attrs.map((a, i) => `
+        ${ln(140, 128 + i * 34, 500, 128 + i * 34, { c: SVGC.line2, sw: 1, op: .5 })}
+        ${tx(158, 146 + i * 34, a[0], { s: 11.5, a: "start", c: SVGC.ink2, w: 600 })}
+        ${tx(482, 146 + i * 34, a[1], { s: 11.5, a: "end", c: SVGC.ink, w: 700 })}
+      `).join("")}
+      ${tag(320, 366, "什么都放在目录项里 → 目录项大，查目录慢", { s: 13.5, c: SVGC.bad, stroke: SVGC.bad })}`;
+  }
+  if (stage === 2) {
+    return `
+      ${tx(320, 46, "把属性搬进 inode，目录项只留名字和指针", { s: 17, w: 900 })}
+      ${box(36, 92, 250, 234, { fill: "var(--card)", stroke: SVGC.file, sw: 2.2, rx: 12 })}
+      ${tx(161, 118, "目录项（变小）", { s: 13.5, c: SVGC.file, w: 800 })}
+      ${[0, 1, 2].map(i => `
+        ${box(56, 140 + i * 56, 210, 42, { fill: "var(--bg2)", stroke: SVGC.line2, sw: 1.2, rx: 6 })}
+        ${tx(74, 161 + i * 56, ["report", "notes", "photo"][i], { s: 11.5, a: "start", c: SVGC.ink, w: 700 })}
+        ${tx(246, 161 + i * 56, "→ inode", { s: 9.5, a: "end", c: SVGC.file, w: 600 })}
+      `).join("")}
+      ${arrow(288, 190, 340, 190, { c: SVGC.file, key: "ink", sw: 2.4 })}
+      ${box(346, 92, 254, 234, { fill: "var(--card)", stroke: SVGC.res, sw: 2.2, rx: 14 })}
+      ${tx(473, 118, "inode", { s: 15, c: SVGC.res, w: 900 })}
+      ${[["大小", "12 KB"], ["时间", "10:02"], ["物理地址", "块 8"], ["权限", "rw-r--"], ["所有者", "user1"]].map((a, i) => `
+        ${ln(366, 136 + i * 32, 580, 136 + i * 32, { c: SVGC.line2, sw: 1, op: .45 })}
+        ${tx(382, 153 + i * 32, a[0], { s: 10.5, a: "start", c: SVGC.ink2, w: 600 })}
+        ${tx(564, 153 + i * 32, a[1], { s: 10.5, a: "end", c: SVGC.ink, w: 700 })}
+      `).join("")}
+      ${tag(320, 366, "目录项只留文件名 + 指向 inode 的信息", { s: 13, c: SVGC.file, stroke: SVGC.file })}`;
+  }
+  return `
+    ${tx(320, 52, "为什么要拆出 inode？", { s: 19, w: 900 })}
+    ${box(50, 100, 230, 190, { fill: "var(--card)", stroke: SVGC.bad, sw: 2.2, rx: 15 })}
+    ${tx(165, 132, "不拆", { s: 17, c: SVGC.bad, w: 900 })}
+    ${tlines(165, 184, ["目录项很大", "目录里放不下多少项", "查目录慢"], { s: 12.5, c: SVGC.ink2, w: 600, lh: 26 })}
+    ${box(360, 100, 230, 190, { fill: "var(--card)", stroke: SVGC.ok, sw: 2.2, rx: 15 })}
+    ${tx(475, 132, "拆出 inode", { s: 17, c: SVGC.ok, w: 900 })}
+    ${tlines(475, 184, ["目录项变小", "目录项更紧凑", "查目录更快"], { s: 12.5, c: SVGC.ink2, w: 600, lh: 26 })}
+    ${arrow(286, 195, 354, 195, { c: SVGC.ok, key: "green", sw: 2.8 })}
+    ${tag(320, 338, "目录项 = 文件名 + 指向 inode / FCB 的信息", { s: 13.5, c: SVGC.file, stroke: SVGC.file })}`;
+}
+
+function fatDiagram(stage) {
+  const rows = [["0", "—"], ["1", "—"], ["2", "5"], ["3", "—"], ["4", "9"], ["5", "9"], ["6", "—"], ["7", "—"], ["8", "—"], ["9", "END"]];
+  const chain = ["2", "5", "9"];
+  return `
+    ${tx(320, 46, "FAT：整张表放在内存", { s: 19, c: SVGC.file, w: 900 })}
+    ${box(54, 92, 150, 92, { fill: "var(--card)", stroke: SVGC.file, sw: 2.2, rx: 10 })}
+    ${tx(129, 118, "目录项", { s: 12.5, c: SVGC.file, w: 800 })}
+    ${tx(129, 144, "文件名 A", { s: 11, c: SVGC.ink, w: 700 })}
+    ${tx(129, 166, "首块 = 2", { s: 11, c: SVGC.bad, w: 800 })}
+    ${arrow(208, 150, 252, 150, { c: SVGC.file, key: "ink", sw: 2.2 })}
+    ${box(258, 82, 288, 250, { fill: "var(--card)", stroke: SVGC.file, sw: 2.2, rx: 12 })}
+    ${tx(402, 106, "FAT 表（内存）", { s: 13, c: SVGC.file, w: 800 })}
+    ${tx(330, 128, "块号", { s: 10.5, c: SVGC.ink2, w: 700 })}
+    ${tx(474, 128, "下一块", { s: 10.5, c: SVGC.ink2, w: 700 })}
+    ${ln(274, 140, 530, 140, { c: SVGC.line2, sw: 1 })}
+    ${rows.map((r, i) => {
+      const on = stage >= 2 && chain.includes(r[0]);
+      const y = 156 + i * 16;
+      return `${on ? `<rect x="270" y="${y - 8}" width="258" height="16" fill="${SVGC.ok}" opacity=".13"/>` : ""}${tx(330, y, r[0], { s: 10.5, c: on ? SVGC.ok : SVGC.ink2, w: on ? 800 : 600 })}${tx(474, y, r[1], { s: 10.5, c: on ? SVGC.ok : SVGC.ink2, w: on ? 800 : 600 })}`;
+    }).join("")}
+    ${stage >= 2 ? `
+      ${arrow(129, 190, 129, 250, { c: SVGC.ok, key: "green", sw: 2.2 })}
+      ${tag(200, 270, "2 → 5 → 9 → END", { s: 14, c: SVGC.ok, stroke: SVGC.ok })}
+      ${tag(390, 352, "顺着 FAT 一项一项找，就能得到块之间的链接信息", { s: 13, c: SVGC.file, stroke: SVGC.file })}
+    ` : tag(390, 352, "每项记录“某一块的下一块”", { s: 13.5, c: SVGC.file, stroke: SVGC.file })}`;
+}
+
+function sharingDiagram(stage) {
+  const cx = 320, cy = 190;
+  if (stage === 4) {
+    return `
+      ${tx(320, 52, "共享文件的互斥规则", { s: 19, w: 900 })}
+      ${box(70, 100, 500, 70, { fill: "var(--card)", stroke: SVGC.ok, sw: 2.2, rx: 12 })}
+      ${mark(102, 135, true, { r: 12 })}
+      ${tx(124, 135, "多个读者可以同时读", { s: 14, a: "start", c: SVGC.ok, w: 700 })}
+      ${box(70, 190, 500, 70, { fill: "var(--card)", stroke: SVGC.bad, sw: 2.2, rx: 12, dash: "6 4" })}
+      ${mark(102, 225, false, { r: 12 })}
+      ${tx(124, 225, "读者和写者不能同时", { s: 14, a: "start", c: SVGC.bad, w: 700 })}
+      ${box(70, 280, 500, 70, { fill: "var(--card)", stroke: SVGC.bad, sw: 2.2, rx: 12, dash: "6 4" })}
+      ${mark(102, 315, false, { r: 12 })}
+      ${tx(124, 315, "多个写者也不能同时", { s: 14, a: "start", c: SVGC.bad, w: 700 })}
+      ${tag(320, 380, "读写冲突要用互斥保证", { s: 14, c: SVGC.warn, stroke: SVGC.warn })}`;
+  }
+  const file = (x, y, label) => `
+    <g class="pop">
+      <path d="M${x - 42},${y - 38} H${x + 20} L${x + 42},${y - 16} V${y + 38} H${x - 42} Z" fill="var(--card)" stroke="${SVGC.file}" stroke-width="2.4"/>
+      <path d="M${x + 20},${y - 38} V${y - 16} H${x + 42}" fill="none" stroke="${SVGC.file}" stroke-width="2"/>
+      ${tx(x, y + 12, label, { s: 11, c: SVGC.file, w: 800 })}
+    </g>`;
+  const pos = [
+    { x: 130, y: 120 }, { x: 130, y: 280 }, { x: 510, y: 120 }, { x: 510, y: 280 }
+  ];
+  let users;
+  if (stage === 1) {
+    users = pos.map((p, i) => ({ ...p, label: `读者 ${i + 1}`, c: SVGC.proc, kind: "read" }));
+  } else if (stage === 2) {
+    users = [
+      { ...pos[0], label: "读者 1", c: SVGC.proc, kind: "read" },
+      { ...pos[1], label: "读者 2", c: SVGC.proc, kind: "read" },
+      { ...pos[2], label: "读者 3", c: SVGC.proc, kind: "read" },
+      { ...pos[3], label: "写者", c: SVGC.bad, kind: "write" }
+    ];
+  } else {
+    users = [
+      { ...pos[0], label: "写者 1", c: SVGC.bad, kind: "write" },
+      { ...pos[1], label: "写者 2", c: SVGC.bad, kind: "write" },
+      { ...pos[2], label: "写者 3", c: SVGC.bad, kind: "write" }
+    ];
+  }
+  return `
+    ${tx(320, 48, stage === 1 ? "共享文件：多个读者同时读" : stage === 2 ? "读者 + 写者：不能同时" : "多个写者：也不能同时", { s: 18, c: stage === 1 ? SVGC.ok : SVGC.bad, w: 900 })}
+    ${file(cx, cy, "共享文件")}
+    ${users.map(u => {
+      const left = u.x < cx;
+      const startX = u.x + (left ? 58 : -58);
+      const endX = cx + (left ? -50 : 50);
+      const endY = cy + (u.y < cy ? -22 : 22);
+      const bad = u.kind === "write";
+      return `<g>
+        ${pillNode(u.x - 58, u.y - 22, 116, 44, u.label, u.c, { fs: 11.5 })}
+        ${arrow(startX, u.y, endX, endY, { c: bad ? SVGC.bad : SVGC.ok, key: bad ? "red" : "green", sw: 2.2, dash: "5 3" })}
+      </g>`;
+    }).join("")}
+    ${stage === 1 ? mark(320, 320, true, { r: 16 }) : ""}
+    ${stage === 1 ? tag(320, 360, "允许多个用户同时读", { s: 14, c: SVGC.ok, stroke: SVGC.ok }) : ""}
+    ${stage === 2 ? `
+      ${mark(320, 318, false, { r: 16 })}
+      ${tag(320, 360, "读者和写者不能同时使用", { s: 14, c: SVGC.bad, stroke: SVGC.bad })}
+    ` : ""}
+    ${stage === 3 ? `
+      ${mark(320, 318, false, { r: 16 })}
+      ${tag(320, 360, "多个写者也不能同时使用", { s: 14, c: SVGC.bad, stroke: SVGC.bad })}
+    ` : ""}`;
+}
+
+const CARD5_ANIMS = [
+  {
+    id: "p5a1", no: "5.1", title: "逻辑结构：流式 vs 记录式",
+    frames: [
+      FR("流式文件：无结构，就是一串字节。", logicalFile(1)),
+      FR("记录式文件：有结构，由一条条记录组成。", logicalFile(2)),
+      FR("逻辑结构的目标：检索速度快；增删改方便；节省存储空间。", logicalFile(3), 4200)
+    ]
+  },
+  {
+    id: "p5a2", no: "5.2", title: "物理结构：连续、链接、索引",
+    frames: [
+      FR("连续：访问快，支持直接存取，有外部碎片，需预知大小。", physicalFile(1), 4200),
+      FR("链接：块之间用指针串起来，不要求连续。", physicalFile(2), 4200),
+      FR("索引：索引块里放指针，便于随机访问。", physicalFile(3), 4200),
+      FR("三种一起记：连续快但碎，链接慢但灵活，索引兼顾随机。", physicalFile(4), 4200)
+    ]
+  },
+  {
+    id: "p5a3", no: "5.3", title: "目录：单级 → 两级 → 多级树",
+    frames: [
+      FR("单级目录：所有文件放一起，重名冲突。", directoryDiagram(1)),
+      FR("两级目录：主目录项 = 用户名 + 指向该用户文件目录的指针。", directoryDiagram(2), 4200),
+      FR("多级树形：同一目录下不能重名，不同目录可以同名。", directoryDiagram(3), 4200)
+    ]
+  },
+  {
+    id: "p5a4", no: "5.4", title: "FCB 与 inode：目录项为什么变小",
+    frames: [
+      FR("目录项里塞满文件属性，目录很大，查目录慢。", inodeDiagram(1)),
+      FR("把其他属性放进 inode，目录项只留文件名 + 指向 inode 的信息。", inodeDiagram(2), 4200),
+      FR("目录项更小，查目录更快。", inodeDiagram(3), 3800)
+    ]
+  },
+  {
+    id: "p5a5", no: "5.5", title: "FAT：顺着表就能找到下一块",
+    frames: [
+      FR("文件的第一块地址存放在目录项中；整张 FAT 在内存。", fatDiagram(1)),
+      FR("每项记录“某一块的下一块”，顺着 2 → 5 → 9 找下去。", fatDiagram(2), 4200),
+      FR("所以通过 FAT 可以直接得到块之间的链接信息。", fatDiagram(3), 3800)
+    ]
+  },
+  {
+    id: "p5a6", no: "5.6", title: "共享文件：谁能同时用",
+    frames: [
+      FR("允许多个用户同时读。", sharingDiagram(1), 3600),
+      FR("读者和写者不能同时。", sharingDiagram(2), 3800),
+      FR("多个写者也不能同时。", sharingDiagram(3), 3800),
+      FR("读写冲突要用互斥保证。", sharingDiagram(4), 4000)
+    ]
+  }
+];
+
+const CARD5 = {
+  id: "p5", num: "⑤", short: "文件", kicker: "逻辑结构 · 物理结构 · 目录 · FAT",
+  title: "文件管理",
+  color: "var(--c-file)",
+  intro: "文件这张的选择题很细：连续支不支持直接存取、FAT 能直接得到什么、主目录项里有什么。把三种物理结构和目录演变看一遍，比死背定义稳。",
+  chips: ["流式 / 记录式", "连续 / 链接 / 索引", "单级 / 两级 / 多级", "FCB / inode", "FAT", "共享"],
+  anims: CARD5_ANIMS,
+  compare: {
+    cols: [
+      {
+        name: "连续", color: "var(--c-ok)", shape: "square", tag: "块挨着块",
+        points: ["访问快", "支持直接存取", "有外部碎片", "需预知文件大小"]
+      },
+      {
+        name: "链接", color: "var(--c-thread)", shape: "pill", tag: "指针串起来",
+        points: ["块之间用指针连接", "通过指针找下一块", "慢但灵活"]
+      },
+      {
+        name: "索引", color: "var(--c-res)", shape: "page", tag: "索引块放指针",
+        points: ["便于随机访问", "先查索引块，再找数据块"]
+      }
+    ],
+    facts: [
+      { ok: true, text: "连续组织方式访问速度快，但需要预知文件长度" },
+      { ok: false, text: "连续组织方式不支持直接存取" },
+      { ok: true, text: "FAT 每项记录某一块的下一块，整张表在内存" },
+      { ok: true, text: "通过 FAT 可以直接得到块之间的链接信息" },
+      { ok: false, text: "FAT 表里存的是每个文件的权限" },
+      { ok: true, text: "同一目录下不能重名，不同目录可以同名" }
+    ]
+  },
+  mnemonic: "连续快但碎，链接慢但灵活，索引兼顾随机。",
+  mnNote: "两点常考：FAT 得到的是“块之间的链接信息”；连续方式支持直接存取。",
+  quiz: ["q32", "q33", "q34", "q35", "q36"]
+};
+
+/* ============================================================
+   卡⑥ OS 概述 + 题库 + 注册
+   ============================================================ */
+
+/* ---------------- 6.1 四大特征 ---------------- */
+function featuresDiagram(stage) {
+  if (stage === 1) {
+    const p1 = [[90, 70], [220, 70], [360, 70]];
+    const p2 = [[150, 92], [290, 92], [440, 92]];
+    return `
+      ${tx(320, 40, "并发：同一时间间隔内交替执行", { s: 18, w: 900 })}
+      ${box(300, 62, 96, 40, { fill: SVGC.cpu, stroke: SVGC.cpu, sw: 2.2, rx: 8, op: .12 })}
+      ${tx(348, 82, "1 个 CPU", { s: 11.5, c: SVGC.cpu, w: 800 })}
+      ${box(60, 148, 520, 68, { fill: "var(--bg2)", stroke: SVGC.line2, sw: 1.6, rx: 8 })}
+      ${p1.map(([x, w], i) => `<rect x="${x}" y="158" width="${w}" height="22" rx="4" fill="${SVGC.proc}" opacity=".8" class="pop"/>`).join("")}
+      ${p2.map(([x, w], i) => `<rect x="${x}" y="186" width="${w}" height="22" rx="4" fill="${SVGC.thread}" opacity=".8" class="pop"/>`).join("")}
+      ${tx(46, 170, "P1", { s: 11, a: "end", c: SVGC.proc, w: 800 })}
+      ${tx(46, 198, "P2", { s: 11, a: "end", c: SVGC.thread, w: 800 })}
+      ${ln(60, 134, 580, 134, { c: SVGC.warn, sw: 1.6 })}
+      ${ln(60, 128, 60, 140, { c: SVGC.warn, sw: 1.6 })}
+      ${ln(580, 128, 580, 140, { c: SVGC.warn, sw: 1.6 })}
+      ${tag(320, 124, "同一时间间隔", { s: 11.5, c: SVGC.warn, stroke: SVGC.warn })}
+      ${tag(320, 268, "两个程序交替占用 CPU：这是并发，不是并行", { s: 13, c: SVGC.proc, stroke: SVGC.proc })}
+      ${tag(320, 310, "并发强调“同一时间间隔内”发生", { s: 12, c: SVGC.ink2 })}`;
+  }
+  if (stage === 2) {
+    return `
+      ${tx(320, 40, "并行：同一时刻，多个程序同时执行", { s: 18, w: 900 })}
+      ${box(238, 62, 76, 38, { fill: SVGC.cpu, stroke: SVGC.cpu, sw: 2, rx: 7, op: .12 })}
+      ${tx(276, 81, "CPU 1", { s: 10.5, c: SVGC.cpu, w: 800 })}
+      ${box(326, 62, 76, 38, { fill: SVGC.cpu, stroke: SVGC.cpu, sw: 2, rx: 7, op: .12 })}
+      ${tx(364, 81, "CPU 2", { s: 10.5, c: SVGC.cpu, w: 800 })}
+      ${box(60, 148, 520, 48, { fill: "var(--bg2)", stroke: SVGC.line2, sw: 1.6, rx: 8 })}
+      ${box(60, 210, 520, 48, { fill: "var(--bg2)", stroke: SVGC.line2, sw: 1.6, rx: 8 })}
+      <rect x="78" y="158" width="484" height="28" rx="4" fill="${SVGC.proc}" opacity=".8"/>
+      <rect x="78" y="220" width="484" height="28" rx="4" fill="${SVGC.thread}" opacity=".8"/>
+      ${tx(46, 172, "P1", { s: 11, a: "end", c: SVGC.proc, w: 800 })}
+      ${tx(46, 234, "P2", { s: 11, a: "end", c: SVGC.thread, w: 800 })}
+      ${ln(320, 116, 320, 290, { c: SVGC.bad, sw: 1.8, dash: "5 4" })}
+      ${tag(320, 120, "同一时刻", { s: 12, c: SVGC.bad, stroke: SVGC.bad })}
+      ${tag(320, 312, "两个程序在同一时刻都在运行 → 并行", { s: 13.5, c: SVGC.thread, stroke: SVGC.thread })}
+      ${tag(320, 352, "并行需要多个处理器；并发只需要一个 CPU 交替", { s: 12, c: SVGC.ink2 })}`;
+  }
+  if (stage === 3) {
+    return `
+      ${tx(320, 52, "操作系统的四大特征", { s: 20, w: 900 })}
+      <circle cx="320" cy="200" r="74" fill="${SVGC.warn}" opacity=".08" stroke="${SVGC.warn}" stroke-width="2"/>
+      ${tx(320, 188, "OS", { s: 22, c: SVGC.warn, w: 900 })}
+      ${tx(320, 216, "四大特征", { s: 12, c: SVGC.ink2, w: 700 })}
+      ${[
+        { x: 112, y: 108, t: "并发", c: SVGC.proc },
+        { x: 528, y: 108, t: "共享", c: SVGC.thread },
+        { x: 112, y: 292, t: "虚拟", c: SVGC.res },
+        { x: 528, y: 292, t: "异步", c: SVGC.file }
+      ].map((it, i) => `
+        <g class="pop" style="animation-delay:${i * .08}s">
+          ${box(it.x - 62, it.y - 32, 124, 64, { fill: "var(--card)", stroke: it.c, sw: 2.2, rx: 14 })}
+          ${tx(it.x, it.y, it.t, { s: 19, c: it.c, w: 900 })}
+          ${arrow(it.x + (it.x < 320 ? 64 : -64), it.y, 320 + (it.x < 320 ? -78 : 78), 200, { c: it.c, key: "ink", sw: 1.6, dash: "4 4" })}
+        </g>`).join("")}
+      ${tag(320, 350, "并发、共享、虚拟、异步", { s: 14, c: SVGC.warn, stroke: SVGC.warn })}`;
+  }
+  return `
+    ${tx(320, 52, "并发和共享互为存在条件", { s: 19, w: 900 })}
+    <circle cx="220" cy="196" r="72" fill="${SVGC.proc}" opacity=".1" stroke="${SVGC.proc}" stroke-width="2.6"/>
+    ${tx(220, 196, "并发", { s: 25, c: SVGC.proc, w: 900 })}
+    <circle cx="420" cy="196" r="72" fill="${SVGC.thread}" opacity=".1" stroke="${SVGC.thread}" stroke-width="2.6"/>
+    ${tx(420, 196, "共享", { s: 25, c: SVGC.thread, w: 900 })}
+    ${arrow(296, 176, 344, 176, { c: SVGC.warn, key: "amber", sw: 3 })}
+    ${arrow(344, 216, 296, 216, { c: SVGC.warn, key: "amber", sw: 3 })}
+    ${tag(320, 196, "互为条件", { s: 11.5, c: SVGC.warn, stroke: SVGC.warn })}
+    ${tag(320, 320, "没有并发，就谈不上共享；没有共享，并发也没有意义", { s: 13, c: SVGC.ink2 })}
+    ${tag(320, 360, "并行是同一时刻；并发是同一时间间隔", { s: 13, c: SVGC.bad, stroke: SVGC.bad })}`;
+}
+
+/* ---------------- 6.2 三种系统 ---------------- */
+function osTypes(stage) {
+  if (stage === 1) {
+    return `
+      ${tx(320, 44, "批处理系统：追求吞吐量", { s: 18, c: SVGC.proc, w: 900 })}
+      ${[0, 1, 2].map(i => `
+        <g class="pop" style="animation-delay:${i * .07}s">
+          ${box(34, 84 + i * 78, 212, 62, { fill: "var(--card)", stroke: SVGC.proc, sw: 1.8, rx: 9 })}
+          ${tx(54, 106 + i * 78, `作业 ${i + 1}`, { s: 12.5, a: "start", c: SVGC.proc, w: 800 })}
+          ${tx(54, 128 + i * 78, "作业控制信息", { s: 10.5, a: "start", c: SVGC.ink2, w: 600 })}
+        </g>`).join("")}
+      ${arrow(250, 200, 356, 200, { c: SVGC.proc, key: "darkblue", sw: 2.8 })}
+      ${box(362, 146, 132, 108, { fill: "var(--card)", stroke: SVGC.cpu, sw: 2.4, rx: 12 })}
+      ${tx(428, 180, "批处理", { s: 15, c: SVGC.cpu, w: 900 })}
+      ${tx(428, 208, "逐个执行", { s: 11, c: SVGC.ink2, w: 600 })}
+      ${arrow(498, 200, 556, 200, { c: SVGC.ok, key: "green", sw: 2.6 })}
+      ${tx(590, 200, "吞吐量", { s: 12, c: SVGC.ok, w: 800 })}
+      ${tag(320, 300, "作业必须带作业控制信息，系统按批处理", { s: 13, c: SVGC.proc, stroke: SVGC.proc })}
+      ${tag(320, 342, "目标：单位时间内完成更多作业", { s: 12, c: SVGC.ink2 })}`;
+  }
+  if (stage === 2) {
+    return `
+      ${tx(320, 44, "分时系统：按时间片轮流", { s: 18, c: SVGC.thread, w: 900 })}
+      <circle cx="320" cy="194" r="76" fill="${SVGC.thread}" opacity=".08" stroke="${SVGC.thread}" stroke-width="2.4"/>
+      ${tx(320, 174, "CPU", { s: 18, c: SVGC.thread, w: 900 })}
+      ${tx(320, 202, "时间片轮流", { s: 10.5, c: SVGC.ink2, w: 600 })}
+      ${[
+        { x: 130, y: 104, t: "用户 1" },
+        { x: 510, y: 104, t: "用户 2" },
+        { x: 130, y: 284, t: "用户 3" },
+        { x: 510, y: 284, t: "用户 4" }
+      ].map((u, i) => `
+        <g class="pop" style="animation-delay:${i * .06}s">
+          ${pillNode(u.x - 50, u.y - 20, 100, 40, u.t, SVGC.thread, { fs: 11 })}
+          ${arrow(u.x + (i % 2 === 0 ? 50 : -50), u.y, 320 + (i % 2 === 0 ? -58 : 58), 194 + (i < 2 ? -38 : 38), { c: SVGC.thread, key: "teal", sw: 1.8, dash: "4 4" })}
+        </g>`).join("")}
+      ${tag(320, 342, "时间片一到就换人：用户越多，轮一圈越久，响应越慢", { s: 12.5, c: SVGC.bad, stroke: SVGC.bad })}
+      ${tag(320, 380, "分时系统中，用户不是独占计算机", { s: 13, c: SVGC.warn, stroke: SVGC.warn })}`;
+  }
+  if (stage === 3) {
+    return `
+      ${tx(320, 44, "实时系统：及时性和可靠性", { s: 18, c: SVGC.bad, w: 900 })}
+      <rect x="80" y="150" width="480" height="44" rx="6" fill="var(--bg2)" stroke="${SVGC.line2}"/>
+      <rect x="96" y="158" width="250" height="28" rx="4" fill="${SVGC.run}" opacity=".85"/>
+      ${tx(220, 173, "任务必须在截止前完成", { s: 11, c: "#fff", w: 800 })}
+      <line x1="430" y1="128" x2="430" y2="216" stroke="${SVGC.bad}" stroke-width="3" stroke-dasharray="6 4"/>
+      ${tx(430, 116, "截止时间", { s: 11.5, c: SVGC.bad, w: 800 })}
+      ${mark(346, 172, true, { r: 13 })}
+      ${tag(320, 250, "响应时间要求比分时严格得多", { s: 15, c: SVGC.bad, stroke: SVGC.bad })}
+      ${tag(320, 296, "目标：及时 + 可靠，错过截止就可能出问题", { s: 12.5, c: SVGC.ink2 })}
+      ${tag(320, 338, "分时追求交互，实时追求“必须按时”", { s: 12.5, c: SVGC.warn, stroke: SVGC.warn })}`;
+  }
+  return `
+    ${tx(320, 44, "三种系统对比", { s: 19, w: 900 })}
+    ${[
+      { x: 18, t: "批处理", c: SVGC.proc, rows: ["追求吞吐量", "作业带作业控制信息", "交互性弱"] },
+      { x: 220, t: "分时", c: SVGC.thread, rows: ["交互性强", "按时间片轮流", "用户越多响应越慢", "用户不是独占"] },
+      { x: 422, t: "实时", c: SVGC.bad, rows: ["及时性、可靠性", "响应要求比分时更严", "错过截止可能出问题"] }
+    ].map(col => `
+      <g class="pop">
+        ${box(col.x, 82, 190, 244, { fill: "var(--card)", stroke: col.c, sw: 2.2, rx: 14 })}
+        ${tx(col.x + 95, 116, col.t, { s: 18, c: col.c, w: 900 })}
+        ${tlines(col.x + 95, 164, col.rows, { s: 11.5, c: SVGC.ink2, w: 600, lh: 30 })}
+      </g>`).join("")}
+    ${tag(320, 360, "分时不是独占；实时比分时的响应要求严格得多", { s: 12.5, c: SVGC.warn, stroke: SVGC.warn })}`;
+}
+
+/* ---------------- 6.3 用户态 / 内核态 ---------------- */
+function modeDiagram(stage) {
+  return `
+    ${tx(320, 36, "用户态（目态）与内核态（管态）", { s: 17, w: 900 })}
+    ${box(30, 92, 230, 200, { fill: SVGC.user, stroke: SVGC.user, sw: 2.4, rx: 16, op: .07 })}
+    ${box(30, 92, 230, 200, { stroke: SVGC.user, sw: 2.4, rx: 16 })}
+    ${tx(145, 120, "应用程序", { s: 16, c: SVGC.user, w: 900 })}
+    ${tx(145, 144, "运行在目态", { s: 11.5, c: SVGC.ink2, w: 700 })}
+    ${tx(48, 180, 'read("file")', { s: 13, a: "start", c: SVGC.ink, w: 700, ff: "Consolas,monospace" })}
+    ${tx(48, 208, "普通指令", { s: 10.5, a: "start", c: SVGC.ink2, w: 600 })}
+    ${box(380, 92, 230, 200, { fill: SVGC.kernel, stroke: SVGC.kernel, sw: 2.4, rx: 16, op: .07 })}
+    ${box(380, 92, 230, 200, { stroke: SVGC.kernel, sw: 2.4, rx: 16 })}
+    ${tx(495, 120, "操作系统内核", { s: 16, c: SVGC.kernel, w: 900 })}
+    ${tx(495, 144, "运行在管态", { s: 11.5, c: SVGC.ink2, w: 700 })}
+    ${stage === 3 ? `
+      ${box(400, 166, 190, 38, { fill: "var(--card)", stroke: SVGC.kernel, sw: 1.6, rx: 7 })}
+      ${tx(495, 185, "置程序状态字", { s: 12, c: SVGC.kernel, w: 800 })}
+      ${box(400, 214, 190, 38, { fill: "var(--card)", stroke: SVGC.kernel, sw: 1.6, rx: 7 })}
+      ${tx(495, 233, "特权指令", { s: 12, c: SVGC.kernel, w: 800 })}
+    ` : `
+      ${tx(495, 196, "执行特权操作", { s: 12.5, c: SVGC.kernel, w: 700 })}
+    `}
+    ${stage === 4
+      ? arrow(376, 222, 264, 222, { c: SVGC.ok, key: "green", sw: 3 })
+      : arrow(264, 192, 376, 192, { c: SVGC.warn, key: "amber", sw: 3 })}
+    ${tag(320, stage === 4 ? 200 : 168, stage === 4 ? "返回目态" : "系统调用（陷入）", { s: 11.5, c: stage === 4 ? SVGC.ok : SVGC.warn, stroke: stage === 4 ? SVGC.ok : SVGC.warn })}
+    ${stage === 1 ? tag(320, 330, "应用程序要读文件 → 发出系统调用（陷入）", { s: 13, c: SVGC.user, stroke: SVGC.user }) : ""}
+    ${stage === 2 ? `
+      ${tag(320, 320, "CPU 从目态切换到管态", { s: 14, c: SVGC.kernel, stroke: SVGC.kernel })}
+      ${arrow(272, 350, 368, 350, { c: SVGC.kernel, key: "red", sw: 2.6 })}
+      ${tag(320, 378, "目态 ——→ 管态", { s: 12, c: SVGC.ink2 })}
+    ` : ""}
+    ${stage === 3 ? `
+      ${mark(145, 250, false, { r: 13 })}
+      ${tag(145, 286, "目态不能执行", { s: 12, c: SVGC.bad, stroke: SVGC.bad })}
+      ${tag(320, 330, "置程序状态字等是特权指令，只能在管态执行", { s: 13, c: SVGC.kernel, stroke: SVGC.kernel })}
+      ${tag(320, 370, "CPU 在执行 OS 代码时处于管态", { s: 13.5, c: SVGC.warn, stroke: SVGC.warn })}
+    ` : ""}
+    ${stage === 4 ? tag(320, 330, "OS 完成特权操作后返回目态", { s: 13, c: SVGC.ok, stroke: SVGC.ok }) : ""}`;
+}
+
+const CARD6_ANIMS = [
+  {
+    id: "p6a1", no: "6.1", title: "并发 vs 并行，四大特征",
+    frames: [
+      FR("并发：同一时间间隔内，多个程序交替执行。", featuresDiagram(1)),
+      FR("并行：同一时刻，多个程序同时执行。", featuresDiagram(2)),
+      FR("四大特征：并发、共享、虚拟、异步。", featuresDiagram(3)),
+      FR("并发和共享互为存在条件。", featuresDiagram(4), 3800)
+    ]
+  },
+  {
+    id: "p6a2", no: "6.2", title: "批处理、分时、实时",
+    frames: [
+      FR("批处理：追求吞吐量，作业必须带作业控制信息。", osTypes(1)),
+      FR("分时：按时间片轮流；用户越多响应越慢，用户不是独占计算机。", osTypes(2), 4200),
+      FR("实时：及时性和可靠性，响应时间要求比分时严格得多。", osTypes(3), 4200),
+      FR("三种系统放在一起对比。", osTypes(4), 4000)
+    ]
+  },
+  {
+    id: "p6a3", no: "6.3", title: "系统调用：目态 → 管态 → 目态",
+    frames: [
+      FR("应用程序要读文件，发出系统调用（陷入）。", modeDiagram(1)),
+      FR("CPU 从目态切换到管态。", modeDiagram(2)),
+      FR("置程序状态字等是特权指令，只能在管态执行；CPU 执行 OS 代码时处于管态。", modeDiagram(3), 4400),
+      FR("OS 完成操作，返回目态。", modeDiagram(4), 3800)
+    ]
+  }
+];
+
+const CARD6 = {
+  id: "p6", num: "⑥", short: "OS 概述", kicker: "并发共享 · 三种系统 · 目态管态",
+  title: "操作系统概述",
+  color: "var(--c-warn)",
+  intro: "这一张是“送分概念”：并发和并行的区别、三种系统的目标、系统调用导致目态→管态。把这几句话记准，选择判断不丢分。",
+  chips: ["四大特征", "并发 vs 并行", "批处理 / 分时 / 实时", "目态 / 管态", "系统调用"],
+  anims: CARD6_ANIMS,
+  compare: {
+    cols: [
+      {
+        name: "并发", color: "var(--c-proc)", shape: "circle", tag: "同一时间间隔",
+        points: ["同一时间间隔内发生", "多个程序交替执行", "一个 CPU 也能并发", "和共享互为存在条件"]
+      },
+      {
+        name: "并行", color: "var(--c-thread)", shape: "pill", tag: "同一时刻",
+        points: ["同一时刻同时执行", "需要多个处理器", "强调“同时”", "不是并发"]
+      }
+    ],
+    facts: [
+      { ok: true, text: "并发是同一时间间隔内发生，并行是同一时刻发生" },
+      { ok: false, text: "单 CPU 上也可以实现真正的并行" },
+      { ok: true, text: "并发和共享互为存在条件" },
+      { ok: false, text: "分时系统中，用户独占整台计算机" },
+      { ok: true, text: "分时系统中时间片一定，用户越多响应时间越长" },
+      { ok: true, text: "实时系统的响应时间要求比分时系统严格得多" }
+    ]
+  },
+  mnemonic: "系统调用进管态，应用程序跑目态。",
+  mnNote: "并发是同一时间间隔，并行是同一时刻；分时用户越多越慢。",
+  quiz: ["c6a", "c6b", "c6c", "c6d", "q16"]
+};
+
+/* ============================================================
+   题库：36 题（按原文编号）
+   ============================================================ */
+const ALLQ = [
+  {
+    id: "q1", src: "进程/线程", anim: "p1a3",
+    q: "引入线程后，拥有资源的独立单位仍是什么？",
+    opts: ["进程", "线程", "程序", "CPU"], a: 0,
+    why: "线程只是进程内的执行流；引入线程后，进程仍是拥有资源的独立单位。"
+  },
+  {
+    id: "q2", src: "进程/线程", anim: "p1a3",
+    q: "下列不是进程特性的是：",
+    opts: ["动态性", "并发性", "异步性", "静态性"], a: 3,
+    why: "进程的特性是动态性、并发性、独立性、异步性，没有静态性。"
+  },
+  {
+    id: "q3", src: "进程/线程", anim: "p1a1",
+    q: "进程申请 CPU 得不到满足时，状态变为？",
+    opts: ["就绪", "阻塞", "运行", "终止"], a: 0,
+    why: "等 CPU 是就绪；阻塞是在等 I/O 或资源等事件。"
+  },
+  {
+    id: "q4", src: "进程/线程", anim: "p1a1",
+    q: "一次打印输出结束后，请求打印的进程状态变化？",
+    opts: ["阻塞 → 就绪", "就绪 → 运行", "运行 → 阻塞", "阻塞 → 运行"], a: 0,
+    why: "打印完成属于 I/O 完成，阻塞 → 就绪；阻塞不能直接变成运行。"
+  },
+  {
+    id: "q5", src: "进程/线程", anim: "p1a2",
+    q: "判断：只有处于阻塞状态的进程才能被挂起。",
+    opts: ["✓ 正确", "✗ 错误"], a: 1,
+    why: "就绪和阻塞都可以挂起，分别变成静止就绪、静止阻塞。"
+  },
+  {
+    id: "q6", src: "进程/线程", anim: "p1a3",
+    q: "判断：每个线程有自己独立的地址空间。",
+    opts: ["✓ 正确", "✗ 错误"], a: 1,
+    why: "同一进程的线程共享所属进程的地址空间，各有自己的栈和寄存器。"
+  },
+  {
+    id: "q7", src: "进程/线程", anim: "p1a4",
+    q: "原语的特点？",
+    opts: ["由若干条指令组成，执行过程中不可被中断", "只包含一条指令", "只能在用户态执行", "可以被任意中断"], a: 0,
+    why: "原语由若干条指令组成，执行时不可被中断，所以会屏蔽中断。"
+  },
+  {
+    id: "q8", src: "死锁", anim: "p2a4",
+    q: "7 台打印机，每进程最多 2 台，最多几个进程不会死锁？",
+    opts: ["5", "6", "7", "8"], a: 1,
+    why: "N×(2−1)+1≤7，N≤6；6 个进程各占 1 台还剩 1 台，必有一个能拿第 2 台跑完。"
+  },
+  {
+    id: "q9", src: "死锁", anim: "p2a4",
+    q: "19 台打印机，每进程共需 4 台，N 最多是多少？",
+    opts: ["5", "6", "7", "8"], a: 1,
+    why: "3N+1≤19，N≤6。"
+  },
+  {
+    id: "q10", src: "死锁", anim: "p2a3",
+    q: "预先分配资源破坏哪个必要条件？",
+    opts: ["互斥", "请求和保持", "不可剥夺", "环路等待"], a: 1,
+    why: "一次性申请全部资源，破坏“请求和保持”（也叫请求并保持）。"
+  },
+  {
+    id: "q11", src: "死锁", anim: "p2a1",
+    q: "判断：死锁一定导致整个系统崩溃。",
+    opts: ["✓ 正确", "✗ 错误"], a: 1,
+    why: "死锁只是相关进程卡住，不是所有进程都停，更不等于系统崩溃。"
+  },
+  {
+    id: "q12", src: "死锁", anim: "p2a2",
+    q: "死锁的充分条件？",
+    opts: ["资源分配图不可完全简化", "资源分配图有环", "系统处于不安全状态", "有进程被阻塞"], a: 0,
+    why: "资源分配图不可完全简化时死锁；原文用“当且仅当”表述这个条件。"
+  },
+  {
+    id: "q13", src: "调度/同步", anim: null,
+    q: "信号量初值 4、当前值 1，可用资源数和等待进程数分别是？",
+    opts: ["1 和 0", "3 和 0", "1 和 3", "0 和 1"], a: 0,
+    why: "当前值 1 表示还有 1 个可用资源；值为正，没有进程在等待。"
+  },
+  {
+    id: "q14", src: "调度/同步", anim: null,
+    q: "6 个进程共享互斥段，最多 2 个同时进入，信号量变化范围？",
+    opts: ["[−4, 2]", "[−6, 2]", "[0, 2]", "[−4, 6]"], a: 0,
+    why: "初值 2；最多 6 个进程申请，最坏降到 2−6=−4，所以范围是 [−4, 2]。"
+  },
+  {
+    id: "q15", src: "调度/同步", anim: null,
+    q: "10 个就绪进程、时间片 200ms、切换 10ms，最坏等待约？",
+    opts: ["1800ms", "1900ms", "2000ms", "2100ms"], a: 1,
+    why: "前面 9 个进程各用 200ms 加切换 10ms，9×210=1890ms，约 1900ms。"
+  },
+  {
+    id: "q16", src: "调度/同步", anim: "p6a2",
+    q: "判断：分时系统中，时间片一定，用户越多响应时间越长。",
+    opts: ["✓ 正确", "✗ 错误"], a: 0,
+    why: "用户越多，每个用户轮到的时间片间隔越长，响应越慢。"
+  },
+  {
+    id: "q17", src: "调度/同步", anim: null,
+    q: "判断：响应比高者优先解决了长作业死等的问题。",
+    opts: ["✓ 正确", "✗ 错误"], a: 0,
+    why: "长作业等待越久，响应比越高，越容易被选中，不会一直被跳过。"
+  },
+  {
+    id: "q18", src: "调度/同步", anim: null,
+    q: "判断：先来先服务算法效率比较高。",
+    opts: ["✓ 正确", "✗ 错误"], a: 1,
+    why: "先来先服务按到达顺序执行，短作业可能排在长作业后面等很久，效率并不高。"
+  },
+  {
+    id: "q19", src: "调度/同步", anim: null,
+    q: "下列不会引起饥饿的是：",
+    opts: ["短寻道优先", "静态优先权", "短作业优先", "时间片轮转"], a: 3,
+    why: "时间片轮转让每个进程轮流获得 CPU，不会长期得不到服务；其余可能让某些进程一直等。"
+  },
+  {
+    id: "q20", src: "调度/同步", anim: null,
+    q: "临界区是指？",
+    opts: ["进程中访问临界资源的那段代码", "一段共享内存", "一个进程", "一种信号量"], a: 0,
+    why: "临界区是进程中访问临界资源的那段代码。"
+  },
+  {
+    id: "q21", src: "内存", anim: "p4a4",
+    q: "动态重定位在什么时候进行？",
+    opts: ["作业执行过程中", "装入内存时", "编译时", "链接时"], a: 0,
+    why: "动态重定位在运行时由硬件把逻辑地址加基址得到物理地址。"
+  },
+  {
+    id: "q22", src: "内存", anim: "p4a1",
+    q: "判断：请求页式管理既减少外零头，又减少内零头。",
+    opts: ["✓ 正确", "✗ 错误"], a: 1,
+    why: "请求页式只减少外部碎片（外零头），内部碎片（内零头）仍然存在。"
+  },
+  {
+    id: "q23", src: "内存", anim: "p4a3",
+    q: "不设快表的页式管理，访问一个数据至少访问几次内存？",
+    opts: ["1 次", "2 次", "3 次", "4 次"], a: 1,
+    why: "先访问内存中的页表 1 次，再访问数据 1 次，共 2 次。"
+  },
+  {
+    id: "q24", src: "内存", anim: "p4a3",
+    q: "页表起始地址存放在哪里？",
+    opts: ["页表寄存器", "内存", "磁盘", "快表"], a: 0,
+    why: "页表基址放在页表寄存器里，页表本身放在内存。"
+  },
+  {
+    id: "q25", src: "内存", anim: "p4a5",
+    q: "缺页中断处理完后，接着执行哪条指令？",
+    opts: ["被中断的那条指令", "下一条指令", "程序第一条指令", "任意指令"], a: 0,
+    why: "缺页处理完要重新执行被中断的那条指令。"
+  },
+  {
+    id: "q26", src: "内存", anim: "p4a5",
+    q: "页表项增加“修改位”，哪个程序会用到？",
+    opts: ["选择换出页的程序", "地址变换程序", "编译程序", "用户程序"], a: 0,
+    why: "修改位供选择换出页时判断是否要写回磁盘：修改位为 1 才需要写回。"
+  },
+  {
+    id: "q27", src: "内存", anim: "p4a2",
+    q: "地址 24 位，其中 8 位段号，每段最大长度？",
+    opts: ["2^8 字节", "2^16 字节", "2^24 字节", "2^32 字节"], a: 1,
+    why: "24−8=16 位段内地址，最大长度是 2^16 字节。"
+  },
+  {
+    id: "q28", src: "I/O", anim: "p3a2",
+    q: "CPU 输出速度远高于打印机，可采用？",
+    opts: ["缓冲技术", "SPOOLing", "DMA", "通道"], a: 0,
+    why: "缓冲技术用来解决 CPU 与外设速度不匹配。"
+  },
+  {
+    id: "q29", src: "I/O", anim: "p3a1",
+    q: "通道实现哪两者之间的信息传输？对 CPU 干预最少的方式是？",
+    parts: [
+      { label: "① 通道实现（ ）之间的信息传输", opts: ["主存与外设", "CPU 与外设", "CPU 与主存", "外设与外设"], a: 0 },
+      { label: "② 对 CPU 干预最少的是（ ）", opts: ["程序直接控制", "中断驱动", "DMA", "通道"], a: 3 }
+    ],
+    why: "通道实现主存与外设之间的信息传输；通道方式对 CPU 的干预最少。"
+  },
+  {
+    id: "q30", src: "I/O", anim: "p3a3",
+    q: "判断：SPOOLing 系统中输出井和输出缓冲区都在硬盘。",
+    opts: ["✓ 正确", "✗ 错误"], a: 1,
+    why: "输入/输出缓冲区在内存，输入井和输出井在磁盘。"
+  },
+  {
+    id: "q31", src: "I/O", anim: "p3a5",
+    q: "判断：磁盘一次 I/O 的延迟时间在硬件设计时就固定了。",
+    opts: ["✓ 正确", "✗ 错误"], a: 1,
+    why: "旋转延迟取决于磁头当前位置，一次具体访问并不固定。"
+  },
+  {
+    id: "q32", src: "文件", anim: "p5a5",
+    q: "通过 FAT 表可以直接获得的信息？",
+    opts: ["块之间的连接信息", "文件的权限", "文件的创建时间", "磁盘总容量"], a: 0,
+    why: "FAT 每项记录某一块的下一块，整张表在内存，可直接得到块之间的链接信息。"
+  },
+  {
+    id: "q33", src: "文件", anim: "p5a3",
+    q: "允许不同用户的文件同名，且按名存取安全，通常采用？",
+    opts: ["单级目录", "两级目录", "多级目录结构", "无目录"], a: 2,
+    why: "题目给出的答案是“多级目录结构”；不同目录下可以同名，按名存取更安全。"
+  },
+  {
+    id: "q34", src: "文件", anim: "p5a6",
+    q: "允许多个用户同时使用共享文件，下列做法不对的是？",
+    opts: ["读者之间可同时使用", "写者之间互斥", "读者和写者同时使用", "读写互斥"], a: 2,
+    why: "读者和写者不能同时使用，否则读到的内容可能不一致。"
+  },
+  {
+    id: "q35", src: "文件", anim: "p5a3",
+    q: "两级文件目录中，主文件目录项的内容？",
+    opts: ["用户名和指向该用户目录文件的指针", "文件名和文件长度", "文件的物理地址", "文件的权限"], a: 0,
+    why: "主目录项 = 用户名 + 指向该用户文件目录的指针。"
+  },
+  {
+    id: "q36", src: "文件", anim: "p5a2",
+    q: "关于连续组织方式，不正确的是：",
+    opts: ["访问速度快", "有外碎片", "需预知文件长度", "不支持直接存取"], a: 3,
+    why: "连续组织方式支持直接存取；前三项都是它的特点。"
+  }
+];
+
+/* 卡⑥ 自编小测：严格来自卡⑥正文，不计入综合自测 36 题 */
+const CARD6Q = [
+  {
+    id: "c6a", src: "OS 概述", anim: "p6a1",
+    q: "并发和共享的关系是？",
+    opts: ["互为存在条件", "完全无关", "共享以并行为前提", "并发只出现在单道系统"], a: 0,
+    why: "并发和共享互为存在条件。"
+  },
+  {
+    id: "c6b", src: "OS 概述", anim: "p6a1",
+    q: "并行与并发的区别是？",
+    opts: ["并行是同一时刻，并发是同一时间间隔", "两者完全相同", "并发是同一时刻，并行是同一时间间隔", "并行只发生在单 CPU 上"], a: 0,
+    why: "并行强调同一时刻同时执行；并发强调同一时间间隔内交替执行。"
+  },
+  {
+    id: "c6c", src: "OS 概述", anim: "p6a2",
+    q: "批处理系统最追求的是？",
+    opts: ["吞吐量", "交互性", "响应时间", "用户独占"], a: 0,
+    why: "批处理系统追求吞吐量，作业必须带作业控制信息。"
+  },
+  {
+    id: "c6d", src: "OS 概述", anim: "p6a3",
+    q: "应用程序要读文件，CPU 状态如何变化？",
+    opts: ["通过系统调用从目态进入管态", "从管态进入目态", "一直在目态", "一直在管态"], a: 0,
+    why: "应用程序发出系统调用（陷入），CPU 从目态切换到管态，由 OS 执行特权操作。"
+  }
+];
+
+const QMAP = Object.fromEntries(ALLQ.concat(CARD6Q).map(q => [q.id, q]));
+const CARDS = [CARD1, CARD2, CARD3, CARD4, CARD5, CARD6];
+
+/* ============================================================
+   交互引擎：页签、动画播放器、小测、综合自测、主题
+   ============================================================ */
+(() => {
+  "use strict";
+
+  const $ = (sel, root = document) => root.querySelector(sel);
+  const $$ = (sel, root = document) => Array.from(root.querySelectorAll(sel));
+  const LETTERS = "ABCD";
+  const players = new Map();
+  let activeTab = "p1";
+  let toastTimer = null;
+
+  /* ---------------- 主题 ---------------- */
+  const themeBtn = $("#themeBtn");
+  function applyTheme(theme) {
+    document.documentElement.dataset.theme = theme;
+    const dark = theme === "dark";
+    themeBtn.innerHTML = dark
+      ? '<span class="theme-ico" aria-hidden="true">☀</span><span class="theme-txt">浅色</span>'
+      : '<span class="theme-ico" aria-hidden="true">☾</span><span class="theme-txt">深色</span>';
+    themeBtn.setAttribute("aria-label", dark ? "切换浅色模式" : "切换深色模式");
+    try { localStorage.setItem("os-theme", theme); } catch (e) {}
+  }
+  function initTheme() {
+    let saved = null;
+    try { saved = localStorage.getItem("os-theme"); } catch (e) {}
+    const prefersDark = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
+    applyTheme(saved || (prefersDark ? "dark" : "light"));
+  }
+  themeBtn.addEventListener("click", () => {
+    applyTheme(document.documentElement.dataset.theme === "dark" ? "light" : "dark");
+  });
+
+  /* ---------------- 工具 ---------------- */
+  function shuffle(arr) {
+    const a = arr.slice();
+    for (let i = a.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+  }
+  function escapeHTML(s) {
+    return String(s).replace(/[&<>"']/g, ch => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[ch]));
+  }
+  function correctText(q) {
+    if (q.parts) return q.parts.map((p, i) => `${["①", "②", "③"][i]} ${p.opts[p.a]}`).join("；");
+    return q.opts[q.a];
+  }
+  function chosenText(q, choice) {
+    if (q.parts) {
+      if (!choice) return "未作答";
+      return q.parts.map((p, i) => `${["①", "②", "③"][i]} ${p.opts[choice[i]]}`).join("；");
+    }
+    return q.opts[choice];
+  }
+
+  /* ---------------- 页签 ---------------- */
+  const tabsEl = $("#tabs");
+  const mainEl = $("#main");
+
+  function buildTabs() {
+    const nav = CARDS.concat([{ id: "p7", num: "⑦", short: "综合自测" }]);
+    tabsEl.innerHTML = nav.map(card => `
+      <button class="tab" role="tab" id="tab-${card.id}" aria-controls="panel-${card.id}"
+              aria-selected="false" data-tab="${card.id}" type="button">
+        <span class="tab-n" aria-hidden="true">${card.num}</span>${card.short}
+      </button>`).join("");
+    tabsEl.addEventListener("click", e => {
+      const b = e.target.closest("[data-tab]");
+      if (b) showTab(b.dataset.tab);
+    });
+  }
+
+  function showTab(id, opts = {}) {
+    if (id !== "p7" && !CARDS.some(c => c.id === id)) id = "p1";
+    activeTab = id;
+    $$(".tab", tabsEl).forEach(b => {
+      const on = b.dataset.tab === id;
+      b.classList.toggle("active", on);
+      b.setAttribute("aria-selected", on ? "true" : "false");
+    });
+    $$(".card-panel", mainEl).forEach(p => p.classList.toggle("active", p.dataset.panel === id));
+    $$(".anim", mainEl).forEach(a => { if (a.dataset.playing === "1") a.dataset.playing = "0"; });
+    players.forEach(p => p.pause());
+    $("#toast").hidden = true;
+    if (!opts.keepScroll) window.scrollTo({ top: 0, behavior: "auto" });
+    try { history.replaceState(null, "", "#" + id); } catch (e) {}
+  }
+
+  /* ---------------- 对比图 ---------------- */
+  function shapeIcon(shape, color) {
+    const common = `fill="none" stroke="${color}" stroke-width="3.2" stroke-linejoin="round"`;
+    const shapes = {
+      circle: `<circle cx="28" cy="28" r="17" ${common}/><circle cx="28" cy="28" r="4.5" fill="${color}"/>`,
+      rect: `<rect x="7" y="13" width="42" height="30" rx="9" ${common}/><path d="M16 28h24" stroke="${color}" stroke-width="3" stroke-linecap="round" opacity=".45"/>`,
+      pill: `<rect x="5" y="19" width="46" height="18" rx="9" ${common}/><circle cx="17" cy="28" r="2.6" fill="${color}"/><path d="M24 28h17" stroke="${color}" stroke-width="2.4" stroke-linecap="round" opacity=".5"/>`,
+      square: `<rect x="12" y="12" width="32" height="32" rx="4" ${common}/><circle cx="22" cy="22" r="3" fill="${color}"/><circle cx="34" cy="34" r="3" fill="${color}"/>`,
+      page: `<rect x="10" y="9" width="36" height="38" rx="5" ${common}/><path d="M18 20h20M18 28h20M18 36h12" stroke="${color}" stroke-width="2.5" stroke-linecap="round" opacity=".55"/>`,
+      doc: `<path d="M14 7h20l9 9v33H14z" ${common}/><path d="M34 7v10h9" ${common}/><path d="M20 26h17M20 33h17M20 40h11" stroke="${color}" stroke-width="2.4" stroke-linecap="round" opacity=".55"/>`,
+      disk: `<ellipse cx="28" cy="15" rx="16" ry="6" ${common}/><path d="M12 15v26c0 3.3 7.2 6 16 6s16-2.7 16-6V15" ${common}/><path d="M12 28c0 3.3 7.2 6 16 6s16-2.7 16-6" stroke="${color}" stroke-width="2.4" opacity=".55"/>`,
+      cpu: `<rect x="10" y="10" width="36" height="36" rx="6" ${common}/><rect x="20" y="20" width="16" height="16" rx="2" fill="${color}" opacity=".25"/><path d="M18 5v5M28 5v5M38 5v5M18 46v5M28 46v5M38 46v5M5 18h5M5 28h5M5 38h5M46 18h5M46 28h5M46 38h5" stroke="${color}" stroke-width="2.2" stroke-linecap="round"/>`,
+      shield: `<path d="M28 6l18 7v13c0 12-8 20-18 24-10-4-18-12-18-24V13z" ${common}/><path d="M20 28l6 6 11-12" ${common}/>`
+    };
+    return `<svg viewBox="0 0 56 56" aria-hidden="true">${shapes[shape] || shapes.circle}</svg>`;
+  }
+
+  function compareHTML(cmp) {
+    return `
+      <div class="compare">
+        ${cmp.cols.map(col => `
+          <div class="cmp-col" style="--cc:${col.color}">
+            <div class="cmp-top">
+              <div class="cmp-icon">${shapeIcon(col.shape, col.color)}</div>
+              <div><h4>${col.name}</h4><span>${col.tag || ""}</span></div>
+            </div>
+            <ul>${col.points.map(p => `<li>${p}</li>`).join("")}</ul>
+          </div>`).join("")}
+      </div>
+      ${cmp.facts && cmp.facts.length ? `<div class="facts">${cmp.facts.map(f => `
+        <div class="fact ${f.ok ? "ok" : "bad"}">
+          <span class="fact-ico" aria-hidden="true">${f.ok ? "✓" : "✗"}</span>
+          <span class="fact-text">${f.text}</span>
+          <span class="fact-tag">${f.ok ? "对" : "错"}</span>
+        </div>`).join("")}</div>` : ""}`;
+  }
+
+  /* ---------------- 动画播放器 ---------------- */
+  class Player {
+    constructor(anim, root) {
+      this.anim = anim;
+      this.root = root;
+      this.i = 0;
+      this.playing = false;
+      this.speed = 1;
+      this.timer = null;
+      this.stage = $(".stage", root);
+      this.sub = $(".subtitle", root);
+      this.playBtn = $('[data-act="play"]', root);
+      this.stepEl = $(".step-count", root);
+      this.dotsEl = $(".dots", root);
+
+      root.addEventListener("click", e => {
+        const b = e.target.closest("[data-act]");
+        if (!b) return;
+        const act = b.dataset.act;
+        if (act === "prev") this.prev();
+        if (act === "next") this.next();
+        if (act === "play") this.toggle();
+        if (act === "dot") { this.seek(Number(b.dataset.i)); this.root.dataset.playing = "0"; }
+      });
+      const speed = $('[data-act="speed"]', root);
+      if (speed) speed.addEventListener("change", () => this.setSpeed(Number(speed.value)));
+
+      this.renderDots();
+      this.render();
+    }
+    get last() { return this.anim.frames.length - 1; }
+    renderDots() {
+      this.dotsEl.innerHTML = this.anim.frames.map((_, i) =>
+        `<button class="dot" type="button" data-act="dot" data-i="${i}" aria-label="第 ${i + 1} 步"></button>`).join("");
+    }
+    render() {
+      const f = this.anim.frames[this.i];
+      this.stage.innerHTML = `<svg viewBox="0 0 640 400" role="img" aria-label="${escapeHTML(this.anim.title)} 第 ${this.i + 1} 步">${f.svg}</svg>`;
+      this.sub.textContent = f.t;
+      this.stepEl.textContent = `${this.i + 1} / ${this.anim.frames.length}`;
+      $$(".dot", this.dotsEl).forEach((d, i) => d.classList.toggle("on", i === this.i));
+      $('[data-act="prev"]', this.root).disabled = this.i === 0;
+      $('[data-act="next"]', this.root).disabled = this.i === this.last;
+      this.playBtn.innerHTML = this.playing
+        ? "⏸ 暂停"
+        : (this.i === this.last ? "↻ 重播" : "▶ 播放");
+      this.playBtn.setAttribute("aria-label", this.playing ? "暂停动画" : "播放动画");
+    }
+    updatePlayUI() {
+      this.playBtn.innerHTML = this.playing ? "⏸ 暂停" : (this.i === this.last ? "↻ 重播" : "▶ 播放");
+      this.playBtn.setAttribute("aria-label", this.playing ? "暂停动画" : "播放动画");
+    }
+    schedule() {
+      clearTimeout(this.timer);
+      if (!this.playing) return;
+      const f = this.anim.frames[this.i];
+      const dur = (f.d || 3400) / this.speed;
+      this.timer = setTimeout(() => {
+        if (!this.playing) return;
+        if (this.i < this.last) {
+          this.i++;
+          this.render();
+          this.schedule();
+        } else {
+          this.playing = false;
+          this.root.dataset.playing = "0";
+          this.updatePlayUI();
+        }
+      }, dur);
+    }
+    play() {
+      if (this.i >= this.last) { this.i = 0; this.render(); }
+      this.playing = true;
+      this.root.dataset.playing = "1";
+      this.updatePlayUI();
+      this.schedule();
+    }
+    pause() {
+      this.playing = false;
+      clearTimeout(this.timer);
+      this.root.dataset.playing = "0";
+      this.updatePlayUI();
+    }
+    toggle() { this.playing ? this.pause() : this.play(); }
+    seek(i, keepPaused = true) {
+      clearTimeout(this.timer);
+      this.i = Math.max(0, Math.min(this.last, i));
+      if (keepPaused) this.playing = false;
+      this.render();
+      if (this.playing) this.schedule();
+    }
+    next() {
+      clearTimeout(this.timer);
+      this.playing = false;
+      if (this.i < this.last) this.i++;
+      this.render();
+    }
+    prev() {
+      clearTimeout(this.timer);
+      this.playing = false;
+      if (this.i > 0) this.i--;
+      this.render();
+    }
+    setSpeed(v) {
+      this.speed = v || 1;
+      if (this.playing) this.schedule();
+    }
+  }
+
+  /* ---------------- 渲染卡片 ---------------- */
+  function animHTML(a) {
+    return `
+      <article class="anim" id="anim-${a.id}" data-anim="${a.id}">
+        <div class="anim-head">
+          <span class="anim-no">动画 ${a.no}</span>
+          <h4>${a.title}</h4>
+          <span class="anim-len">${a.frames.length} 步 · ${Math.round(a.frames.reduce((s, f) => s + (f.d || 3400), 0) / 1000)} 秒</span>
+        </div>
+        <div class="stage"></div>
+        <div class="subtitle"></div>
+        <div class="controls">
+          <button class="btn" type="button" data-act="prev">◀ 上一步</button>
+          <button class="btn primary" type="button" data-act="play">▶ 播放</button>
+          <button class="btn" type="button" data-act="next">下一步 ▶</button>
+          <span class="step-count">1 / 1</span>
+          <div class="dots"></div>
+          <label class="speed">速度
+            <select data-act="speed" aria-label="播放速度">
+              <option value="0.75">0.75×</option>
+              <option value="1" selected>1×</option>
+              <option value="1.5">1.5×</option>
+              <option value="2">2×</option>
+            </select>
+          </label>
+        </div>
+      </article>`;
+  }
+
+  function renderCard(card) {
+    const panel = document.createElement("section");
+    panel.className = "card-panel";
+    panel.id = `panel-${card.id}`;
+    panel.dataset.panel = card.id;
+    panel.setAttribute("role", "tabpanel");
+    panel.setAttribute("aria-labelledby", `tab-${card.id}`);
+    panel.innerHTML = `
+      <div class="card-hero" style="--accent-card:${card.color}">
+        <div class="card-no">概念卡 ${card.num} · ${card.kicker}</div>
+        <h2>${card.title}</h2>
+        <p>${card.intro}</p>
+        <div class="chips">${card.chips.map((c, i) => `<span class="chip${i === 0 ? " key" : ""}">${c}</span>`).join("")}</div>
+      </div>
+
+      <section class="sec">
+        <div class="sec-head"><span class="sec-num">A</span><h3>看动画，记画面</h3></div>
+        <p class="sec-desc">每段不超过 1 分钟。可以暂停、上一步、下一步；底部大字幕就是这一帧要记的话。</p>
+        <div class="anim-list">${card.anims.map(animHTML).join("")}</div>
+      </section>
+
+      <section class="sec">
+        <div class="sec-head"><span class="sec-num">B</span><h3>容易混淆的点</h3></div>
+        <p class="sec-desc">先看两边的概念，再看下面的对错句。✓ / ✗ 图标和边框样式同时区分，不只靠颜色。</p>
+        ${compareHTML(card.compare)}
+      </section>
+
+      <section class="sec">
+        <div class="sec-head"><span class="sec-num">C</span><h3>一句口诀</h3></div>
+        <div class="mnemonic">
+          <span class="mn-label">考前默念</span>
+          <p>${card.mnemonic}</p>
+          ${card.mnNote ? `<span class="mn-note">${card.mnNote}</span>` : ""}
+        </div>
+      </section>
+
+      <section class="sec">
+        <div class="sec-head"><span class="sec-num">D</span><h3>真题小测</h3></div>
+        <p class="sec-desc">选完立刻判对错。答错会自动滚到对应动画并回放，底部提示条保留理由和“回到小测”。</p>
+        <div class="quiz-host"></div>
+      </section>`;
+    mainEl.appendChild(panel);
+
+    card.anims.forEach(a => {
+      const root = panel.querySelector(`#anim-${a.id}`);
+      players.set(a.id, new Player(a, root));
+    });
+
+    const qHost = panel.querySelector(".quiz-host");
+    const cardQuestions = card.quiz.map(id => QMAP[id]).filter(Boolean);
+    mountQuiz(qHost, cardQuestions, {
+      cardId: card.id,
+      onWrong: q => replayForQuestion(q, qHost)
+    });
+  }
+
+  /* ---------------- 卡片小测 ---------------- */
+  function optionButtons(q, disabled = false) {
+    if (q.parts) {
+      return q.parts.map((p, pi) => `
+        <div class="subq" data-part="${pi}">
+          <div class="subq-label">${p.label}</div>
+          <div class="opts">
+            ${p.opts.map((o, i) => `
+              <button class="opt" type="button" data-part-opt="${pi}" data-i="${i}" ${disabled ? "disabled" : ""}>
+                <span class="key">${LETTERS[i]}</span><span class="opt-t">${o}</span><span class="mark"></span>
+              </button>`).join("")}
+          </div>
+        </div>`).join("");
+    }
+    return `<div class="opts">${q.opts.map((o, i) => `
+      <button class="opt" type="button" data-i="${i}" ${disabled ? "disabled" : ""}>
+        <span class="key">${LETTERS[i]}</span><span class="opt-t">${o}</span><span class="mark"></span>
+      </button>`).join("")}</div>`;
+  }
+
+  function mountQuiz(host, questions, opts = {}) {
+    let index = 0, answered = false, score = 0, partChoices = [];
+
+    function render() {
+      answered = false;
+      partChoices = [];
+      score = 0;
+      renderQuestion();
+    }
+
+    function renderQuestion() {
+      const q = questions[index];
+      answered = false;
+      partChoices = [];
+      host.innerHTML = `
+        <div class="quiz">
+          <div class="quiz-meta">
+            <span class="q-no">第 ${index + 1} / ${questions.length} 题</span>
+            <span class="q-src">${q.src || "真题"}</span>
+          </div>
+          <div class="q-text">${q.q}</div>
+          <div class="q-body">${optionButtons(q)}</div>
+          <div class="feedback" aria-live="polite" hidden></div>
+          <div class="quiz-foot">
+            <button class="btn primary" type="button" data-next hidden>${index === questions.length - 1 ? "看本卡成绩" : "下一题"} →</button>
+            <button class="btn ghost" type="button" data-retry hidden>重做本卡</button>
+          </div>
+        </div>`;
+    }
+
+    host.addEventListener("click", e => {
+      const next = e.target.closest("[data-next]");
+      const retry = e.target.closest("[data-retry]");
+      if (next) {
+        if (index < questions.length - 1) { index++; renderQuestion(); }
+        else renderResult();
+        return;
+      }
+      if (retry) { index = 0; score = 0; renderQuestion(); return; }
+
+      const opt = e.target.closest(".opt");
+      if (!opt || answered) return;
+      const q = questions[index];
+      if (q.parts) {
+        const pi = Number(opt.dataset.partOpt);
+        partChoices[pi] = Number(opt.dataset.i);
+        $$(`.opt[data-part-opt="${pi}"]`, host).forEach(b => {
+          b.classList.toggle("picked", Number(b.dataset.i) === partChoices[pi]);
+        });
+        if (q.parts.every((_, i) => Number.isInteger(partChoices[i]))) {
+          finish(q, partChoices.slice());
+        }
+      } else {
+        finish(q, Number(opt.dataset.i));
+      }
+    });
+
+    function finish(q, choice) {
+      answered = true;
+      const ok = q.parts
+        ? q.parts.every((p, i) => choice[i] === p.a)
+        : choice === q.a;
+      if (ok) score++;
+
+      const allOpts = $$(".opt", host);
+      allOpts.forEach(b => {
+        b.classList.add("locked");
+        b.disabled = true;
+        if (q.parts) {
+          const pi = Number(b.dataset.partOpt);
+          const i = Number(b.dataset.i);
+          if (choice[pi] === i) b.classList.add("picked");
+          if (q.parts[pi].a === i) {
+            b.classList.add("correct");
+            b.querySelector(".mark").textContent = "✓";
+          } else if (choice[pi] === i) {
+            b.classList.add("wrong");
+            b.querySelector(".mark").textContent = "✗";
+          } else {
+            b.classList.add("dim");
+          }
+        } else {
+          const i = Number(b.dataset.i);
+          if (q.a === i) {
+            b.classList.add("correct");
+            b.querySelector(".mark").textContent = "✓";
+          } else if (choice === i) {
+            b.classList.add("wrong");
+            b.querySelector(".mark").textContent = "✗";
+          } else {
+            b.classList.add("dim");
+          }
+        }
+      });
+
+      const fb = $(".feedback", host);
+      fb.hidden = false;
+      fb.className = `feedback ${ok ? "ok" : "bad"}`;
+      fb.innerHTML = `
+        <strong>${ok ? "✓ 答对了" : "✗ 答错了"}</strong>
+        <p>${ok ? "" : `<span class="ans">正确答案：${correctText(q)}。</span>`}${q.why || ""}</p>`;
+      $("[data-next]", host).hidden = false;
+
+      if (!ok && typeof opts.onWrong === "function") opts.onWrong(q);
+    }
+
+    function renderResult() {
+      const total = questions.length;
+      const pct = Math.round(score / total * 100);
+      const wrong = total - score;
+      host.innerHTML = `
+        <div class="quiz">
+          <div class="quiz-score">
+            <div class="score-big">${score}<small> / ${total}</small></div>
+            <div style="flex:1;min-width:170px">
+              <h4>${score === total ? "本卡全对，可以过" : wrong <= 1 ? "差一点，回看错题对应的动画" : "先回看动画，再重做一遍"}</h4>
+              <p>正确率 ${pct}% · ${wrong ? `答错 ${wrong} 题，已自动回放过对应动画` : "没有错题"}。</p>
+            </div>
+            <button class="btn primary" type="button" data-retry>重做本卡</button>
+            <button class="btn" type="button" data-goto-test>去综合自测 →</button>
+          </div>
+        </div>`;
+      host.querySelector("[data-retry]").addEventListener("click", () => { index = 0; score = 0; renderQuestion(); });
+      host.querySelector("[data-goto-test]").addEventListener("click", () => showTab("p7"));
+    }
+
+    renderQuestion();
+  }
+
+  /* ---------------- 自动回放 + 提示条 ---------------- */
+  function gotoAnim(animId) {
+    const cardId = "p" + animId.slice(1, 2);
+    showTab(cardId, { keepScroll: true });
+    const node = document.getElementById("anim-" + animId);
+    const p = players.get(animId);
+    if (!node || !p) return;
+    node.scrollIntoView({ behavior: "smooth", block: "center" });
+    setTimeout(() => {
+      if (activeTab !== cardId) return;
+      p.seek(0);
+      p.play();
+    }, 420);
+  }
+
+  function replayForQuestion(q, returnEl) {
+    if (!q.anim || !players.has(q.anim)) return;
+    const p = players.get(q.anim);
+    const node = document.getElementById("anim-" + q.anim);
+    if (!node) return;
+    const tabId = "p" + q.anim.slice(1, 2);
+    node.scrollIntoView({ behavior: "smooth", block: "center" });
+    setTimeout(() => {
+      if (activeTab !== tabId) return;
+      p.seek(0);
+      p.play();
+    }, 420);
+    showToast(
+      `答错了 · 正在回放「${p.anim.title}」`,
+      q.why || correctText(q),
+      returnEl
+    );
+  }
+
+  const toast = $("#toast");
+  function showToast(title, text, returnEl) {
+    $("#toastTitle").textContent = title;
+    $("#toastText").textContent = text;
+    $("#toastIco").textContent = "✗";
+    $("#toastBack").hidden = !returnEl;
+    $("#toastBack").onclick = () => {
+      toast.hidden = true;
+      if (returnEl) returnEl.scrollIntoView({ behavior: "smooth", block: "center" });
+    };
+    toast.hidden = false;
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => { toast.hidden = true; }, 15000);
+  }
+  $("#toastClose").addEventListener("click", () => { toast.hidden = true; });
+
+  /* ---------------- 综合自测 ---------------- */
+  function questionMarkup(q, disabled = false) {
+    return optionButtons(q, disabled);
+  }
+
+  function mountTest(host) {
+    let session = null;
+
+    function categoryCounts() {
+      const map = new Map();
+      ALLQ.forEach(q => map.set(q.src, (map.get(q.src) || 0) + 1));
+      return Array.from(map.entries()).map(([k, v]) => `<span>${k} · ${v} 题</span>`).join("");
+    }
+
+    function intro() {
+      host.innerHTML = `
+        <div class="test-shell">
+          <div class="test-top">
+            <h3>综合自测</h3>
+            <div class="test-stats"><span class="stat">共 <b>${ALLQ.length}</b> 题</span><span class="stat">随机顺序</span><span class="stat">答错收集</span></div>
+          </div>
+          <p style="color:var(--ink2);font-size:14px;margin:10px 0 0">
+            题库按原文顺序共 <b>${ALLQ.length}</b> 题（原文标注“31 题”，实际列出 36 条）。每次开始都会重新洗牌；
+            每题作答后显示出处和一句理由。综合自测里答错不会强制跳页，可点“看相关动画”回放。
+          </p>
+          <div class="test-cats">${categoryCounts()}</div>
+          <div class="quiz-foot" style="margin-top:18px">
+            <button class="btn primary" type="button" data-start>开始自测 →</button>
+            <button class="btn ghost" type="button" data-wrong-start hidden>只练上次错题</button>
+          </div>
+        </div>`;
+      const lastWrong = loadWrongIds();
+      const btn = host.querySelector("[data-wrong-start]");
+      if (lastWrong.length) {
+        btn.hidden = false;
+        btn.textContent = `只练上次错题（${lastWrong.length}）`;
+        btn.onclick = () => start(ALLQ.filter(q => lastWrong.includes(q.id)), "wrong", new Set(lastWrong));
+      }
+      host.querySelector("[data-start]").onclick = () => start(ALLQ, "all", new Set(loadWrongIds()));
+    }
+
+    function start(pool, mode, wrongSet) {
+      if (!pool.length) { intro(); return; }
+      session = {
+        pool: shuffle(pool),
+        idx: 0,
+        answers: [],
+        wrong: new Set(wrongSet),
+        partChoices: [],
+        mode
+      };
+      renderQuestion();
+    }
+
+    function renderQuestion() {
+      const q = session.pool[session.idx];
+      session.partChoices = [];
+      const pct = Math.round(session.idx / session.pool.length * 100);
+      host.innerHTML = `
+        <div class="test-shell test-question">
+          <div class="test-top">
+            <h3>${session.mode === "wrong" ? "只练错题" : "综合自测"}</h3>
+            <div class="test-stats">
+              <span class="stat">第 <b>${session.idx + 1}</b> / ${session.pool.length} 题</span>
+              <span class="stat">已对 <b>${session.answers.filter(a => a.ok).length}</b></span>
+              <span class="stat">错题 <b>${session.answers.filter(a => !a.ok).length}</b></span>
+            </div>
+          </div>
+          <div class="bar"><i style="width:${pct}%"></i></div>
+          <div class="quiz-meta">
+            <span class="q-no">${session.mode === "wrong" ? "错题重练" : "随机顺序"}</span>
+            <span class="q-src">出处：${q.src}</span>
+          </div>
+          <div class="q-text">${q.q}</div>
+          <div class="q-body">${questionMarkup(q)}</div>
+          <div class="feedback" aria-live="polite" hidden></div>
+          <div class="quiz-foot">
+            <button class="btn primary" type="button" data-next hidden>${session.idx === session.pool.length - 1 ? "看结果" : "下一题"} →</button>
+            <button class="btn ghost" type="button" data-quit>结束本轮</button>
+          </div>
+        </div>`;
+    }
+
+    host.addEventListener("click", e => {
+      const next = e.target.closest("[data-next]");
+      if (next) {
+        if (session.idx < session.pool.length - 1) { session.idx++; renderQuestion(); }
+        else renderResult();
+        return;
+      }
+      const quit = e.target.closest("[data-quit]");
+      if (quit) { if (session && session.answers.length) renderResult(); else intro(); return; }
+      const replay = e.target.closest("[data-replay]");
+      if (replay) { gotoAnim(replay.dataset.replay); return; }
+
+      const opt = e.target.closest(".opt");
+      if (!opt || !session) return;
+      const q = session.pool[session.idx];
+      if (host.querySelector(".feedback:not([hidden])")) return;
+
+      if (q.parts) {
+        if (opt.dataset.partOpt === undefined) return;
+        session.partChoices[Number(opt.dataset.partOpt)] = Number(opt.dataset.i);
+        $$(`.opt[data-part-opt="${opt.dataset.partOpt}"]`, host).forEach(b => {
+          b.classList.toggle("picked", Number(b.dataset.i) === Number(opt.dataset.i));
+        });
+        if (q.parts.every((_, i) => Number.isInteger(session.partChoices[i]))) {
+          finishTestQuestion(q, session.partChoices.slice());
+          session.partChoices = [];
+        }
+      } else {
+        if (opt.dataset.partOpt !== undefined) return;
+        finishTestQuestion(q, Number(opt.dataset.i));
+      }
+    });
+
+    function finishTestQuestion(q, choice) {
+      const ok = q.parts
+        ? q.parts.every((p, i) => choice[i] === p.a)
+        : choice === q.a;
+      session.answers.push({ q, ok, choice });
+      if (ok) session.wrong.delete(q.id);
+      else session.wrong.add(q.id);
+      saveWrongIds(Array.from(session.wrong));
+
+      const opts = $$(".opt", host);
+      opts.forEach(b => {
+        b.classList.add("locked");
+        b.disabled = true;
+        const i = Number(b.dataset.i);
+        if (q.parts) {
+          const pi = Number(b.dataset.partOpt);
+          if (choice[pi] === i) b.classList.add("picked");
+          if (q.parts[pi].a === i) {
+            b.classList.add("correct"); b.querySelector(".mark").textContent = "✓";
+          } else if (choice[pi] === i) {
+            b.classList.add("wrong"); b.querySelector(".mark").textContent = "✗";
+          } else b.classList.add("dim");
+        } else {
+          if (q.a === i) {
+            b.classList.add("correct"); b.querySelector(".mark").textContent = "✓";
+          } else if (choice === i) {
+            b.classList.add("wrong"); b.querySelector(".mark").textContent = "✗";
+          } else b.classList.add("dim");
+        }
+      });
+
+      const fb = host.querySelector(".feedback");
+      fb.hidden = false;
+      fb.className = `feedback ${ok ? "ok" : "bad"}`;
+      fb.innerHTML = `
+        <strong>${ok ? "✓ 答对了" : "✗ 答错了"}</strong>
+        <p>${ok ? "" : `<span class="ans">正确答案：${correctText(q)}。</span>`}${q.why || ""}</p>
+        ${q.anim ? `<div style="margin-top:7px"><button class="btn small" type="button" data-replay="${q.anim}">看相关动画 →</button></div>` : ""}`;
+      host.querySelector("[data-next]").hidden = false;
+    }
+
+    function renderResult() {
+      const total = session.answers.length;
+      const right = session.answers.filter(a => a.ok).length;
+      const wrong = session.answers.filter(a => !a.ok);
+      const pct = total ? Math.round(right / total * 100) : 0;
+      const wrongIds = Array.from(session.wrong);
+      host.innerHTML = `
+        <div class="test-shell test-result">
+          <div class="test-top">
+            <h3>本轮结果</h3>
+            <div class="test-stats">
+              <span class="stat">作答 <b>${total}</b> / ${session.pool.length}</span>
+              <span class="stat">错题累计 <b>${wrongIds.length}</b></span>
+            </div>
+          </div>
+          <div class="result-hero">
+            <div class="result-score">${right}<small> / ${total || session.pool.length}</small></div>
+            <div class="result-copy">
+              <h3>${total === 0 ? "本轮未作答" : pct === 100 ? "全对，可以上考场了" : pct >= 85 ? "及格稳了，再扫一遍错题" : pct >= 60 ? "及格线附近，错题要回看" : "先回看概念卡，再来一轮"}</h3>
+              <p>正确率 ${pct}% · ${wrong.length ? "错的题已经收进“错题本”，可以只练错题。" : "本轮没有错题。"}</p>
+            </div>
+          </div>
+          ${wrong.length ? `
+            <h4 style="margin:6px 0 0;font-size:16px">本轮错题</h4>
+            <div class="wrong-list">
+              ${wrong.map(({ q, choice }) => `
+                <div class="wrong-item">
+                  <div class="wi-top">
+                    <span class="wi-src">${q.src}</span>
+                    ${q.anim ? `<button class="btn small" type="button" data-replay="${q.anim}">看动画</button>` : ""}
+                  </div>
+                  <div class="wi-q">${q.q}</div>
+                  <div class="wi-a">你的答案：<span class="wi-b">${chosenText(q, choice)}</span><br>正确答案：<b>${correctText(q)}</b><br>${q.why || ""}</div>
+                </div>`).join("")}
+            </div>` : `<div class="test-empty"><div class="big">✓</div><b>本轮没有错题</b><div style="font-size:13px;margin-top:3px">可以重新洗牌，或去各概念卡巩固动画。</div></div>`}
+          <div class="quiz-foot" style="margin-top:16px">
+            ${wrongIds.length ? `<button class="btn primary" type="button" data-practice-wrong>只练错题（${wrongIds.length}）→</button>` : ""}
+            <button class="btn" type="button" data-restart>重新洗牌全部</button>
+            <button class="btn ghost" type="button" data-home>回到自测首页</button>
+          </div>
+        </div>`;
+
+      const practice = host.querySelector("[data-practice-wrong]");
+      if (practice) practice.onclick = () => {
+        const pool = ALLQ.filter(q => wrongIds.includes(q.id));
+        start(pool, "wrong", new Set(wrongIds));
+      };
+      host.querySelector("[data-restart]").onclick = () => start(ALLQ, "all", new Set(wrongIds));
+      host.querySelector("[data-home]").onclick = () => intro();
+    }
+
+    intro();
+  }
+
+  const WRONG_KEY = "os-wrong-ids";
+  function loadWrongIds() {
+    try {
+      const v = JSON.parse(localStorage.getItem(WRONG_KEY) || "[]");
+      return Array.isArray(v) ? v : [];
+    } catch (e) { return []; }
+  }
+  function saveWrongIds(ids) {
+    try { localStorage.setItem(WRONG_KEY, JSON.stringify(ids)); } catch (e) {}
+  }
+
+  /* ---------------- 启动 ---------------- */
+  function init() {
+    initTheme();
+    buildTabs();
+    CARDS.forEach(renderCard);
+    // p7 由自定义面板渲染
+    const panel = document.createElement("section");
+    panel.className = "card-panel";
+    panel.id = "panel-p7";
+    panel.dataset.panel = "p7";
+    panel.setAttribute("role", "tabpanel");
+    panel.setAttribute("aria-labelledby", "tab-p7");
+    panel.innerHTML = `
+      <div class="card-hero" style="--accent-card:var(--c-run)">
+        <div class="card-no">概念卡 ⑦ · 混合自测</div>
+        <h2>综合自测</h2>
+        <p>36 道题随机顺序。选择、判断、填空式选择都有；作答后立刻显示对错、出处和一句理由。答错的题会单独收集，可以只练错题。</p>
+        <div class="chips"><span class="chip key">随机顺序</span><span class="chip">答错收集</span><span class="chip">只练错题</span><span class="chip">即时理由</span></div>
+      </div>
+      <section class="sec">
+        <div class="sec-head"><span class="sec-num">A</span><h3>开始测</h3></div>
+        <p class="sec-desc">题库覆盖进程/线程、死锁、调度/同步、内存、I/O、文件。原文没有 OS 概述的题库条目，所以这一页不含 OS 概述题，详见交付说明。</p>
+        <div class="test-host"></div>
+      </section>`;
+    mainEl.appendChild(panel);
+    mountTest(panel.querySelector(".test-host"));
+
+    $$(".card-panel", mainEl).forEach(p => p.classList.remove("active"));
+    const hash = (location.hash || "").replace("#", "");
+    showTab(hash === "p7" || CARDS.some(c => c.id === hash) ? hash : "p1");
+  }
+
+  init();
+})();
+</script>
+</body>
+</html>
