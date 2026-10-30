@@ -83,7 +83,7 @@ main{flex:1;min-width:0;padding:28px clamp(18px,4vw,64px) 90px}
 .sec-head .desc{font-size:12px;color:var(--muted)}
 
 .question{border:1px solid var(--line);border-radius:14px;background:var(--surface);
-  padding:18px 20px 16px;margin:0 0 16px;box-shadow:var(--shadow);scroll-margin-top:18px}
+  padding:18px 20px 16px;margin:0 0 16px;box-shadow:var(--shadow);scroll-margin-top:66px}
 .question.active{border-color:color-mix(in srgb,var(--accent) 45%,transparent)}
 .section.solo .question{display:none}
 .section.solo .question.active{display:block}
@@ -95,11 +95,52 @@ main{flex:1;min-width:0;padding:28px clamp(18px,4vw,64px) 90px}
 .q-title{margin:0;font-size:15px;font-weight:700;color:var(--ink)}
 .q-stem{font-size:14.5px}
 .q-stem p{margin:6px 0}
-.options{display:grid;grid-template-columns:1fr 1fr;gap:6px 18px;margin:10px 0 2px}
-.opt{display:flex;gap:8px;font-size:14px;line-height:1.6}
+.options{display:grid;grid-template-columns:1fr 1fr;gap:6px 10px;margin:10px 0 2px}
+.options.judge{grid-template-columns:repeat(2,minmax(0,170px))}
+.opt{display:flex;gap:8px;width:100%;font:inherit;font-size:14px;line-height:1.6;
+  align-items:flex-start;text-align:left;color:var(--ink);background:transparent;
+  border:1px solid transparent;border-radius:9px;padding:6px 9px;cursor:pointer;transition:background .12s,border-color .12s}
+.opt:hover{background:var(--surface-2);border-color:var(--line)}
 .opt .letter{flex:0 0 20px;height:20px;border-radius:5px;background:var(--surface-2);
   border:1px solid var(--line);display:inline-flex;align-items:center;justify-content:center;
   font-size:11px;font-weight:700;color:var(--muted);margin-top:3px}
+.opt .opt-body{flex:1;min-width:0}
+.opt.correct{background:var(--ok-soft);border-color:color-mix(in srgb,var(--ok) 45%,transparent)}
+.opt.correct .letter{background:var(--ok);border-color:var(--ok);color:#fff}
+.opt.wrong{background:var(--accent-soft);border-color:color-mix(in srgb,var(--accent) 50%,transparent)}
+.opt.wrong .letter{background:var(--accent);border-color:var(--accent);color:#fff}
+html[data-theme="dark"] .opt.correct .letter,
+html[data-theme="dark"] .opt.wrong .letter{color:#14130f}
+.opt.dim{opacity:.5}
+.opt.chosen{font-weight:700}
+
+.fb{display:none;margin:10px 0 0;padding:8px 12px;border-radius:9px;font-size:13px;
+  align-items:center;gap:10px;flex-wrap:wrap;border:1px solid var(--line);background:var(--surface-2)}
+.fb.on{display:flex}
+.fb.ok{background:var(--ok-soft);border-color:color-mix(in srgb,var(--ok) 35%,transparent);color:var(--ok)}
+.fb.bad{background:var(--accent-soft);border-color:color-mix(in srgb,var(--accent) 35%,transparent);color:var(--accent)}
+.fb .fb-extra{color:var(--muted);font-size:12.5px}
+.fb .undo{margin-left:auto;font:inherit;font-size:11.5px;padding:2px 10px;border-radius:99px;
+  border:1px solid var(--line-strong);background:var(--surface);color:var(--muted);cursor:pointer}
+.fb .undo:hover{border-color:var(--accent);color:var(--accent)}
+
+.explain{margin-top:11px;padding:10px 13px;border-left:3px solid var(--accent);
+  background:var(--accent-soft);border-radius:0 9px 9px 0;font-size:13.5px;line-height:1.8}
+.explain p{margin:4px 0}
+.explain-tag{display:inline-block;margin-right:8px;padding:0 7px;border-radius:5px;
+  background:var(--accent);color:#fff;font-size:11px;font-weight:700;vertical-align:1px}
+html[data-theme="dark"] .explain-tag{color:#1b1712}
+
+.selfcheck{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:12px;padding-top:10px;
+  border-top:1px dashed var(--line-strong);font-size:12.5px;color:var(--muted)}
+.selfcheck .sc-label{margin-right:2px}
+.selfcheck button{font:inherit;font-size:12px;padding:3px 12px;border-radius:99px;
+  border:1px solid var(--line-strong);background:var(--surface);color:var(--muted);cursor:pointer}
+.selfcheck button:hover{border-color:var(--accent);color:var(--accent)}
+.selfcheck button.on[data-self="ok"]{background:var(--ok);border-color:var(--ok);color:#fff}
+.selfcheck button.on[data-self="bad"]{background:var(--accent);border-color:var(--accent);color:#fff}
+html[data-theme="dark"] .selfcheck button.on[data-self="ok"],
+html[data-theme="dark"] .selfcheck button.on[data-self="bad"]{color:#14130f}
 .q-note{font-size:12px;color:var(--muted);border-left:2px solid var(--line-strong);padding-left:9px;margin:8px 0 0}
 
 .answer{margin-top:12px;border-top:1px dashed var(--line-strong);padding-top:10px}
@@ -132,11 +173,38 @@ pre.code{background:var(--surface-2);border:1px solid var(--line);border-radius:
 u.blank{display:inline-block;min-width:110px;height:1.1em;border-bottom:1.5px solid var(--line-strong);
   vertical-align:-2px;margin:0 4px}
 
-.toolbar{position:sticky;top:0;z-index:5;display:flex;gap:8px;justify-content:flex-end;
+.toolbar{position:sticky;top:0;z-index:5;display:flex;align-items:center;gap:10px;flex-wrap:wrap;
   padding:8px 0;background:linear-gradient(var(--bg) 70%,transparent);margin-bottom:8px}
 .toolbar button{border:1px solid var(--line-strong);background:var(--surface);color:var(--muted);
   font:inherit;font-size:12px;padding:5px 11px;border-radius:99px;cursor:pointer}
 .toolbar button:hover{border-color:var(--accent);color:var(--accent)}
+
+.scorebar{display:none;align-items:center;gap:12px;flex-wrap:wrap;flex:1 1 480px;min-width:0}
+.scorebar.on{display:flex}
+.sc-main{display:flex;align-items:baseline;gap:3px;font-variant-numeric:tabular-nums;white-space:nowrap}
+.sc-label{font-size:11px;color:var(--muted);letter-spacing:.05em;margin-right:4px}
+.sc-num{font-family:Georgia,"Songti SC",serif;font-size:23px;line-height:1;color:var(--accent)}
+.sc-den{font-size:12px;color:var(--muted)}
+.sc-bar{position:relative;flex:1 1 110px;min-width:90px;height:6px;border-radius:99px;
+  background:var(--line);overflow:hidden}
+.sc-bar i{position:absolute;top:0;bottom:0;display:block;width:0;transition:width .22s,left .22s}
+.sc-bar .ok{left:0;background:var(--ok)}
+.sc-bar .bad{background:var(--accent-2)}
+.sc-meta{display:flex;gap:9px;font-size:11.5px;color:var(--muted);white-space:nowrap}
+.sc-meta .m-ok{color:var(--ok)}
+.sc-meta .m-bad{color:var(--accent)}
+.sc-sub{font-size:11.5px;color:var(--muted);white-space:nowrap}
+.sc-sub b{color:var(--warn);font-weight:700}
+.sc-reset{margin-left:auto}
+.sc-reset.armed{border-color:var(--accent);color:var(--accent);font-weight:700}
+
+.pg-score{font-size:11px;color:var(--muted);padding:0 10px 8px;line-height:1.6}
+.pg-score b{color:var(--accent);font-weight:700}
+.q-list button .dot{flex:0 0 7px;width:7px;height:7px;border-radius:50%;align-self:center;
+  margin-left:auto;border:1px solid var(--line-strong);background:transparent}
+.q-list button.st-ok .dot{background:var(--ok);border-color:var(--ok)}
+.q-list button.st-bad .dot{background:var(--accent);border-color:var(--accent)}
+.q-list button.st-self .dot{background:var(--warn);border-color:var(--warn)}
 
 .q-nav{display:flex;justify-content:space-between;gap:10px;margin:24px 0 0}
 .q-nav button{border:1px solid var(--line-strong);background:var(--surface);color:var(--ink);
@@ -157,15 +225,23 @@ u.blank{display:inline-block;min-width:110px;height:1.1em;border-bottom:1.5px so
   .paper-tabs button{flex:0 0 auto;padding:5px 12px}
   .paper-group.on{display:flex;gap:4px;overflow-x:auto;padding-bottom:4px;scrollbar-width:none}
   .paper-group.on::-webkit-scrollbar{display:none}
-  .paper-group .pnote,.q-list{display:none}
+  .paper-group .pnote,.paper-group .pg-score,.q-list{display:none}
   .all-btn,.sec-btn{width:auto;flex:0 0 auto;margin:0;font-size:12px;padding:5px 9px;
     border:1px solid var(--line);white-space:nowrap}
   .side-foot{display:none}
   main{padding:18px 14px 60px}
   .options{grid-template-columns:1fr}
+  .options.judge{grid-template-columns:repeat(2,minmax(0,1fr))}
   .paper-head h2{font-size:24px}
-  .question{padding:15px 14px}
-  .toolbar{top:0}
+  .question{padding:15px 14px;scroll-margin-top:calc(var(--sideh,220px) + 58px)}
+  .toolbar{top:var(--sideh,0px);gap:6px;padding:6px 0;background:var(--bg);
+    border-bottom:1px solid var(--line);margin-bottom:6px}
+  .scorebar{flex:1 1 100%;gap:8px;padding:0;flex-wrap:nowrap}
+  .sc-num{font-size:20px}
+  .sc-bar,.sc-sub,.sc-meta .m-left{display:none}
+  .sc-meta{font-size:11px;gap:7px}
+  .sc-reset{margin-left:auto;font-size:11.5px;padding:4px 10px;white-space:nowrap}
+  #openAll,#closeAll{display:none}
 }
 @media print{
   .side,.toolbar,.q-nav{display:none!important}
@@ -184,7 +260,7 @@ u.blank{display:inline-block;min-width:110px;height:1.1em;border-bottom:1.5px so
     <h1>真题卷</h1>
     <p class="sub">2024 · 2025 期末原卷 · 答案默认隐藏</p>
     <div class="paper-tabs"><button data-paper="p2024">2024 卷</button><button data-paper="p2025">2025 卷</button></div>
-    <div class="paper-group" data-paper="p2024"><div class="pnote">原计划中写作「25 卷」的，就是这一份。</div><button class="all-btn" data-target="p2024">浏览整卷<span>全部题目</span></button><button class="sec-btn" data-target="p2024-s1">一、单选题<span class="cnt">15 题</span></button><ul class="q-list"><li><button data-target="p2024-s1-q1"><span class="n">1</span><span class="t">通道</span></button></li><li><button data-target="p2024-s1-q2"><span class="n">2</span><span class="t">页表始址</span></button></li><li><button data-target="p2024-s1-q3"><span class="n">3</span><span class="t">文件重名</span></button></li><li><button data-target="p2024-s1-q4"><span class="n">4</span><span class="t">死锁·打印机</span></button></li><li><button data-target="p2024-s1-q5"><span class="n">5</span><span class="t">管态</span></button></li><li><button data-target="p2024-s1-q6"><span class="n">6</span><span class="t">缓冲技术</span></button></li><li><button data-target="p2024-s1-q7"><span class="n">7</span><span class="t">首次适应</span></button></li><li><button data-target="p2024-s1-q8"><span class="n">8</span><span class="t">I/O 由谁完成</span></button></li><li><button data-target="p2024-s1-q9"><span class="n">9</span><span class="t">流式文件</span></button></li><li><button data-target="p2024-s1-q10"><span class="n">10</span><span class="t">解除死锁</span></button></li><li><button data-target="p2024-s1-q11"><span class="n">11</span><span class="t">缺页中断</span></button></li><li><button data-target="p2024-s1-q12"><span class="n">12</span><span class="t">段最大长度</span></button></li><li><button data-target="p2024-s1-q13"><span class="n">13</span><span class="t">FAT</span></button></li><li><button data-target="p2024-s1-q14"><span class="n">14</span><span class="t">进程特性</span></button></li><li><button data-target="p2024-s1-q15"><span class="n">15</span><span class="t">共享文件</span></button></li></ul><button class="sec-btn" data-target="p2024-s2">二、判断题<span class="cnt">10 题</span></button><ul class="q-list"><li><button data-target="p2024-s2-q1"><span class="n">1</span><span class="t">磁盘缓冲</span></button></li><li><button data-target="p2024-s2-q2"><span class="n">2</span><span class="t">FCFS 效率</span></button></li><li><button data-target="p2024-s2-q3"><span class="n">3</span><span class="t">死锁影响</span></button></li><li><button data-target="p2024-s2-q4"><span class="n">4</span><span class="t">PV 同步初值</span></button></li><li><button data-target="p2024-s2-q5"><span class="n">5</span><span class="t">设备独立性</span></button></li><li><button data-target="p2024-s2-q6"><span class="n">6</span><span class="t">设备分类</span></button></li><li><button data-target="p2024-s2-q7"><span class="n">7</span><span class="t">虚存编址空间</span></button></li><li><button data-target="p2024-s2-q8"><span class="n">8</span><span class="t">等 CPU 的状态</span></button></li><li><button data-target="p2024-s2-q9"><span class="n">9</span><span class="t">磁盘延迟</span></button></li><li><button data-target="p2024-s2-q10"><span class="n">10</span><span class="t">虚拟存储</span></button></li></ul><button class="sec-btn" data-target="p2024-s3">三、填空简答<span class="cnt">12 题</span></button><ul class="q-list"><li><button data-target="p2024-s3-q1"><span class="n">1</span><span class="t">抖动</span></button></li><li><button data-target="p2024-s3-q2"><span class="n">2</span><span class="t">原语</span></button></li><li><button data-target="p2024-s3-q3"><span class="n">3</span><span class="t">死锁充分条件</span></button></li><li><button data-target="p2024-s3-q4"><span class="n">4</span><span class="t">内存共享</span></button></li><li><button data-target="p2024-s3-q5"><span class="n">5</span><span class="t">资源分配单位</span></button></li><li><button data-target="p2024-s3-q6"><span class="n">6</span><span class="t">OS 功能</span></button></li><li><button data-target="p2024-s3-q7"><span class="n">7</span><span class="t">磁盘缓冲位置</span></button></li><li><button data-target="p2024-s3-q8"><span class="n">8</span><span class="t">时间片计算</span></button></li><li><button data-target="p2024-s3-q9"><span class="n">9</span><span class="t">寻道时间</span></button></li><li><button data-target="p2024-s3-q10"><span class="n">10</span><span class="t">预防死锁</span></button></li><li><button data-target="p2024-s3-q11"><span class="n">11</span><span class="t">辅存交换</span></button></li><li><button data-target="p2024-s3-q12"><span class="n">12</span><span class="t">两级索引</span></button></li></ul><button class="sec-btn" data-target="p2024-s4">四、综合题<span class="cnt">5 题</span></button><ul class="q-list"><li><button data-target="p2024-s4-q1"><span class="n">1</span><span class="t">磁盘调度</span></button></li><li><button data-target="p2024-s4-q2"><span class="n">2</span><span class="t">页面置换</span></button></li><li><button data-target="p2024-s4-q3"><span class="n">3</span><span class="t">抢占式 SJF</span></button></li><li><button data-target="p2024-s4-q4"><span class="n">4</span><span class="t">TLB 有效访问时间</span></button></li><li><button data-target="p2024-s4-q5"><span class="n">5</span><span class="t">银行家算法</span></button></li></ul></div><div class="paper-group" data-paper="p2025"><div class="pnote">原计划中写作「24 卷」的，就是这一份（含 P3 请求 (0,1,0,2)）。</div><button class="all-btn" data-target="p2025">浏览整卷<span>全部题目</span></button><button class="sec-btn" data-target="p2025-s1">一、单选题<span class="cnt">15 题</span></button><ul class="q-list"><li><button data-target="p2025-s1-q1"><span class="n">1</span><span class="t">线程</span></button></li><li><button data-target="p2025-s1-q2"><span class="n">2</span><span class="t">操作系统概念</span></button></li><li><button data-target="p2025-s1-q3"><span class="n">3</span><span class="t">I/O 控制方式</span></button></li><li><button data-target="p2025-s1-q4"><span class="n">4</span><span class="t">目态→管态</span></button></li><li><button data-target="p2025-s1-q5"><span class="n">5</span><span class="t">段页式访存</span></button></li><li><button data-target="p2025-s1-q6"><span class="n">6</span><span class="t">信号量个数</span></button></li><li><button data-target="p2025-s1-q7"><span class="n">7</span><span class="t">缺页率</span></button></li><li><button data-target="p2025-s1-q8"><span class="n">8</span><span class="t">多级队列</span></button></li><li><button data-target="p2025-s1-q9"><span class="n">9</span><span class="t">临界区</span></button></li><li><button data-target="p2025-s1-q10"><span class="n">10</span><span class="t">修改位</span></button></li><li><button data-target="p2025-s1-q11"><span class="n">11</span><span class="t">避免饥饿</span></button></li><li><button data-target="p2025-s1-q12"><span class="n">12</span><span class="t">时间片轮转</span></button></li><li><button data-target="p2025-s1-q13"><span class="n">13</span><span class="t">两级目录</span></button></li><li><button data-target="p2025-s1-q14"><span class="n">14</span><span class="t">DMA</span></button></li><li><button data-target="p2025-s1-q15"><span class="n">15</span><span class="t">连续组织</span></button></li></ul><button class="sec-btn" data-target="p2025-s2">二、判断题<span class="cnt">10 题</span></button><ul class="q-list"><li><button data-target="p2025-s2-q1"><span class="n">1</span><span class="t">并发执行</span></button></li><li><button data-target="p2025-s2-q2"><span class="n">2</span><span class="t">快表访存</span></button></li><li><button data-target="p2025-s2-q3"><span class="n">3</span><span class="t">直接存取</span></button></li><li><button data-target="p2025-s2-q4"><span class="n">4</span><span class="t">请求页式碎片</span></button></li><li><button data-target="p2025-s2-q5"><span class="n">5</span><span class="t">进程调度</span></button></li><li><button data-target="p2025-s2-q6"><span class="n">6</span><span class="t">动态重定位</span></button></li><li><button data-target="p2025-s2-q7"><span class="n">7</span><span class="t">响应比</span></button></li><li><button data-target="p2025-s2-q8"><span class="n">8</span><span class="t">文件空间分配</span></button></li><li><button data-target="p2025-s2-q9"><span class="n">9</span><span class="t">SPOOLing</span></button></li><li><button data-target="p2025-s2-q10"><span class="n">10</span><span class="t">预防死锁</span></button></li></ul><button class="sec-btn" data-target="p2025-s3">三、填空简答<span class="cnt">12 题</span></button><ul class="q-list"><li><button data-target="p2025-s3-q1"><span class="n">1</span><span class="t">OS 特征</span></button></li><li><button data-target="p2025-s3-q2"><span class="n">2</span><span class="t">调度方式</span></button></li><li><button data-target="p2025-s3-q3"><span class="n">3</span><span class="t">调度算法选择</span></button></li><li><button data-target="p2025-s3-q4"><span class="n">4</span><span class="t">通道分类</span></button></li><li><button data-target="p2025-s3-q5"><span class="n">5</span><span class="t">CPU 空闲</span></button></li><li><button data-target="p2025-s3-q6"><span class="n">6</span><span class="t">打印结束</span></button></li><li><button data-target="p2025-s3-q7"><span class="n">7</span><span class="t">动态重定位</span></button></li><li><button data-target="p2025-s3-q8"><span class="n">8</span><span class="t">串联文件</span></button></li><li><button data-target="p2025-s3-q9"><span class="n">9</span><span class="t">分页地址变换</span></button></li><li><button data-target="p2025-s3-q10"><span class="n">10</span><span class="t">过桥 PV 填空</span></button></li><li><button data-target="p2025-s3-q11"><span class="n">11</span><span class="t">SJF 计算</span></button></li><li><button data-target="p2025-s3-q12"><span class="n">12</span><span class="t">磁盘调度</span></button></li></ul><button class="sec-btn" data-target="p2025-s4">四、综合题<span class="cnt">4 题</span></button><ul class="q-list"><li><button data-target="p2025-s4-q1"><span class="n">1</span><span class="t">页面置换</span></button></li><li><button data-target="p2025-s4-q2"><span class="n">2</span><span class="t">银行家算法</span></button></li><li><button data-target="p2025-s4-q3"><span class="n">3</span><span class="t">首次适应</span></button></li><li><button data-target="p2025-s4-q4"><span class="n">4</span><span class="t">inode 索引</span></button></li></ul></div>
+    <div class="paper-group" data-paper="p2024"><div class="pnote">原计划中写作「25 卷」的，就是这一份。</div><div class="pg-score" data-paper="p2024">客观题 <b>0</b>/40 · 主观自评 <b>0</b>/17</div><button class="all-btn" data-target="p2024">浏览整卷<span>全部题目</span></button><button class="sec-btn" data-target="p2024-s1">一、单选题<span class="cnt">15 题</span></button><ul class="q-list"><li><button data-target="p2024-s1-q1"><span class="n">1</span><span class="t">通道</span><span class="dot"></span></button></li><li><button data-target="p2024-s1-q2"><span class="n">2</span><span class="t">页表始址</span><span class="dot"></span></button></li><li><button data-target="p2024-s1-q3"><span class="n">3</span><span class="t">文件重名</span><span class="dot"></span></button></li><li><button data-target="p2024-s1-q4"><span class="n">4</span><span class="t">死锁·打印机</span><span class="dot"></span></button></li><li><button data-target="p2024-s1-q5"><span class="n">5</span><span class="t">管态</span><span class="dot"></span></button></li><li><button data-target="p2024-s1-q6"><span class="n">6</span><span class="t">缓冲技术</span><span class="dot"></span></button></li><li><button data-target="p2024-s1-q7"><span class="n">7</span><span class="t">首次适应</span><span class="dot"></span></button></li><li><button data-target="p2024-s1-q8"><span class="n">8</span><span class="t">I/O 由谁完成</span><span class="dot"></span></button></li><li><button data-target="p2024-s1-q9"><span class="n">9</span><span class="t">流式文件</span><span class="dot"></span></button></li><li><button data-target="p2024-s1-q10"><span class="n">10</span><span class="t">解除死锁</span><span class="dot"></span></button></li><li><button data-target="p2024-s1-q11"><span class="n">11</span><span class="t">缺页中断</span><span class="dot"></span></button></li><li><button data-target="p2024-s1-q12"><span class="n">12</span><span class="t">段最大长度</span><span class="dot"></span></button></li><li><button data-target="p2024-s1-q13"><span class="n">13</span><span class="t">FAT</span><span class="dot"></span></button></li><li><button data-target="p2024-s1-q14"><span class="n">14</span><span class="t">进程特性</span><span class="dot"></span></button></li><li><button data-target="p2024-s1-q15"><span class="n">15</span><span class="t">共享文件</span><span class="dot"></span></button></li></ul><button class="sec-btn" data-target="p2024-s2">二、判断题<span class="cnt">10 题</span></button><ul class="q-list"><li><button data-target="p2024-s2-q1"><span class="n">1</span><span class="t">磁盘缓冲</span><span class="dot"></span></button></li><li><button data-target="p2024-s2-q2"><span class="n">2</span><span class="t">FCFS 效率</span><span class="dot"></span></button></li><li><button data-target="p2024-s2-q3"><span class="n">3</span><span class="t">死锁影响</span><span class="dot"></span></button></li><li><button data-target="p2024-s2-q4"><span class="n">4</span><span class="t">PV 同步初值</span><span class="dot"></span></button></li><li><button data-target="p2024-s2-q5"><span class="n">5</span><span class="t">设备独立性</span><span class="dot"></span></button></li><li><button data-target="p2024-s2-q6"><span class="n">6</span><span class="t">设备分类</span><span class="dot"></span></button></li><li><button data-target="p2024-s2-q7"><span class="n">7</span><span class="t">虚存编址空间</span><span class="dot"></span></button></li><li><button data-target="p2024-s2-q8"><span class="n">8</span><span class="t">等 CPU 的状态</span><span class="dot"></span></button></li><li><button data-target="p2024-s2-q9"><span class="n">9</span><span class="t">磁盘延迟</span><span class="dot"></span></button></li><li><button data-target="p2024-s2-q10"><span class="n">10</span><span class="t">虚拟存储</span><span class="dot"></span></button></li></ul><button class="sec-btn" data-target="p2024-s3">三、填空简答<span class="cnt">12 题</span></button><ul class="q-list"><li><button data-target="p2024-s3-q1"><span class="n">1</span><span class="t">抖动</span><span class="dot"></span></button></li><li><button data-target="p2024-s3-q2"><span class="n">2</span><span class="t">原语</span><span class="dot"></span></button></li><li><button data-target="p2024-s3-q3"><span class="n">3</span><span class="t">死锁充分条件</span><span class="dot"></span></button></li><li><button data-target="p2024-s3-q4"><span class="n">4</span><span class="t">内存共享</span><span class="dot"></span></button></li><li><button data-target="p2024-s3-q5"><span class="n">5</span><span class="t">资源分配单位</span><span class="dot"></span></button></li><li><button data-target="p2024-s3-q6"><span class="n">6</span><span class="t">OS 功能</span><span class="dot"></span></button></li><li><button data-target="p2024-s3-q7"><span class="n">7</span><span class="t">磁盘缓冲位置</span><span class="dot"></span></button></li><li><button data-target="p2024-s3-q8"><span class="n">8</span><span class="t">时间片计算</span><span class="dot"></span></button></li><li><button data-target="p2024-s3-q9"><span class="n">9</span><span class="t">寻道时间</span><span class="dot"></span></button></li><li><button data-target="p2024-s3-q10"><span class="n">10</span><span class="t">预防死锁</span><span class="dot"></span></button></li><li><button data-target="p2024-s3-q11"><span class="n">11</span><span class="t">辅存交换</span><span class="dot"></span></button></li><li><button data-target="p2024-s3-q12"><span class="n">12</span><span class="t">两级索引</span><span class="dot"></span></button></li></ul><button class="sec-btn" data-target="p2024-s4">四、综合题<span class="cnt">5 题</span></button><ul class="q-list"><li><button data-target="p2024-s4-q1"><span class="n">1</span><span class="t">磁盘调度</span><span class="dot"></span></button></li><li><button data-target="p2024-s4-q2"><span class="n">2</span><span class="t">页面置换</span><span class="dot"></span></button></li><li><button data-target="p2024-s4-q3"><span class="n">3</span><span class="t">抢占式 SJF</span><span class="dot"></span></button></li><li><button data-target="p2024-s4-q4"><span class="n">4</span><span class="t">TLB 有效访问时间</span><span class="dot"></span></button></li><li><button data-target="p2024-s4-q5"><span class="n">5</span><span class="t">银行家算法</span><span class="dot"></span></button></li></ul></div><div class="paper-group" data-paper="p2025"><div class="pnote">原计划中写作「24 卷」的，就是这一份（含 P3 请求 (0,1,0,2)）。</div><div class="pg-score" data-paper="p2025">客观题 <b>0</b>/40 · 主观自评 <b>0</b>/16</div><button class="all-btn" data-target="p2025">浏览整卷<span>全部题目</span></button><button class="sec-btn" data-target="p2025-s1">一、单选题<span class="cnt">15 题</span></button><ul class="q-list"><li><button data-target="p2025-s1-q1"><span class="n">1</span><span class="t">线程</span><span class="dot"></span></button></li><li><button data-target="p2025-s1-q2"><span class="n">2</span><span class="t">操作系统概念</span><span class="dot"></span></button></li><li><button data-target="p2025-s1-q3"><span class="n">3</span><span class="t">I/O 控制方式</span><span class="dot"></span></button></li><li><button data-target="p2025-s1-q4"><span class="n">4</span><span class="t">目态→管态</span><span class="dot"></span></button></li><li><button data-target="p2025-s1-q5"><span class="n">5</span><span class="t">段页式访存</span><span class="dot"></span></button></li><li><button data-target="p2025-s1-q6"><span class="n">6</span><span class="t">信号量个数</span><span class="dot"></span></button></li><li><button data-target="p2025-s1-q7"><span class="n">7</span><span class="t">缺页率</span><span class="dot"></span></button></li><li><button data-target="p2025-s1-q8"><span class="n">8</span><span class="t">多级队列</span><span class="dot"></span></button></li><li><button data-target="p2025-s1-q9"><span class="n">9</span><span class="t">临界区</span><span class="dot"></span></button></li><li><button data-target="p2025-s1-q10"><span class="n">10</span><span class="t">修改位</span><span class="dot"></span></button></li><li><button data-target="p2025-s1-q11"><span class="n">11</span><span class="t">避免饥饿</span><span class="dot"></span></button></li><li><button data-target="p2025-s1-q12"><span class="n">12</span><span class="t">时间片轮转</span><span class="dot"></span></button></li><li><button data-target="p2025-s1-q13"><span class="n">13</span><span class="t">两级目录</span><span class="dot"></span></button></li><li><button data-target="p2025-s1-q14"><span class="n">14</span><span class="t">DMA</span><span class="dot"></span></button></li><li><button data-target="p2025-s1-q15"><span class="n">15</span><span class="t">连续组织</span><span class="dot"></span></button></li></ul><button class="sec-btn" data-target="p2025-s2">二、判断题<span class="cnt">10 题</span></button><ul class="q-list"><li><button data-target="p2025-s2-q1"><span class="n">1</span><span class="t">并发执行</span><span class="dot"></span></button></li><li><button data-target="p2025-s2-q2"><span class="n">2</span><span class="t">快表访存</span><span class="dot"></span></button></li><li><button data-target="p2025-s2-q3"><span class="n">3</span><span class="t">直接存取</span><span class="dot"></span></button></li><li><button data-target="p2025-s2-q4"><span class="n">4</span><span class="t">请求页式碎片</span><span class="dot"></span></button></li><li><button data-target="p2025-s2-q5"><span class="n">5</span><span class="t">进程调度</span><span class="dot"></span></button></li><li><button data-target="p2025-s2-q6"><span class="n">6</span><span class="t">动态重定位</span><span class="dot"></span></button></li><li><button data-target="p2025-s2-q7"><span class="n">7</span><span class="t">响应比</span><span class="dot"></span></button></li><li><button data-target="p2025-s2-q8"><span class="n">8</span><span class="t">文件空间分配</span><span class="dot"></span></button></li><li><button data-target="p2025-s2-q9"><span class="n">9</span><span class="t">SPOOLing</span><span class="dot"></span></button></li><li><button data-target="p2025-s2-q10"><span class="n">10</span><span class="t">预防死锁</span><span class="dot"></span></button></li></ul><button class="sec-btn" data-target="p2025-s3">三、填空简答<span class="cnt">12 题</span></button><ul class="q-list"><li><button data-target="p2025-s3-q1"><span class="n">1</span><span class="t">OS 特征</span><span class="dot"></span></button></li><li><button data-target="p2025-s3-q2"><span class="n">2</span><span class="t">调度方式</span><span class="dot"></span></button></li><li><button data-target="p2025-s3-q3"><span class="n">3</span><span class="t">调度算法选择</span><span class="dot"></span></button></li><li><button data-target="p2025-s3-q4"><span class="n">4</span><span class="t">通道分类</span><span class="dot"></span></button></li><li><button data-target="p2025-s3-q5"><span class="n">5</span><span class="t">CPU 空闲</span><span class="dot"></span></button></li><li><button data-target="p2025-s3-q6"><span class="n">6</span><span class="t">打印结束</span><span class="dot"></span></button></li><li><button data-target="p2025-s3-q7"><span class="n">7</span><span class="t">动态重定位</span><span class="dot"></span></button></li><li><button data-target="p2025-s3-q8"><span class="n">8</span><span class="t">串联文件</span><span class="dot"></span></button></li><li><button data-target="p2025-s3-q9"><span class="n">9</span><span class="t">分页地址变换</span><span class="dot"></span></button></li><li><button data-target="p2025-s3-q10"><span class="n">10</span><span class="t">过桥 PV 填空</span><span class="dot"></span></button></li><li><button data-target="p2025-s3-q11"><span class="n">11</span><span class="t">SJF 计算</span><span class="dot"></span></button></li><li><button data-target="p2025-s3-q12"><span class="n">12</span><span class="t">磁盘调度</span><span class="dot"></span></button></li></ul><button class="sec-btn" data-target="p2025-s4">四、综合题<span class="cnt">4 题</span></button><ul class="q-list"><li><button data-target="p2025-s4-q1"><span class="n">1</span><span class="t">页面置换</span><span class="dot"></span></button></li><li><button data-target="p2025-s4-q2"><span class="n">2</span><span class="t">银行家算法</span><span class="dot"></span></button></li><li><button data-target="p2025-s4-q3"><span class="n">3</span><span class="t">首次适应</span><span class="dot"></span></button></li><li><button data-target="p2025-s4-q4"><span class="n">4</span><span class="t">inode 索引</span><span class="dot"></span></button></li></ul></div>
     <div class="side-foot">
       <div class="tip">先做题，再展开答案</div>
       <button class="icon-btn" id="themeBtn" title="切换深色 / 浅色">◐</button>
@@ -193,287 +269,288 @@ u.blank{display:inline-block;min-width:110px;height:1.1em;border-bottom:1.5px so
   <main>
     <div class="wrap">
       <div class="toolbar">
-        <button id="openAll">展开本节答案</button>
-        <button id="closeAll">收起全部答案</button>
+        <div class="scorebar" data-paper="p2024"><div class="sc-main"><span class="sc-label">客观题</span><b class="sc-num">0</b><span class="sc-den">/40</span></div><div class="sc-bar"><i class="ok"></i><i class="bad"></i></div><div class="sc-meta"><span class="m-ok">对 0</span><span class="m-bad">错 0</span><span class="m-left">未答 25</span></div><div class="sc-sub">主观自评 对 <b class="s-ok">0</b> 错 <b class="s-bad">0</b> <span class="s-all">/ 17 题</span></div><button class="sc-reset" data-reset="p2024">重做本卷</button></div><div class="scorebar" data-paper="p2025"><div class="sc-main"><span class="sc-label">客观题</span><b class="sc-num">0</b><span class="sc-den">/40</span></div><div class="sc-bar"><i class="ok"></i><i class="bad"></i></div><div class="sc-meta"><span class="m-ok">对 0</span><span class="m-bad">错 0</span><span class="m-left">未答 25</span></div><div class="sc-sub">主观自评 对 <b class="s-ok">0</b> 错 <b class="s-bad">0</b> <span class="s-all">/ 16 题</span></div><button class="sc-reset" data-reset="p2025">重做本卷</button></div>
+        <button id="openAll">展开本节解析</button>
+        <button id="closeAll">收起</button>
       </div>
       <div class="paper-head" data-paper="p2024"><div class="kicker">EXAM PAPER</div><h2>2024 卷</h2><div class="meta">闭卷 · 120 分钟 · 综合题 40 分 · 原卷：2024操作系统卷.docx</div><div class="note">原计划中写作「25 卷」的，就是这一份。</div></div><div class="paper-head" data-paper="p2025"><div class="kicker">EXAM PAPER</div><h2>2025 卷</h2><div class="meta">闭卷 · 120 分钟 · 综合题 30 分 · 原卷：2025操作系统卷.docx</div><div class="note">原计划中写作「24 卷」的，就是这一份（含 P3 请求 (0,1,0,2)）。</div></div>
       <section class="section" id="p2024-s1" data-paper="p2024" data-section="s1"><div class="sec-head"><h3>一、单选题</h3><span class="desc">每题 2 分，共 30 分</span></div>
-<article class="question" id="p2024-s1-q1" data-section="s1" data-q="q1">
+<article class="question" id="p2024-s1-q1" data-section="s1" data-q="q1" data-kind="mcq" data-ans="A" data-pts="2">
   <div class="q-top">
     <span class="q-no">1</span>
     <span class="q-tag">单选</span>
     <h3 class="q-title">通道</h3>
   </div>
   <div class="q-stem">通道又被称为 I/O 处理器，它用于实现（　）之间的信息传输。</div>
-  <div class="options"><div class="opt"><span class="letter">A</span><span class="opt-body">主存与外设</span></div><div class="opt"><span class="letter">B</span><span class="opt-body">CPU 与外设</span></div><div class="opt"><span class="letter">C</span><span class="opt-body">外设与外设</span></div><div class="opt"><span class="letter">D</span><span class="opt-body">CPU 与辅存</span></div></div>
-  
-  <details class="answer"><summary><span class="chev"></span>显示答案</summary><div class="ans-body">A</div></details>
+  <div class="options" data-ans="A"><button type="button" class="opt" data-opt="A" aria-pressed="false"><span class="letter">A</span><span class="opt-body">主存与外设</span></button><button type="button" class="opt" data-opt="B" aria-pressed="false"><span class="letter">B</span><span class="opt-body">CPU 与外设</span></button><button type="button" class="opt" data-opt="C" aria-pressed="false"><span class="letter">C</span><span class="opt-body">外设与外设</span></button><button type="button" class="opt" data-opt="D" aria-pressed="false"><span class="letter">D</span><span class="opt-body">CPU 与辅存</span></button></div>
+  <div class="fb" role="status" aria-live="polite"></div>
+  <details class="answer"><summary><span class="chev"></span>答案与解析</summary><div class="ans-body"><p class="ans-key">答案：<b>A</b></p><div class="explain"><span class="explain-tag">解析</span><p>通道是专门负责 I/O 的处理机，与 CPU 并行工作，直接在<b>主存与外设</b>之间成块传送数据。CPU 只需发一条 I/O 指令，通道干完活再中断通知。</p><p>「CPU 与外设」是中断驱动方式给人的印象（CPU 亲自搬每一个数据），而通道恰恰是为了把这段搬运动作从 CPU 手里拿走才出现的。</p></div></div></details>
 </article>
-<article class="question" id="p2024-s1-q2" data-section="s1" data-q="q2">
+<article class="question" id="p2024-s1-q2" data-section="s1" data-q="q2" data-kind="mcq" data-ans="D" data-pts="2">
   <div class="q-top">
     <span class="q-no">2</span>
     <span class="q-tag">单选</span>
     <h3 class="q-title">页表始址</h3>
   </div>
   <div class="q-stem">页式管理中，页表的始地址是存放在（　）。</div>
-  <div class="options"><div class="opt"><span class="letter">A</span><span class="opt-body">内存中</span></div><div class="opt"><span class="letter">B</span><span class="opt-body">存储器页面表中</span></div><div class="opt"><span class="letter">C</span><span class="opt-body">联想存储器中</span></div><div class="opt"><span class="letter">D</span><span class="opt-body">寄存器中</span></div></div>
-  
-  <details class="answer"><summary><span class="chev"></span>显示答案</summary><div class="ans-body">D</div></details>
+  <div class="options" data-ans="D"><button type="button" class="opt" data-opt="A" aria-pressed="false"><span class="letter">A</span><span class="opt-body">内存中</span></button><button type="button" class="opt" data-opt="B" aria-pressed="false"><span class="letter">B</span><span class="opt-body">存储器页面表中</span></button><button type="button" class="opt" data-opt="C" aria-pressed="false"><span class="letter">C</span><span class="opt-body">联想存储器中</span></button><button type="button" class="opt" data-opt="D" aria-pressed="false"><span class="letter">D</span><span class="opt-body">寄存器中</span></button></div>
+  <div class="fb" role="status" aria-live="polite"></div>
+  <details class="answer"><summary><span class="chev"></span>答案与解析</summary><div class="ans-body"><p class="ans-key">答案：<b>D</b></p><div class="explain"><span class="explain-tag">解析</span><p>页表本身存放在内存，但它的<b>起始地址和长度</b>放在进程 PCB 的页表始址寄存器、页表长度寄存器里，进程被调度时装入 CPU。</p><p>联想存储器（TLB）缓存的是「页号 → 块号」的页表项，不是页表始址，别混。</p></div></div></details>
 </article>
-<article class="question" id="p2024-s1-q3" data-section="s1" data-q="q3">
+<article class="question" id="p2024-s1-q3" data-section="s1" data-q="q3" data-kind="mcq" data-ans="D" data-pts="2">
   <div class="q-top">
     <span class="q-no">3</span>
     <span class="q-tag">单选</span>
     <h3 class="q-title">文件重名</h3>
   </div>
   <div class="q-stem">如果允许不同用户的文件可以具有相同的文件名，通常采用（　）来保证按名存取的安全。</div>
-  <div class="options"><div class="opt"><span class="letter">A</span><span class="opt-body">重名翻译机构</span></div><div class="opt"><span class="letter">B</span><span class="opt-body">建立索引表</span></div><div class="opt"><span class="letter">C</span><span class="opt-body">建立指针</span></div><div class="opt"><span class="letter">D</span><span class="opt-body">多级目录结构</span></div></div>
-  
-  <details class="answer"><summary><span class="chev"></span>显示答案</summary><div class="ans-body">D</div></details>
+  <div class="options" data-ans="D"><button type="button" class="opt" data-opt="A" aria-pressed="false"><span class="letter">A</span><span class="opt-body">重名翻译机构</span></button><button type="button" class="opt" data-opt="B" aria-pressed="false"><span class="letter">B</span><span class="opt-body">建立索引表</span></button><button type="button" class="opt" data-opt="C" aria-pressed="false"><span class="letter">C</span><span class="opt-body">建立指针</span></button><button type="button" class="opt" data-opt="D" aria-pressed="false"><span class="letter">D</span><span class="opt-body">多级目录结构</span></button></div>
+  <div class="fb" role="status" aria-live="polite"></div>
+  <details class="answer"><summary><span class="chev"></span>答案与解析</summary><div class="ans-body"><p class="ans-key">答案：<b>D</b></p><div class="explain"><span class="explain-tag">解析</span><p>同名文件冲突靠<b>多级目录</b>解决：每个用户有自己的目录，路径 = 用户名 + 文件名，不同用户下的同名文件自然可以共存。</p><p>索引表、指针解决的是查找速度和文件共享，都不解决「名字冲突」。</p></div></div></details>
 </article>
-<article class="question" id="p2024-s1-q4" data-section="s1" data-q="q4">
+<article class="question" id="p2024-s1-q4" data-section="s1" data-q="q4" data-kind="mcq" data-ans="A" data-pts="2">
   <div class="q-top">
     <span class="q-no">4</span>
     <span class="q-tag">单选</span>
     <h3 class="q-title">死锁·打印机</h3>
   </div>
   <div class="q-stem">若系统中有 7 台打印机，有多个进程均需要使用两台，规定每个进程一次仅允许申请一台，则至多允许（　）个进程参与竞争，而不会发生死锁。</div>
-  <div class="options"><div class="opt"><span class="letter">A</span><span class="opt-body">6</span></div><div class="opt"><span class="letter">B</span><span class="opt-body">5</span></div><div class="opt"><span class="letter">C</span><span class="opt-body">4</span></div><div class="opt"><span class="letter">D</span><span class="opt-body">3</span></div></div>
-  
-  <details class="answer"><summary><span class="chev"></span>显示答案</summary><div class="ans-body">A</div></details>
+  <div class="options" data-ans="A"><button type="button" class="opt" data-opt="A" aria-pressed="false"><span class="letter">A</span><span class="opt-body">6</span></button><button type="button" class="opt" data-opt="B" aria-pressed="false"><span class="letter">B</span><span class="opt-body">5</span></button><button type="button" class="opt" data-opt="C" aria-pressed="false"><span class="letter">C</span><span class="opt-body">4</span></button><button type="button" class="opt" data-opt="D" aria-pressed="false"><span class="letter">D</span><span class="opt-body">3</span></button></div>
+  <div class="fb" role="status" aria-live="polite"></div>
+  <details class="answer"><summary><span class="chev"></span>答案与解析</summary><div class="ans-body"><p class="ans-key">答案：<b>A</b></p><div class="explain"><span class="explain-tag">解析</span><p>设参与竞争的进程为 n 个，每个进程最终都要 2 台。最坏情况是每个进程先各拿 1 台、都在等第 2 台——此时已占用 n 台，若再无空闲就形成死锁。</p><p>7 台时：n = 6 只占 6 台，还剩 1 台，谁拿到谁就能完成并释放 2 台，死锁无法成立；n = 7 时 7 台全被占满，谁都拿不到第 2 台，死锁成立。故至多 6 个。</p><p>通用结论：资源 R 台、每进程最多需 m 台时，进程数 n 满足 n(m−1) &lt; R 就不会死锁（这里 6×1 &lt; 7）。</p></div></div></details>
 </article>
-<article class="question" id="p2024-s1-q5" data-section="s1" data-q="q5">
+<article class="question" id="p2024-s1-q5" data-section="s1" data-q="q5" data-kind="mcq" data-ans="C" data-pts="2">
   <div class="q-top">
     <span class="q-no">5</span>
     <span class="q-tag">单选</span>
     <h3 class="q-title">管态</h3>
   </div>
   <div class="q-stem">当 CPU 执行操作系统代码时，称处理机处于（　）。</div>
-  <div class="options"><div class="opt"><span class="letter">A</span><span class="opt-body">执行态</span></div><div class="opt"><span class="letter">B</span><span class="opt-body">目态</span></div><div class="opt"><span class="letter">C</span><span class="opt-body">管态</span></div><div class="opt"><span class="letter">D</span><span class="opt-body">就绪态</span></div></div>
-  
-  <details class="answer"><summary><span class="chev"></span>显示答案</summary><div class="ans-body">C</div></details>
+  <div class="options" data-ans="C"><button type="button" class="opt" data-opt="A" aria-pressed="false"><span class="letter">A</span><span class="opt-body">执行态</span></button><button type="button" class="opt" data-opt="B" aria-pressed="false"><span class="letter">B</span><span class="opt-body">目态</span></button><button type="button" class="opt" data-opt="C" aria-pressed="false"><span class="letter">C</span><span class="opt-body">管态</span></button><button type="button" class="opt" data-opt="D" aria-pressed="false"><span class="letter">D</span><span class="opt-body">就绪态</span></button></div>
+  <div class="fb" role="status" aria-live="polite"></div>
+  <details class="answer"><summary><span class="chev"></span>答案与解析</summary><div class="ans-body"><p class="ans-key">答案：<b>C</b></p><div class="explain"><span class="explain-tag">解析</span><p>处理机有两种状态：<b>管态</b>（核心态、系统态）执行 OS 内核代码，可执行特权指令；<b>目态</b>（用户态）执行用户程序。执行操作系统代码时当然处于管态。</p></div></div></details>
 </article>
-<article class="question" id="p2024-s1-q6" data-section="s1" data-q="q6">
+<article class="question" id="p2024-s1-q6" data-section="s1" data-q="q6" data-kind="mcq" data-ans="B" data-pts="2">
   <div class="q-top">
     <span class="q-no">6</span>
     <span class="q-tag">单选</span>
     <h3 class="q-title">缓冲技术</h3>
   </div>
   <div class="q-stem">CPU 输出数据的速度远远高于打印机的打印速度，为了解决这一矛盾，可采用（　）。</div>
-  <div class="options"><div class="opt"><span class="letter">A</span><span class="opt-body">并行技术</span></div><div class="opt"><span class="letter">B</span><span class="opt-body">缓冲技术</span></div><div class="opt"><span class="letter">C</span><span class="opt-body">通道技术</span></div><div class="opt"><span class="letter">D</span><span class="opt-body">虚存技术</span></div></div>
-  
-  <details class="answer"><summary><span class="chev"></span>显示答案</summary><div class="ans-body">B</div></details>
+  <div class="options" data-ans="B"><button type="button" class="opt" data-opt="A" aria-pressed="false"><span class="letter">A</span><span class="opt-body">并行技术</span></button><button type="button" class="opt" data-opt="B" aria-pressed="false"><span class="letter">B</span><span class="opt-body">缓冲技术</span></button><button type="button" class="opt" data-opt="C" aria-pressed="false"><span class="letter">C</span><span class="opt-body">通道技术</span></button><button type="button" class="opt" data-opt="D" aria-pressed="false"><span class="letter">D</span><span class="opt-body">虚存技术</span></button></div>
+  <div class="fb" role="status" aria-live="polite"></div>
+  <details class="answer"><summary><span class="chev"></span>答案与解析</summary><div class="ans-body"><p class="ans-key">答案：<b>B</b></p><div class="explain"><span class="explain-tag">解析</span><p>CPU 输出快、打印机慢，速度差几个数量级，用<b>缓冲技术</b>：CPU 把数据写进缓冲区就返回，打印机慢慢从缓冲区取，两者解耦。</p><p>并行技术提高并行度但不解决速度差；通道解决的是 CPU 参与度；虚存管的是地址空间。</p></div></div></details>
 </article>
-<article class="question" id="p2024-s1-q7" data-section="s1" data-q="q7">
+<article class="question" id="p2024-s1-q7" data-section="s1" data-q="q7" data-kind="mcq" data-ans="A" data-pts="2">
   <div class="q-top">
     <span class="q-no">7</span>
     <span class="q-tag">单选</span>
     <h3 class="q-title">首次适应</h3>
   </div>
   <div class="q-stem">将主存空闲区按地址顺序从小到大登记在空闲区表中，每次分配时总是顺序查找空闲区表，此种分配算法称为（　）分配算法。</div>
-  <div class="options"><div class="opt"><span class="letter">A</span><span class="opt-body">首次适应</span></div><div class="opt"><span class="letter">B</span><span class="opt-body">最优适应</span></div><div class="opt"><span class="letter">C</span><span class="opt-body">最坏适应</span></div><div class="opt"><span class="letter">D</span><span class="opt-body">随机适应</span></div></div>
-  
-  <details class="answer"><summary><span class="chev"></span>显示答案</summary><div class="ans-body">A</div></details>
+  <div class="options" data-ans="A"><button type="button" class="opt" data-opt="A" aria-pressed="false"><span class="letter">A</span><span class="opt-body">首次适应</span></button><button type="button" class="opt" data-opt="B" aria-pressed="false"><span class="letter">B</span><span class="opt-body">最优适应</span></button><button type="button" class="opt" data-opt="C" aria-pressed="false"><span class="letter">C</span><span class="opt-body">最坏适应</span></button><button type="button" class="opt" data-opt="D" aria-pressed="false"><span class="letter">D</span><span class="opt-body">随机适应</span></button></div>
+  <div class="fb" role="status" aria-live="polite"></div>
+  <details class="answer"><summary><span class="chev"></span>答案与解析</summary><div class="ans-body"><p class="ans-key">答案：<b>A</b></p><div class="explain"><span class="explain-tag">解析</span><p>判定只看两点：空闲区表按<b>地址</b>递增登记 + 每次从表头<b>顺序查找</b>第一个够用的 → 首次适应。</p><p>若按容量递增排序，找到的就是「能满足的最小空闲区」，那是最佳适应；按容量递减则是最大（最坏）适应。排序方式一换，算法就换。</p></div></div></details>
 </article>
-<article class="question" id="p2024-s1-q8" data-section="s1" data-q="q8">
+<article class="question" id="p2024-s1-q8" data-section="s1" data-q="q8" data-kind="mcq" data-ans="C" data-pts="2">
   <div class="q-top">
     <span class="q-no">8</span>
     <span class="q-tag">单选</span>
     <h3 class="q-title">I/O 由谁完成</h3>
   </div>
   <div class="q-stem">用户程序中的输入、输出操作实际上是由（　）完成。</div>
-  <div class="options"><div class="opt"><span class="letter">A</span><span class="opt-body">程序设计语言</span></div><div class="opt"><span class="letter">B</span><span class="opt-body">编译系统</span></div><div class="opt"><span class="letter">C</span><span class="opt-body">操作系统</span></div><div class="opt"><span class="letter">D</span><span class="opt-body">标准库程序</span></div></div>
-  
-  <details class="answer"><summary><span class="chev"></span>显示答案</summary><div class="ans-body">C</div></details>
+  <div class="options" data-ans="C"><button type="button" class="opt" data-opt="A" aria-pressed="false"><span class="letter">A</span><span class="opt-body">程序设计语言</span></button><button type="button" class="opt" data-opt="B" aria-pressed="false"><span class="letter">B</span><span class="opt-body">编译系统</span></button><button type="button" class="opt" data-opt="C" aria-pressed="false"><span class="letter">C</span><span class="opt-body">操作系统</span></button><button type="button" class="opt" data-opt="D" aria-pressed="false"><span class="letter">D</span><span class="opt-body">标准库程序</span></button></div>
+  <div class="fb" role="status" aria-live="polite"></div>
+  <details class="answer"><summary><span class="chev"></span>答案与解析</summary><div class="ans-body"><p class="ans-key">答案：<b>C</b></p><div class="explain"><span class="explain-tag">解析</span><p>用户程序里的 read / write 只是系统调用接口，真正的设备控制、数据传输由<b>操作系统</b>的设备管理模块完成，用户感知不到硬件细节。</p></div></div></details>
 </article>
-<article class="question" id="p2024-s1-q9" data-section="s1" data-q="q9">
+<article class="question" id="p2024-s1-q9" data-section="s1" data-q="q9" data-kind="mcq" data-ans="C" data-pts="2">
   <div class="q-top">
     <span class="q-no">9</span>
     <span class="q-tag">单选</span>
     <h3 class="q-title">流式文件</h3>
   </div>
   <div class="q-stem">以字符为基本单位按照一定顺序组成的文件叫做（　）。</div>
-  <div class="options"><div class="opt"><span class="letter">A</span><span class="opt-body">记录式文件</span></div><div class="opt"><span class="letter">B</span><span class="opt-body">索引文件</span></div><div class="opt"><span class="letter">C</span><span class="opt-body">流式文件</span></div><div class="opt"><span class="letter">D</span><span class="opt-body">顺序文件</span></div></div>
-  
-  <details class="answer"><summary><span class="chev"></span>显示答案</summary><div class="ans-body">C</div></details>
+  <div class="options" data-ans="C"><button type="button" class="opt" data-opt="A" aria-pressed="false"><span class="letter">A</span><span class="opt-body">记录式文件</span></button><button type="button" class="opt" data-opt="B" aria-pressed="false"><span class="letter">B</span><span class="opt-body">索引文件</span></button><button type="button" class="opt" data-opt="C" aria-pressed="false"><span class="letter">C</span><span class="opt-body">流式文件</span></button><button type="button" class="opt" data-opt="D" aria-pressed="false"><span class="letter">D</span><span class="opt-body">顺序文件</span></button></div>
+  <div class="fb" role="status" aria-live="polite"></div>
+  <details class="answer"><summary><span class="chev"></span>答案与解析</summary><div class="ans-body"><p class="ans-key">答案：<b>C</b></p><div class="explain"><span class="explain-tag">解析</span><p>按逻辑结构分：<b>流式文件</b>以字符（字节）为基本单位，无记录概念；<b>记录式文件</b>以记录为基本单位。题干关键词是「以字符为基本单位」。</p></div></div></details>
 </article>
-<article class="question" id="p2024-s1-q10" data-section="s1" data-q="q10">
+<article class="question" id="p2024-s1-q10" data-section="s1" data-q="q10" data-kind="mcq" data-ans="B" data-pts="2">
   <div class="q-top">
     <span class="q-no">10</span>
     <span class="q-tag">单选</span>
     <h3 class="q-title">解除死锁</h3>
   </div>
   <div class="q-stem">采用资源剥夺法可解除死锁，还可以采用（　）方法解除死锁。</div>
-  <div class="options"><div class="opt"><span class="letter">A</span><span class="opt-body">执行并行操作</span></div><div class="opt"><span class="letter">B</span><span class="opt-body">撤销进程</span></div><div class="opt"><span class="letter">C</span><span class="opt-body">拒绝分配新的资源</span></div><div class="opt"><span class="letter">D</span><span class="opt-body">修改信号量</span></div></div>
-  
-  <details class="answer"><summary><span class="chev"></span>显示答案</summary><div class="ans-body">B</div></details>
+  <div class="options" data-ans="B"><button type="button" class="opt" data-opt="A" aria-pressed="false"><span class="letter">A</span><span class="opt-body">执行并行操作</span></button><button type="button" class="opt" data-opt="B" aria-pressed="false"><span class="letter">B</span><span class="opt-body">撤销进程</span></button><button type="button" class="opt" data-opt="C" aria-pressed="false"><span class="letter">C</span><span class="opt-body">拒绝分配新的资源</span></button><button type="button" class="opt" data-opt="D" aria-pressed="false"><span class="letter">D</span><span class="opt-body">修改信号量</span></button></div>
+  <div class="fb" role="status" aria-live="polite"></div>
+  <details class="answer"><summary><span class="chev"></span>答案与解析</summary><div class="ans-body"><p class="ans-key">答案：<b>B</b></p><div class="explain"><span class="explain-tag">解析</span><p>解除死锁两条路：<b>剥夺资源</b>（从某些进程手里强行收回）和<b>撤销进程</b>（杀掉代价最小的进程，释放它持有的全部资源）。</p><p>「拒绝分配新资源」属于预防 / 避免，是事前的策略，不是事后的解除手段。</p></div></div></details>
 </article>
-<article class="question" id="p2024-s1-q11" data-section="s1" data-q="q11">
+<article class="question" id="p2024-s1-q11" data-section="s1" data-q="q11" data-kind="mcq" data-ans="A" data-pts="2">
   <div class="q-top">
     <span class="q-no">11</span>
     <span class="q-tag">单选</span>
     <h3 class="q-title">缺页中断</h3>
   </div>
   <div class="q-stem">进程在执行中发生了缺页中断，经操作系统处理后，应让其执行（　）指令。</div>
-  <div class="options"><div class="opt"><span class="letter">A</span><span class="opt-body">被中断的</span></div><div class="opt"><span class="letter">B</span><span class="opt-body">被中断的前一条</span></div><div class="opt"><span class="letter">C</span><span class="opt-body">被中断的后一条</span></div><div class="opt"><span class="letter">D</span><span class="opt-body">启动时的第一条</span></div></div>
-  
-  <details class="answer"><summary><span class="chev"></span>显示答案</summary><div class="ans-body">A</div></details>
+  <div class="options" data-ans="A"><button type="button" class="opt" data-opt="A" aria-pressed="false"><span class="letter">A</span><span class="opt-body">被中断的</span></button><button type="button" class="opt" data-opt="B" aria-pressed="false"><span class="letter">B</span><span class="opt-body">被中断的前一条</span></button><button type="button" class="opt" data-opt="C" aria-pressed="false"><span class="letter">C</span><span class="opt-body">被中断的后一条</span></button><button type="button" class="opt" data-opt="D" aria-pressed="false"><span class="letter">D</span><span class="opt-body">启动时的第一条</span></button></div>
+  <div class="fb" role="status" aria-live="polite"></div>
+  <details class="answer"><summary><span class="chev"></span>答案与解析</summary><div class="ans-body"><p class="ans-key">答案：<b>A</b></p><div class="explain"><span class="explain-tag">解析</span><p>缺页中断发生在指令执行<b>过程中</b>（取指或取操作数时发现页不在内存），这条指令并没有执行完；调入页面后必须<b>重新执行被中断的这条指令</b>。</p><p>对比记忆：I/O 完成中断是在指令<b>执行完之后</b>才到来的，所以返回来执行下一条指令。这个对比是高频考点。</p></div></div></details>
 </article>
-<article class="question" id="p2024-s1-q12" data-section="s1" data-q="q12">
+<article class="question" id="p2024-s1-q12" data-section="s1" data-q="q12" data-kind="mcq" data-ans="A" data-pts="2">
   <div class="q-top">
     <span class="q-no">12</span>
     <span class="q-tag">单选</span>
     <h3 class="q-title">段最大长度</h3>
   </div>
   <div class="q-stem">采用段式存储管理的系统中，若地址用 24 位表示，其中 8 位表示段号，则允许每段的最大长度是（　）。</div>
-  <div class="options"><div class="opt"><span class="letter">A</span><span class="opt-body">2<sup>16</sup></span></div><div class="opt"><span class="letter">B</span><span class="opt-body">2<sup>8</sup></span></div><div class="opt"><span class="letter">C</span><span class="opt-body">2<sup>24</sup></span></div><div class="opt"><span class="letter">D</span><span class="opt-body">2<sup>32</sup></span></div></div>
-  
-  <details class="answer"><summary><span class="chev"></span>显示答案</summary><div class="ans-body">A<p class="q-note">原卷选项印作 216、28、224、232，是上标丢失。</p></div></details>
+  <div class="options" data-ans="A"><button type="button" class="opt" data-opt="A" aria-pressed="false"><span class="letter">A</span><span class="opt-body">2<sup>16</sup></span></button><button type="button" class="opt" data-opt="B" aria-pressed="false"><span class="letter">B</span><span class="opt-body">2<sup>8</sup></span></button><button type="button" class="opt" data-opt="C" aria-pressed="false"><span class="letter">C</span><span class="opt-body">2<sup>24</sup></span></button><button type="button" class="opt" data-opt="D" aria-pressed="false"><span class="letter">D</span><span class="opt-body">2<sup>32</sup></span></button></div>
+  <div class="fb" role="status" aria-live="polite"></div>
+  <details class="answer"><summary><span class="chev"></span>答案与解析</summary><div class="ans-body"><p class="ans-key">答案：<b>A</b></p><p class="q-note">原卷选项印作 216、28、224、232，是上标丢失。</p><div class="explain"><span class="explain-tag">解析</span><p>24 位地址 = 段号 + 段内偏移。段号占 8 位，段内偏移占 24−8 = 16 位，所以每段最大 2<sup>16</sup> 字节（64KB）。</p><p>顺带：段数最多 2<sup>8</sup> = 256 段。题干里的 216、28 是上标丢失。</p></div></div></details>
 </article>
-<article class="question" id="p2024-s1-q13" data-section="s1" data-q="q13">
+<article class="question" id="p2024-s1-q13" data-section="s1" data-q="q13" data-kind="mcq" data-ans="B" data-pts="2">
   <div class="q-top">
     <span class="q-no">13</span>
     <span class="q-tag">单选</span>
     <h3 class="q-title">FAT</h3>
   </div>
   <div class="q-stem">通过 FAT 表可以直接获得的信息是（　）。</div>
-  <div class="options"><div class="opt"><span class="letter">A</span><span class="opt-body">磁盘块的空闲信息</span></div><div class="opt"><span class="letter">B</span><span class="opt-body">块之间的连接信息</span></div><div class="opt"><span class="letter">C</span><span class="opt-body">FCB</span></div><div class="opt"><span class="letter">D</span><span class="opt-body">磁盘索引节点信息</span></div></div>
-  
-  <details class="answer"><summary><span class="chev"></span>显示答案</summary><div class="ans-body">B</div></details>
+  <div class="options" data-ans="B"><button type="button" class="opt" data-opt="A" aria-pressed="false"><span class="letter">A</span><span class="opt-body">磁盘块的空闲信息</span></button><button type="button" class="opt" data-opt="B" aria-pressed="false"><span class="letter">B</span><span class="opt-body">块之间的连接信息</span></button><button type="button" class="opt" data-opt="C" aria-pressed="false"><span class="letter">C</span><span class="opt-body">FCB</span></button><button type="button" class="opt" data-opt="D" aria-pressed="false"><span class="letter">D</span><span class="opt-body">磁盘索引节点信息</span></button></div>
+  <div class="fb" role="status" aria-live="polite"></div>
+  <details class="answer"><summary><span class="chev"></span>答案与解析</summary><div class="ans-body"><p class="ans-key">答案：<b>B</b></p><div class="explain"><span class="explain-tag">解析</span><p>FAT 每个表项记录「本块的下一个块号」，顺着表项就能把整个文件的簇链串起来，所以直接得到的是<b>块之间的连接信息</b>。</p><p>表项为 0 确实也表示空闲，但那是「顺带能看出」，FAT 的设计本意是链接；本题按教材口径选 B。</p></div></div></details>
 </article>
-<article class="question" id="p2024-s1-q14" data-section="s1" data-q="q14">
+<article class="question" id="p2024-s1-q14" data-section="s1" data-q="q14" data-kind="mcq" data-ans="B" data-pts="2">
   <div class="q-top">
     <span class="q-no">14</span>
     <span class="q-tag">单选</span>
     <h3 class="q-title">进程特性</h3>
   </div>
   <div class="q-stem">在下列特性中，哪一个不是进程的特性（　）。</div>
-  <div class="options"><div class="opt"><span class="letter">A</span><span class="opt-body">异步性</span></div><div class="opt"><span class="letter">B</span><span class="opt-body">静态性</span></div><div class="opt"><span class="letter">C</span><span class="opt-body">并发性</span></div><div class="opt"><span class="letter">D</span><span class="opt-body">动态性</span></div></div>
-  
-  <details class="answer"><summary><span class="chev"></span>显示答案</summary><div class="ans-body">B</div></details>
+  <div class="options" data-ans="B"><button type="button" class="opt" data-opt="A" aria-pressed="false"><span class="letter">A</span><span class="opt-body">异步性</span></button><button type="button" class="opt" data-opt="B" aria-pressed="false"><span class="letter">B</span><span class="opt-body">静态性</span></button><button type="button" class="opt" data-opt="C" aria-pressed="false"><span class="letter">C</span><span class="opt-body">并发性</span></button><button type="button" class="opt" data-opt="D" aria-pressed="false"><span class="letter">D</span><span class="opt-body">动态性</span></button></div>
+  <div class="fb" role="status" aria-live="polite"></div>
+  <details class="answer"><summary><span class="chev"></span>答案与解析</summary><div class="ans-body"><p class="ans-key">答案：<b>B</b></p><div class="explain"><span class="explain-tag">解析</span><p>进程的四个特征：<b>动态性</b>（有生命周期）、<b>并发性</b>、<b>独立性</b>、<b>异步性</b>。</p><p>「静态性」是程序的特征——程序是静态的指令集合，进程是它的一次动态执行。</p></div></div></details>
 </article>
-<article class="question" id="p2024-s1-q15" data-section="s1" data-q="q15">
+<article class="question" id="p2024-s1-q15" data-section="s1" data-q="q15" data-kind="mcq" data-ans="B" data-pts="2">
   <div class="q-top">
     <span class="q-no">15</span>
     <span class="q-tag">单选</span>
     <h3 class="q-title">共享文件</h3>
   </div>
   <div class="q-stem">允许多个用户同时使用一个共享文件时，下列（　）做法是不对的。</div>
-  <div class="options"><div class="opt"><span class="letter">A</span><span class="opt-body">允许多个用户同时打开共享文件执行读操作</span></div><div class="opt"><span class="letter">B</span><span class="opt-body">允许读者和写者同时使用共享文件</span></div><div class="opt"><span class="letter">C</span><span class="opt-body">不允许读者和写者同时使用共享文件</span></div><div class="opt"><span class="letter">D</span><span class="opt-body">不允许多个写者同时使用共享文件</span></div></div>
-  
-  <details class="answer"><summary><span class="chev"></span>显示答案</summary><div class="ans-body">B</div></details>
+  <div class="options" data-ans="B"><button type="button" class="opt" data-opt="A" aria-pressed="false"><span class="letter">A</span><span class="opt-body">允许多个用户同时打开共享文件执行读操作</span></button><button type="button" class="opt" data-opt="B" aria-pressed="false"><span class="letter">B</span><span class="opt-body">允许读者和写者同时使用共享文件</span></button><button type="button" class="opt" data-opt="C" aria-pressed="false"><span class="letter">C</span><span class="opt-body">不允许读者和写者同时使用共享文件</span></button><button type="button" class="opt" data-opt="D" aria-pressed="false"><span class="letter">D</span><span class="opt-body">不允许多个写者同时使用共享文件</span></button></div>
+  <div class="fb" role="status" aria-live="polite"></div>
+  <details class="answer"><summary><span class="chev"></span>答案与解析</summary><div class="ans-body"><p class="ans-key">答案：<b>B</b></p><div class="explain"><span class="explain-tag">解析</span><p>共享文件的读写规则只有三句：<b>多读可并发，读写必须互斥，多写必须互斥</b>。</p><p>所以「允许读者和写者同时使用」是错的，其余三项都符合规则。</p></div></div></details>
 </article></section><section class="section" id="p2024-s2" data-paper="p2024" data-section="s2"><div class="sec-head"><h3>二、判断题</h3><span class="desc">对的打「√」，错的打「×」，每题 1 分，共 10 分</span></div>
-<article class="question" id="p2024-s2-q1" data-section="s2" data-q="q1">
+<article class="question" id="p2024-s2-q1" data-section="s2" data-q="q1" data-kind="judge" data-ans="√" data-pts="1">
   <div class="q-top">
     <span class="q-no">1</span>
     <span class="q-tag">判断</span>
     <h3 class="q-title">磁盘缓冲</h3>
   </div>
   <div class="q-stem">在系统内存中设置磁盘缓冲区的主要目的是减少磁盘 I/O 次数。</div>
-  
-  
-  <details class="answer"><summary><span class="chev"></span>显示答案</summary><div class="ans-body">√</div></details>
+  <div class="options judge" data-ans="√"><button type="button" class="opt" data-opt="√" aria-pressed="false"><span class="letter">√</span><span class="opt-body">对</span></button><button type="button" class="opt" data-opt="×" aria-pressed="false"><span class="letter">×</span><span class="opt-body">错</span></button></div>
+  <div class="fb" role="status" aria-live="polite"></div>
+  <details class="answer"><summary><span class="chev"></span>答案与解析</summary><div class="ans-body"><p class="ans-key">答案：<b>√</b></p><div class="explain"><span class="explain-tag">解析</span><p>磁盘缓冲区把多次小的读改写合并、把顺序访问提前读进来，目的正是减少真正的磁盘 I/O 次数。</p></div></div></details>
 </article>
-<article class="question" id="p2024-s2-q2" data-section="s2" data-q="q2">
+<article class="question" id="p2024-s2-q2" data-section="s2" data-q="q2" data-kind="judge" data-ans="×" data-pts="1">
   <div class="q-top">
     <span class="q-no">2</span>
     <span class="q-tag">判断</span>
     <h3 class="q-title">FCFS 效率</h3>
   </div>
   <div class="q-stem">先来先服务（FCFS）算法是一种简单的调度算法，但其效率比较高。</div>
-  
-  
-  <details class="answer"><summary><span class="chev"></span>显示答案</summary><div class="ans-body">×</div></details>
+  <div class="options judge" data-ans="×"><button type="button" class="opt" data-opt="√" aria-pressed="false"><span class="letter">√</span><span class="opt-body">对</span></button><button type="button" class="opt" data-opt="×" aria-pressed="false"><span class="letter">×</span><span class="opt-body">错</span></button></div>
+  <div class="fb" role="status" aria-live="polite"></div>
+  <details class="answer"><summary><span class="chev"></span>答案与解析</summary><div class="ans-body"><p class="ans-key">答案：<b>×</b></p><div class="explain"><span class="explain-tag">解析</span><p>FCFS 只是实现简单、公平，效率并不高：短作业要排在长作业后面干等，平均周转时间偏大。</p></div></div></details>
 </article>
-<article class="question" id="p2024-s2-q3" data-section="s2" data-q="q3">
+<article class="question" id="p2024-s2-q3" data-section="s2" data-q="q3" data-kind="judge" data-ans="×" data-pts="1">
   <div class="q-top">
     <span class="q-no">3</span>
     <span class="q-tag">判断</span>
     <h3 class="q-title">死锁影响</h3>
   </div>
   <div class="q-stem">一旦出现死锁，所有进程都不能运行。</div>
-  
-  
-  <details class="answer"><summary><span class="chev"></span>显示答案</summary><div class="ans-body">×</div></details>
+  <div class="options judge" data-ans="×"><button type="button" class="opt" data-opt="√" aria-pressed="false"><span class="letter">√</span><span class="opt-body">对</span></button><button type="button" class="opt" data-opt="×" aria-pressed="false"><span class="letter">×</span><span class="opt-body">错</span></button></div>
+  <div class="fb" role="status" aria-live="polite"></div>
+  <details class="answer"><summary><span class="chev"></span>答案与解析</summary><div class="ans-body"><p class="ans-key">答案：<b>×</b></p><div class="explain"><span class="explain-tag">解析</span><p>死锁只让<b>参与死锁</b>的那部分进程永久阻塞，其他无关进程照常运行。只有当死锁持续、资源被耗尽时才可能拖垮整个系统，题干说「所有进程都不能运行」太绝对。</p></div></div></details>
 </article>
-<article class="question" id="p2024-s2-q4" data-section="s2" data-q="q4">
+<article class="question" id="p2024-s2-q4" data-section="s2" data-q="q4" data-kind="judge" data-ans="×" data-pts="1">
   <div class="q-top">
     <span class="q-no">4</span>
     <span class="q-tag">判断</span>
     <h3 class="q-title">PV 同步初值</h3>
   </div>
   <div class="q-stem">用 P、V 操作实现进程同步，信号量的初值必须为 1。</div>
-  
-  
-  <details class="answer"><summary><span class="chev"></span>显示答案</summary><div class="ans-body">×</div></details>
+  <div class="options judge" data-ans="×"><button type="button" class="opt" data-opt="√" aria-pressed="false"><span class="letter">√</span><span class="opt-body">对</span></button><button type="button" class="opt" data-opt="×" aria-pressed="false"><span class="letter">×</span><span class="opt-body">错</span></button></div>
+  <div class="fb" role="status" aria-live="polite"></div>
+  <details class="answer"><summary><span class="chev"></span>答案与解析</summary><div class="ans-body"><p class="ans-key">答案：<b>×</b></p><div class="explain"><span class="explain-tag">解析</span><p>信号量初值取决于语义：<b>互斥</b>信号量初值为 1；<b>同步</b>信号量表示「可用资源数」或「前驱是否完成」，初值可以是 0、1 或任意正整数。</p><p>例如「生产者先生产、消费者后消费」的同步信号量初值就是 0。所以「必须为 1」是错的。</p></div></div></details>
 </article>
-<article class="question" id="p2024-s2-q5" data-section="s2" data-q="q5">
+<article class="question" id="p2024-s2-q5" data-section="s2" data-q="q5" data-kind="judge" data-ans="√" data-pts="1">
   <div class="q-top">
     <span class="q-no">5</span>
     <span class="q-tag">判断</span>
     <h3 class="q-title">设备独立性</h3>
   </div>
   <div class="q-stem">使用户编制的程序与实际使用的物理设备无关是由设备独立性功能实现的。</div>
-  
-  
-  <details class="answer"><summary><span class="chev"></span>显示答案</summary><div class="ans-body">√</div></details>
+  <div class="options judge" data-ans="√"><button type="button" class="opt" data-opt="√" aria-pressed="false"><span class="letter">√</span><span class="opt-body">对</span></button><button type="button" class="opt" data-opt="×" aria-pressed="false"><span class="letter">×</span><span class="opt-body">错</span></button></div>
+  <div class="fb" role="status" aria-live="polite"></div>
+  <details class="answer"><summary><span class="chev"></span>答案与解析</summary><div class="ans-body"><p class="ans-key">答案：<b>√</b></p><div class="explain"><span class="explain-tag">解析</span><p>设备独立性（设备无关性）：用户程序用逻辑设备名编程，由 OS 在运行时映射到具体物理设备，程序与硬件解耦，换设备不用改程序。</p></div></div></details>
 </article>
-<article class="question" id="p2024-s2-q6" data-section="s2" data-q="q6">
+<article class="question" id="p2024-s2-q6" data-section="s2" data-q="q6" data-kind="judge" data-ans="√" data-pts="1">
   <div class="q-top">
     <span class="q-no">6</span>
     <span class="q-tag">判断</span>
     <h3 class="q-title">设备分类</h3>
   </div>
   <div class="q-stem">按信息交换单位分类可将设备分为块设备和字符设备。</div>
-  
-  
-  <details class="answer"><summary><span class="chev"></span>显示答案</summary><div class="ans-body">√</div></details>
+  <div class="options judge" data-ans="√"><button type="button" class="opt" data-opt="√" aria-pressed="false"><span class="letter">√</span><span class="opt-body">对</span></button><button type="button" class="opt" data-opt="×" aria-pressed="false"><span class="letter">×</span><span class="opt-body">错</span></button></div>
+  <div class="fb" role="status" aria-live="polite"></div>
+  <details class="answer"><summary><span class="chev"></span>答案与解析</summary><div class="ans-body"><p class="ans-key">答案：<b>√</b></p><div class="explain"><span class="explain-tag">解析</span><p>按信息交换单位分两类：<b>块设备</b>（磁盘，成块存取、可寻址）和<b>字符设备</b>（键盘、打印机，按字符流、不可寻址）。这是 I/O 设备的经典分类。</p></div></div></details>
 </article>
-<article class="question" id="p2024-s2-q7" data-section="s2" data-q="q7">
+<article class="question" id="p2024-s2-q7" data-section="s2" data-q="q7" data-kind="judge" data-ans="×" data-pts="1">
   <div class="q-top">
     <span class="q-no">7</span>
     <span class="q-tag">判断</span>
     <h3 class="q-title">虚存编址空间</h3>
   </div>
   <div class="q-stem">在虚存系统中，只要磁盘空间无限大，作业就能拥有任意大的编址空间。</div>
-  
-  
-  <details class="answer"><summary><span class="chev"></span>显示答案</summary><div class="ans-body">×</div></details>
+  <div class="options judge" data-ans="×"><button type="button" class="opt" data-opt="√" aria-pressed="false"><span class="letter">√</span><span class="opt-body">对</span></button><button type="button" class="opt" data-opt="×" aria-pressed="false"><span class="letter">×</span><span class="opt-body">错</span></button></div>
+  <div class="fb" role="status" aria-live="polite"></div>
+  <details class="answer"><summary><span class="chev"></span>答案与解析</summary><div class="ans-body"><p class="ans-key">答案：<b>×</b></p><div class="explain"><span class="explain-tag">解析</span><p>编址空间由<b>地址字长</b>决定（如 32 位机器最多 4GB），与磁盘有多大无关。磁盘再大也只能让虚拟空间「够用」，不能突破地址位数。</p></div></div></details>
 </article>
-<article class="question" id="p2024-s2-q8" data-section="s2" data-q="q8">
+<article class="question" id="p2024-s2-q8" data-section="s2" data-q="q8" data-kind="judge" data-ans="×" data-pts="1">
   <div class="q-top">
     <span class="q-no">8</span>
     <span class="q-tag">判断</span>
     <h3 class="q-title">等 CPU 的状态</h3>
   </div>
   <div class="q-stem">进程申请 CPU 得不到满足时，其状态变为等待态。</div>
-  
-  
-  <details class="answer"><summary><span class="chev"></span>显示答案</summary><div class="ans-body">×</div></details>
+  <div class="options judge" data-ans="×"><button type="button" class="opt" data-opt="√" aria-pressed="false"><span class="letter">√</span><span class="opt-body">对</span></button><button type="button" class="opt" data-opt="×" aria-pressed="false"><span class="letter">×</span><span class="opt-body">错</span></button></div>
+  <div class="fb" role="status" aria-live="polite"></div>
+  <details class="answer"><summary><span class="chev"></span>答案与解析</summary><div class="ans-body"><p class="ans-key">答案：<b>×</b></p><div class="explain"><span class="explain-tag">解析</span><p>申请 CPU 得不到满足 → 进入<b>就绪态</b>（万事俱备只欠 CPU）。</p><p><b>等待（阻塞）态</b>是等 I/O 完成、等信号量等事件，两者不要混。这也是「就绪队列」和「等待队列」的区别。</p></div></div></details>
 </article>
-<article class="question" id="p2024-s2-q9" data-section="s2" data-q="q9">
+<article class="question" id="p2024-s2-q9" data-section="s2" data-q="q9" data-kind="judge" data-ans="×" data-pts="1">
   <div class="q-top">
     <span class="q-no">9</span>
     <span class="q-tag">判断</span>
     <h3 class="q-title">磁盘延迟</h3>
   </div>
   <div class="q-stem">启动磁盘执行一次输入输出操作时，延迟时间是硬件设计时就固定的。</div>
-  
-  
-  <details class="answer"><summary><span class="chev"></span>显示答案</summary><div class="ans-body">×</div></details>
+  <div class="options judge" data-ans="×"><button type="button" class="opt" data-opt="√" aria-pressed="false"><span class="letter">√</span><span class="opt-body">对</span></button><button type="button" class="opt" data-opt="×" aria-pressed="false"><span class="letter">×</span><span class="opt-body">错</span></button></div>
+  <div class="fb" role="status" aria-live="polite"></div>
+  <details class="answer"><summary><span class="chev"></span>答案与解析</summary><div class="ans-body"><p class="ans-key">答案：<b>×</b></p><div class="explain"><span class="explain-tag">解析</span><p>旋转延迟取决于磁头现在停在哪、目标扇区什么时候转过来，每次都不一样，不可能由硬件固定。</p><p>硬件固定的是数据传输率，所以固定的是传输时间，不是延迟时间。</p></div></div></details>
 </article>
-<article class="question" id="p2024-s2-q10" data-section="s2" data-q="q10">
+<article class="question" id="p2024-s2-q10" data-section="s2" data-q="q10" data-kind="judge" data-ans="√" data-pts="1">
   <div class="q-top">
     <span class="q-no">10</span>
     <span class="q-tag">判断</span>
     <h3 class="q-title">虚拟存储</h3>
   </div>
   <div class="q-stem">在虚拟存储方式下，程序员编制程序时不必考虑主存的容量，但系统的吞吐量在很大程度上依赖于主存储器的容量。</div>
-  
-  
-  <details class="answer"><summary><span class="chev"></span>显示答案</summary><div class="ans-body">√</div></details>
+  <div class="options judge" data-ans="√"><button type="button" class="opt" data-opt="√" aria-pressed="false"><span class="letter">√</span><span class="opt-body">对</span></button><button type="button" class="opt" data-opt="×" aria-pressed="false"><span class="letter">×</span><span class="opt-body">错</span></button></div>
+  <div class="fb" role="status" aria-live="polite"></div>
+  <details class="answer"><summary><span class="chev"></span>答案与解析</summary><div class="ans-body"><p class="ans-key">答案：<b>√</b></p><div class="explain"><span class="explain-tag">解析</span><p>虚存让程序员不必考虑主存大小（局部性 + 按需调页），但物理内存不足时缺页率上升、频繁换页，系统吞吐量会明显下降。所以「吞吐量依赖主存容量」是对的。</p></div></div></details>
 </article></section><section class="section" id="p2024-s3" data-paper="p2024" data-section="s3"><div class="sec-head"><h3>三、填空简答</h3><span class="desc">共 20 分</span></div>
-<article class="question" id="p2024-s3-q1" data-section="s3" data-q="q1">
+<article class="question" id="p2024-s3-q1" data-section="s3" data-q="q1" data-kind="fill">
   <div class="q-top">
     <span class="q-no">1</span>
     <span class="q-tag">简答</span>
@@ -482,9 +559,9 @@ u.blank{display:inline-block;min-width:110px;height:1.1em;border-bottom:1.5px so
   <div class="q-stem">什么是抖动现象？在请求分页系统中，产生抖动的原因是什么？（6 分）</div>
   
   
-  <details class="answer"><summary><span class="chev"></span>显示答案</summary><div class="ans-body"><p><b>抖动现象：</b>在请求分页存储管理中，如果分配给进程的存储块数量小于进程所需要的最小值，进程将频繁地产生缺页中断，导致系统效率低下，这种现象称为抖动。（3 分）</p><p><b>产生原因：</b>置换算法不合理；系统内的进程数量太多或置换算法不合理也会导致内存抖动。例如，系统在置换旧页面时，可能会频繁地将刚置换出去的页面再次调入，导致系统开销加大。（3 分）</p></div></details>
+  <details class="answer"><summary><span class="chev"></span>答案与解析</summary><div class="ans-body"><p><b>抖动现象：</b>在请求分页存储管理中，如果分配给进程的存储块数量小于进程所需要的最小值，进程将频繁地产生缺页中断，导致系统效率低下，这种现象称为抖动。（3 分）</p><p><b>产生原因：</b>置换算法不合理；系统内的进程数量太多或置换算法不合理也会导致内存抖动。例如，系统在置换旧页面时，可能会频繁地将刚置换出去的页面再次调入，导致系统开销加大。（3 分）</p><div class="explain"><span class="explain-tag">解析</span><p>两个得分点分开写：① <b>定义</b>——分配给进程的物理块少于它所需的最小块数，刚被换出的页很快又要访问，频繁缺页，CPU 大量时间耗在换页上；② <b>原因</b>——分给进程的物理块太少（多道程序度过高），以及置换算法不当（如 FIFO 把常用页换出去）。</p></div><div class="selfcheck"><span class="sc-label">自评</span><button type="button" data-self="ok">答对了</button><button type="button" data-self="bad">答错了</button></div></div></details>
 </article>
-<article class="question" id="p2024-s3-q2" data-section="s3" data-q="q2">
+<article class="question" id="p2024-s3-q2" data-section="s3" data-q="q2" data-kind="fill">
   <div class="q-top">
     <span class="q-no">2</span>
     <span class="q-tag">简答</span>
@@ -493,9 +570,9 @@ u.blank{display:inline-block;min-width:110px;height:1.1em;border-bottom:1.5px so
   <div class="q-stem">什么是原语？（4 分）</div>
   
   
-  <details class="answer"><summary><span class="chev"></span>显示答案</summary><div class="ans-body"><p>原语是指由若干条指令组成的程序段（2 分），用于实现某个特定功能，在执行过程中不可被中断（2 分）。</p></div></details>
+  <details class="answer"><summary><span class="chev"></span>答案与解析</summary><div class="ans-body"><p>原语是指由若干条指令组成的程序段（2 分），用于实现某个特定功能，在执行过程中不可被中断（2 分）。</p><div class="explain"><span class="explain-tag">解析</span><p>关键词是<b>原子性</b>：原语由若干条指令组成、完成特定功能，执行过程不可被中断。答「不可分割的指令序列」即可得分。</p></div><div class="selfcheck"><span class="sc-label">自评</span><button type="button" data-self="ok">答对了</button><button type="button" data-self="bad">答错了</button></div></div></details>
 </article>
-<article class="question" id="p2024-s3-q3" data-section="s3" data-q="q3">
+<article class="question" id="p2024-s3-q3" data-section="s3" data-q="q3" data-kind="fill">
   <div class="q-top">
     <span class="q-no">3</span>
     <span class="q-tag">填空</span>
@@ -504,9 +581,9 @@ u.blank{display:inline-block;min-width:110px;height:1.1em;border-bottom:1.5px so
   <div class="q-stem">死锁的充分条件是当且仅当 <u class='blank'></u> 不可完全简化时。</div>
   
   
-  <details class="answer"><summary><span class="chev"></span>显示答案</summary><div class="ans-body"><p>资源分配图</p></div></details>
+  <details class="answer"><summary><span class="chev"></span>答案与解析</summary><div class="ans-body"><p>资源分配图</p><div class="explain"><span class="explain-tag">解析</span><p>这是死锁的<b>图论判定</b>：资源分配图能完全简化 ⇒ 无死锁；不能完全简化 ⇒ 存在死锁。填空只填「资源分配图」。</p></div><div class="selfcheck"><span class="sc-label">自评</span><button type="button" data-self="ok">答对了</button><button type="button" data-self="bad">答错了</button></div></div></details>
 </article>
-<article class="question" id="p2024-s3-q4" data-section="s3" data-q="q4">
+<article class="question" id="p2024-s3-q4" data-section="s3" data-q="q4" data-kind="fill">
   <div class="q-top">
     <span class="q-no">4</span>
     <span class="q-tag">填空</span>
@@ -515,9 +592,9 @@ u.blank{display:inline-block;min-width:110px;height:1.1em;border-bottom:1.5px so
   <div class="q-stem">内存是一种可共享设备，同一时刻最多只允许 <u class='blank'></u> 个进程访问内存。</div>
   
   
-  <details class="answer"><summary><span class="chev"></span>显示答案</summary><div class="ans-body"><p>一（1 个）</p></div></details>
+  <details class="answer"><summary><span class="chev"></span>答案与解析</summary><div class="ans-body"><p>一（1 个）</p><div class="explain"><span class="explain-tag">解析</span><p>按教材口径，内存虽然属于可共享设备，但同一时刻只允许 1 个进程访问（微观上 CPU 与内存之间的数据通路是独占的）。这题照「一」填。</p></div><div class="selfcheck"><span class="sc-label">自评</span><button type="button" data-self="ok">答对了</button><button type="button" data-self="bad">答错了</button></div></div></details>
 </article>
-<article class="question" id="p2024-s3-q5" data-section="s3" data-q="q5">
+<article class="question" id="p2024-s3-q5" data-section="s3" data-q="q5" data-kind="fill">
   <div class="q-top">
     <span class="q-no">5</span>
     <span class="q-tag">填空</span>
@@ -526,9 +603,9 @@ u.blank{display:inline-block;min-width:110px;height:1.1em;border-bottom:1.5px so
   <div class="q-stem">在操作系统中 <u class='blank'></u> 是资源分配调度和管理的最小单位。</div>
   
   
-  <details class="answer"><summary><span class="chev"></span>显示答案</summary><div class="ans-body"><p>进程</p></div></details>
+  <details class="answer"><summary><span class="chev"></span>答案与解析</summary><div class="ans-body"><p>进程</p><div class="explain"><span class="explain-tag">解析</span><p>教材原话：进程是资源分配、调度和管理的最小单位（现代教材补充：线程是处理机调度的基本单位）。填空只写「进程」。</p></div><div class="selfcheck"><span class="sc-label">自评</span><button type="button" data-self="ok">答对了</button><button type="button" data-self="bad">答错了</button></div></div></details>
 </article>
-<article class="question" id="p2024-s3-q6" data-section="s3" data-q="q6">
+<article class="question" id="p2024-s3-q6" data-section="s3" data-q="q6" data-kind="fill">
   <div class="q-top">
     <span class="q-no">6</span>
     <span class="q-tag">填空</span>
@@ -537,9 +614,9 @@ u.blank{display:inline-block;min-width:110px;height:1.1em;border-bottom:1.5px so
   <div class="q-stem">操作系统是一套配置在计算机硬件上的第一层软件，其基本功能包括 <u class='blank'></u>、存储器管理、设备管理、文件管理和作业管理。</div>
   
   
-  <details class="answer"><summary><span class="chev"></span>显示答案</summary><div class="ans-body"><p>处理机管理</p><p class="q-note">原卷题干在「操作系统」前混入了「磁盘高速缓存」五个字（应是下一题串行），已按语义还原。</p></div></details>
+  <details class="answer"><summary><span class="chev"></span>答案与解析</summary><div class="ans-body"><p>处理机管理</p><p class="q-note">原卷题干在「操作系统」前混入了「磁盘高速缓存」五个字（应是下一题串行），已按语义还原。</p><div class="explain"><span class="explain-tag">解析</span><p>OS 五大功能：<b>处理机管理</b>、存储器管理、设备管理、文件管理、作业管理。题干缺的正是第一个。</p><p>另注：原卷题干在「操作系统」前混入了「磁盘高速缓存」五个字，是下一题串行，已按语义还原。</p></div><div class="selfcheck"><span class="sc-label">自评</span><button type="button" data-self="ok">答对了</button><button type="button" data-self="bad">答错了</button></div></div></details>
 </article>
-<article class="question" id="p2024-s3-q7" data-section="s3" data-q="q7">
+<article class="question" id="p2024-s3-q7" data-section="s3" data-q="q7" data-kind="fill">
   <div class="q-top">
     <span class="q-no">7</span>
     <span class="q-tag">填空</span>
@@ -548,9 +625,9 @@ u.blank{display:inline-block;min-width:110px;height:1.1em;border-bottom:1.5px so
   <div class="q-stem">磁盘高速缓冲设在 <u class='blank'></u> 中，其主要目的是提高磁盘 I/O 的速度。</div>
   
   
-  <details class="answer"><summary><span class="chev"></span>显示答案</summary><div class="ans-body"><p>内存</p></div></details>
+  <details class="answer"><summary><span class="chev"></span>答案与解析</summary><div class="ans-body"><p>内存</p><div class="explain"><span class="explain-tag">解析</span><p>磁盘高速缓冲（buffer cache）用的是<b>主存</b>里的一块区域，不是磁盘上的缓存，也不是 CPU 的 cache。目的是提高磁盘 I/O 速度。</p></div><div class="selfcheck"><span class="sc-label">自评</span><button type="button" data-self="ok">答对了</button><button type="button" data-self="bad">答错了</button></div></div></details>
 </article>
-<article class="question" id="p2024-s3-q8" data-section="s3" data-q="q8">
+<article class="question" id="p2024-s3-q8" data-section="s3" data-q="q8" data-kind="fill">
   <div class="q-top">
     <span class="q-no">8</span>
     <span class="q-tag">填空</span>
@@ -559,9 +636,9 @@ u.blank{display:inline-block;min-width:110px;height:1.1em;border-bottom:1.5px so
   <div class="q-stem">在一个分时系统中，为使多个进程能够及时与系统交互，最关键的问题是在短时间内使所有就绪进程都能运行。当就绪进程数为 100 时，为保证响应时间不超过 2s，此时的时间片最大应为 <u class='blank'></u> 毫秒。</div>
   
   
-  <details class="answer"><summary><span class="chev"></span>显示答案</summary><div class="ans-body"><p>20（2000ms ÷ 100 = 20ms）</p></div></details>
+  <details class="answer"><summary><span class="chev"></span>答案与解析</summary><div class="ans-body"><p>20（2000ms ÷ 100 = 20ms）</p><div class="explain"><span class="explain-tag">解析</span><p>响应时间 = 时间片 × 就绪进程数 ≤ 2s → 时间片 ≤ 2000ms ÷ 100 = 20ms。</p></div><div class="selfcheck"><span class="sc-label">自评</span><button type="button" data-self="ok">答对了</button><button type="button" data-self="bad">答错了</button></div></div></details>
 </article>
-<article class="question" id="p2024-s3-q9" data-section="s3" data-q="q9">
+<article class="question" id="p2024-s3-q9" data-section="s3" data-q="q9" data-kind="fill">
   <div class="q-top">
     <span class="q-no">9</span>
     <span class="q-tag">填空</span>
@@ -570,9 +647,9 @@ u.blank{display:inline-block;min-width:110px;height:1.1em;border-bottom:1.5px so
   <div class="q-stem">对于移动臂磁盘，磁头在移动臂的带动下，移动到指定柱面的时间称 <u class='blank'></u> 时间。</div>
   
   
-  <details class="answer"><summary><span class="chev"></span>显示答案</summary><div class="ans-body"><p>寻道</p></div></details>
+  <details class="answer"><summary><span class="chev"></span>答案与解析</summary><div class="ans-body"><p>寻道</p><div class="explain"><span class="explain-tag">解析</span><p>磁盘访问时间 = 寻道时间 + 旋转延迟 + 传输时间。磁头沿径向移动到指定柱面这一段就叫<b>寻道</b>。</p></div><div class="selfcheck"><span class="sc-label">自评</span><button type="button" data-self="ok">答对了</button><button type="button" data-self="bad">答错了</button></div></div></details>
 </article>
-<article class="question" id="p2024-s3-q10" data-section="s3" data-q="q10">
+<article class="question" id="p2024-s3-q10" data-section="s3" data-q="q10" data-kind="fill">
   <div class="q-top">
     <span class="q-no">10</span>
     <span class="q-tag">填空</span>
@@ -581,9 +658,9 @@ u.blank{display:inline-block;min-width:110px;height:1.1em;border-bottom:1.5px so
   <div class="q-stem">资源的预先分配法破坏了产生死锁四个必要条件中的 <u class='blank'></u>。</div>
   
   
-  <details class="answer"><summary><span class="chev"></span>显示答案</summary><div class="ans-body"><p>请求和保持</p></div></details>
+  <details class="answer"><summary><span class="chev"></span>答案与解析</summary><div class="ans-body"><p>请求和保持</p><div class="explain"><span class="explain-tag">解析</span><p>资源的预先分配（一次性申请全部资源）破坏了「<b>请求和保持</b>」条件：进程要么一次拿全，要么一个都不拿，就不可能「占着一些再等另一些」。</p></div><div class="selfcheck"><span class="sc-label">自评</span><button type="button" data-self="ok">答对了</button><button type="button" data-self="bad">答错了</button></div></div></details>
 </article>
-<article class="question" id="p2024-s3-q11" data-section="s3" data-q="q11">
+<article class="question" id="p2024-s3-q11" data-section="s3" data-q="q11" data-kind="fill">
   <div class="q-top">
     <span class="q-no">11</span>
     <span class="q-tag">填空</span>
@@ -592,9 +669,9 @@ u.blank{display:inline-block;min-width:110px;height:1.1em;border-bottom:1.5px so
   <div class="q-stem">辅助存储器只能与 <u class='blank'></u> 相互传递信息。</div>
   
   
-  <details class="answer"><summary><span class="chev"></span>显示答案</summary><div class="ans-body"><p>主存（内存）</p></div></details>
+  <details class="answer"><summary><span class="chev"></span>答案与解析</summary><div class="ans-body"><p>主存（内存）</p><div class="explain"><span class="explain-tag">解析</span><p>辅存（磁盘）不能直接被 CPU 访问，数据必须先调入<b>主存</b>，CPU 再从主存取用，所以辅存只与主存交换信息。</p></div><div class="selfcheck"><span class="sc-label">自评</span><button type="button" data-self="ok">答对了</button><button type="button" data-self="bad">答错了</button></div></div></details>
 </article>
-<article class="question" id="p2024-s3-q12" data-section="s3" data-q="q12">
+<article class="question" id="p2024-s3-q12" data-section="s3" data-q="q12" data-kind="fill">
   <div class="q-top">
     <span class="q-no">12</span>
     <span class="q-tag">填空</span>
@@ -603,9 +680,9 @@ u.blank{display:inline-block;min-width:110px;height:1.1em;border-bottom:1.5px so
   <div class="q-stem">文件系统采用两级索引分配方式，若每个磁盘块的大小为 1KB，每个盘块号占 4B，则该系统中单个文件的最大长度是 <u class='blank'></u> MB。</div>
   
   
-  <details class="answer"><summary><span class="chev"></span>显示答案</summary><div class="ans-body"><p>64</p><p class='muted'>每块可放 1KB ÷ 4B = 256 个盘块号；两级索引 256×256×1KB = 64MB。</p></div></details>
+  <details class="answer"><summary><span class="chev"></span>答案与解析</summary><div class="ans-body"><p>64</p><p class='muted'>每块可放 1KB ÷ 4B = 256 个盘块号；两级索引 256×256×1KB = 64MB。</p><div class="explain"><span class="explain-tag">解析</span><p>先算一块能放几个盘块号：1KB ÷ 4B = 256 个。</p><p>两级索引 = 索引块 → 索引块 → 数据块：256 × 256 = 65536 个数据块，每块 1KB，共 65536KB = <b>64MB</b>。</p><p>易错：把「两级索引」算成 256 × 1KB，忘了索引本身就是两级。</p></div><div class="selfcheck"><span class="sc-label">自评</span><button type="button" data-self="ok">答对了</button><button type="button" data-self="bad">答错了</button></div></div></details>
 </article></section><section class="section" id="p2024-s4" data-paper="p2024" data-section="s4"><div class="sec-head"><h3>四、综合题</h3><span class="desc">共 40 分</span></div>
-<article class="question" id="p2024-s4-q1" data-section="s4" data-q="q1">
+<article class="question" id="p2024-s4-q1" data-section="s4" data-q="q1" data-kind="comp">
   <div class="q-top">
     <span class="q-no">1</span>
     <span class="q-tag">综合</span>
@@ -614,9 +691,9 @@ u.blank{display:inline-block;min-width:110px;height:1.1em;border-bottom:1.5px so
   <div class="q-stem"><p>（6 分）设磁盘的 I/O 请求队列中的柱面号为 376、205、134、56、193、396、29、40，磁头的起始位置为 100（磁头的运行方向向外），请按下列算法分别计算为完成上述各次访问总共的寻道距离，写出求解过程。</p><p>（1）最短寻道距离优先算法　（2）循环扫描算法</p></div>
   
   
-  <details class="answer"><summary><span class="chev"></span>显示答案</summary><div class="ans-body"><p><b>（1）SSTF</b></p><p class='mono'>100 → 134 → 193 → 205 → 56 → 40 → 29 → 376 → 396</p><p class='mono'>34 + 59 + 12 + 149 + 16 + 11 + 347 + 20 = 648</p><p><b>（2）C-SCAN（循环扫描）</b></p><p class='mono'>100 → 56 → 40 → 29 → 396 → 376 → 205 → 193 → 134</p><p class='mono'>44 + 16 + 11 + 367 + 20 + 171 + 12 + 59 = 700</p></div></details>
+  <details class="answer"><summary><span class="chev"></span>答案与解析</summary><div class="ans-body"><p><b>（1）SSTF</b></p><p class='mono'>100 → 134 → 193 → 205 → 56 → 40 → 29 → 376 → 396</p><p class='mono'>34 + 59 + 12 + 149 + 16 + 11 + 347 + 20 = 648</p><p><b>（2）C-SCAN（循环扫描）</b></p><p class='mono'>100 → 56 → 40 → 29 → 396 → 376 → 205 → 193 → 134</p><p class='mono'>44 + 16 + 11 + 367 + 20 + 171 + 12 + 59 = 700</p><div class="explain"><span class="explain-tag">解析</span><p>先画数轴、定方向，再一步步取「当前最近」。题目「运行方向向外」按本卷口径是向<b>小柱面</b>走。</p><p><b>SSTF</b> 不看方向，每次挑距离最近的：100→134(34)→193(59)→205(12)→56(149)→40(16)→29(11)→376(347)→396(20)，合计 648。</p><p><b>C-SCAN</b> 只朝一个方向服务到底，然后跳回另一端从头扫、回程不服务：100→56(44)→40(16)→29(11)→396(367)→376(20)→205(171)→193(12)→134(59)，合计 700。</p><p>易错：① 把 C-SCAN 当成电梯算法（到端点就反向服务）；② 忘记回程那一大段 367 也算寻道距离（本题按原卷口径计入）。</p></div><div class="selfcheck"><span class="sc-label">自评</span><button type="button" data-self="ok">答对了</button><button type="button" data-self="bad">答错了</button></div></div></details>
 </article>
-<article class="question" id="p2024-s4-q2" data-section="s4" data-q="q2">
+<article class="question" id="p2024-s4-q2" data-section="s4" data-q="q2" data-kind="comp">
   <div class="q-top">
     <span class="q-no">2</span>
     <span class="q-tag">综合</span>
@@ -625,9 +702,9 @@ u.blank{display:inline-block;min-width:110px;height:1.1em;border-bottom:1.5px so
   <div class="q-stem"><p>（12 分）在一个支持虚拟分页、采用请求页式调度的存储管理系统中有一用户程序，其页面访问顺序为：1，3，2，1，1，3，5，1，3，2，1，5。</p><p>问：若分配给该作业 3 个空白物理块。</p><p>（1）试按 FIFO 置换算法计算页面访问的缺页率，写出求解过程。</p><p>（2）试按 OPT 置换算法计算页面访问的缺页率，写出求解过程。</p></div>
   
   
-  <details class="answer"><summary><span class="chev"></span>显示答案</summary><div class="ans-body"><p><b>（1）FIFO 置换算法（5 分）　缺页率：2/3（1 分）</b></p><div class="tbl-wrap"><table class="pt"><thead><tr><th></th><th>1</th><th>3</th><th>2</th><th>1</th><th>1</th><th>3</th><th>5</th><th>1</th><th>3</th><th>2</th><th>1</th><th>5</th></tr></thead><tbody><tr><td>页框0</td><td>1</td><td>3</td><td>2</td><td></td><td></td><td></td><td>5</td><td>1</td><td>3</td><td>2</td><td></td><td>5</td></tr><tr><td>页框1</td><td></td><td>1</td><td>3</td><td></td><td></td><td></td><td>2</td><td>5</td><td>1</td><td>3</td><td></td><td>2</td></tr><tr><td>页框2</td><td></td><td></td><td>1</td><td></td><td></td><td></td><td>3</td><td>2</td><td>5</td><td>1</td><td></td><td>3</td></tr></tbody></table></div><p><b>（2）OPT 置换算法（5 分）　缺页率：5/12（1 分）</b></p><div class="tbl-wrap"><table class="pt"><thead><tr><th></th><th>1</th><th>3</th><th>2</th><th>1</th><th>1</th><th>3</th><th>5</th><th>1</th><th>3</th><th>2</th><th>1</th><th>5</th></tr></thead><tbody><tr><td>页框0</td><td>1</td><td>1</td><td>2</td><td></td><td></td><td></td><td>1</td><td></td><td></td><td>1</td><td></td><td></td></tr><tr><td>页框1</td><td></td><td>3</td><td>1</td><td></td><td></td><td></td><td>3</td><td></td><td></td><td>2</td><td></td><td></td></tr><tr><td>页框2</td><td></td><td></td><td>3</td><td></td><td></td><td></td><td>5</td><td></td><td></td><td>5</td><td></td><td></td></tr></tbody></table></div><p class="q-note">原卷答案表部分格子留空（命中未重画），按列对照访问序列看。</p></div></details>
+  <details class="answer"><summary><span class="chev"></span>答案与解析</summary><div class="ans-body"><p><b>（1）FIFO 置换算法（5 分）　缺页率：2/3（1 分）</b></p><div class="tbl-wrap"><table class="pt"><thead><tr><th></th><th>1</th><th>3</th><th>2</th><th>1</th><th>1</th><th>3</th><th>5</th><th>1</th><th>3</th><th>2</th><th>1</th><th>5</th></tr></thead><tbody><tr><td>页框0</td><td>1</td><td>3</td><td>2</td><td></td><td></td><td></td><td>5</td><td>1</td><td>3</td><td>2</td><td></td><td>5</td></tr><tr><td>页框1</td><td></td><td>1</td><td>3</td><td></td><td></td><td></td><td>2</td><td>5</td><td>1</td><td>3</td><td></td><td>2</td></tr><tr><td>页框2</td><td></td><td></td><td>1</td><td></td><td></td><td></td><td>3</td><td>2</td><td>5</td><td>1</td><td></td><td>3</td></tr></tbody></table></div><p><b>（2）OPT 置换算法（5 分）　缺页率：5/12（1 分）</b></p><div class="tbl-wrap"><table class="pt"><thead><tr><th></th><th>1</th><th>3</th><th>2</th><th>1</th><th>1</th><th>3</th><th>5</th><th>1</th><th>3</th><th>2</th><th>1</th><th>5</th></tr></thead><tbody><tr><td>页框0</td><td>1</td><td>1</td><td>2</td><td></td><td></td><td></td><td>1</td><td></td><td></td><td>1</td><td></td><td></td></tr><tr><td>页框1</td><td></td><td>3</td><td>1</td><td></td><td></td><td></td><td>3</td><td></td><td></td><td>2</td><td></td><td></td></tr><tr><td>页框2</td><td></td><td></td><td>3</td><td></td><td></td><td></td><td>5</td><td></td><td></td><td>5</td><td></td><td></td></tr></tbody></table></div><p class="q-note">原卷答案表部分格子留空（命中未重画），按列对照访问序列看。</p><div class="explain"><span class="explain-tag">解析</span><p><b>FIFO</b>：维护一个队列，命中<b>不改变</b>队列顺序，缺页时淘汰队头。12 次访问、3 块，缺页 8 次 → 缺页率 8/12 = 2/3。</p><p><b>OPT</b>：看「将来」，每次淘汰以后再也不会被访问（或最晚被访问）的页。本题缺页 5 次 → 5/12。</p><p>易错：前 3 次访问（1、3、2）都是缺页但<b>不淘汰</b>，因为还有空块；命中时也不重画页框（原卷表格留空就是这个意思）。</p></div><div class="selfcheck"><span class="sc-label">自评</span><button type="button" data-self="ok">答对了</button><button type="button" data-self="bad">答错了</button></div></div></details>
 </article>
-<article class="question" id="p2024-s4-q3" data-section="s4" data-q="q3">
+<article class="question" id="p2024-s4-q3" data-section="s4" data-q="q3" data-kind="comp">
   <div class="q-top">
     <span class="q-no">3</span>
     <span class="q-tag">综合</span>
@@ -636,9 +713,9 @@ u.blank{display:inline-block;min-width:110px;height:1.1em;border-bottom:1.5px so
   <div class="q-stem"><p>（6 分）假定一个操作系统的进程调度采用剥夺式短进程优先调度算法（单处理机系统），系统中各进程到达就绪队列的时刻以及执行时间如下表所示：</p><div class="tbl-wrap"><table class=""><thead><tr><th>进程</th><th>到达就绪队列时刻</th><th>执行时间</th></tr></thead><tbody><tr><td>P1</td><td>0</td><td>8</td></tr><tr><td>P2</td><td>1</td><td>4</td></tr><tr><td>P3</td><td>2</td><td>9</td></tr><tr><td>P4</td><td>3</td><td>5</td></tr></tbody></table></div><p>求（1）各进程的调度次序是什么？（2）每个进程的周转时间是多少？</p></div>
   
   
-  <details class="answer"><summary><span class="chev"></span>显示答案</summary><div class="ans-body"><p><b>（1）调度次序：</b>P1，P2，P4，P1，P3（2 分）</p><p class='mono'>P1 0–1　P2 1–5　P4 5–10　P1 10–17　P3 17–26</p><div class="tbl-wrap"><table class=""><thead><tr><th>进程</th><th>到达</th><th>执行时间</th><th>周转时间</th></tr></thead><tbody><tr><td>P1</td><td>0</td><td>8</td><td>17</td></tr><tr><td>P2</td><td>1</td><td>4</td><td>4</td></tr><tr><td>P3</td><td>2</td><td>9</td><td>24</td></tr><tr><td>P4</td><td>3</td><td>5</td><td>7</td></tr></tbody></table></div><p>（2）各进程周转时间见上表（4 分）。</p></div></details>
+  <details class="answer"><summary><span class="chev"></span>答案与解析</summary><div class="ans-body"><p><b>（1）调度次序：</b>P1，P2，P4，P1，P3（2 分）</p><p class='mono'>P1 0–1　P2 1–5　P4 5–10　P1 10–17　P3 17–26</p><div class="tbl-wrap"><table class=""><thead><tr><th>进程</th><th>到达</th><th>执行时间</th><th>周转时间</th></tr></thead><tbody><tr><td>P1</td><td>0</td><td>8</td><td>17</td></tr><tr><td>P2</td><td>1</td><td>4</td><td>4</td></tr><tr><td>P3</td><td>2</td><td>9</td><td>24</td></tr><tr><td>P4</td><td>3</td><td>5</td><td>7</td></tr></tbody></table></div><p>（2）各进程周转时间见上表（4 分）。</p><div class="explain"><span class="explain-tag">解析</span><p>剥夺式 SJF 的关键：新进程到达时比较<b>剩余时间</b>，短者抢占。</p><p>时间轴：0 时只有 P1 → 跑到 1（剩 7）；1 时 P2 到（4 &lt; 7）抢占，1–5 跑完 P2；5 时 P4 到（5），此时 P1 剩 7、P3 剩 9、P4 为 5 → P4 抢到，5–10 跑完；10 时只剩 P1(7)、P3(9) → P1 10–17，P3 17–26。</p><p>周转时间 = 完成时刻 − 到达时刻：P1 17−0=17，P2 5−1=4，P3 26−2=24，P4 10−3=7。</p><p>易错：P3 在 2 时到达时剩余时间 9，不构成抢占；被抢占的 P1 回到就绪队列时按<b>剩余</b>时间比较，不是原执行时间 8。</p></div><div class="selfcheck"><span class="sc-label">自评</span><button type="button" data-self="ok">答对了</button><button type="button" data-self="bad">答错了</button></div></div></details>
 </article>
-<article class="question" id="p2024-s4-q4" data-section="s4" data-q="q4">
+<article class="question" id="p2024-s4-q4" data-section="s4" data-q="q4" data-kind="comp">
   <div class="q-top">
     <span class="q-no">4</span>
     <span class="q-tag">综合</span>
@@ -647,9 +724,9 @@ u.blank{display:inline-block;min-width:110px;height:1.1em;border-bottom:1.5px so
   <div class="q-stem"><p>（4 分）设某系统采用页式虚拟存储管理，页表存放在主存中。</p><p>（1）如果一次内存访问用 50ns，存取一次数据需用多少时间？</p><p>（2）如果增加快表（TLB），查找 TLB 的时间为 5ns，并且 80% 的页表访问命中 TLB，内存的有效访问时间是多少？</p></div>
   
   
-  <details class="answer"><summary><span class="chev"></span>显示答案</summary><div class="ans-body"><p>（1）页表存放在主存中，存取一次数据需两次访问内存：50ns × 2 = 100ns（2 分）</p><p>（2）增加 TLB 后：50ns + 5ns × 80% +（50ns + 5ns）× 20% = 65ns（2 分）</p><p class='muted'>等价写法：0.8 × (5+50) + 0.2 × (5+50+50) = 65ns。</p></div></details>
+  <details class="answer"><summary><span class="chev"></span>答案与解析</summary><div class="ans-body"><p>（1）页表存放在主存中，存取一次数据需两次访问内存：50ns × 2 = 100ns（2 分）</p><p>（2）增加 TLB 后：50ns + 5ns × 80% +（50ns + 5ns）× 20% = 65ns（2 分）</p><p class='muted'>等价写法：0.8 × (5+50) + 0.2 × (5+50+50) = 65ns。</p><div class="explain"><span class="explain-tag">解析</span><p>没有 TLB：查页表一次 + 取数据一次 = 2 次访存 = 100ns。</p><p>有 TLB 要分清命中与未命中：<br>命中 80%：查 TLB 5ns + 访存 50ns = 55ns<br>未命中 20%：5 + 50（查页表）+ 50（取数）= 105ns<br>EAT = 0.8×55 + 0.2×105 = 65ns。</p><p>最常见错误是写成 0.8×(5+50) + 0.2×(5+50)，漏掉未命中时多出来的那一次访存。</p></div><div class="selfcheck"><span class="sc-label">自评</span><button type="button" data-self="ok">答对了</button><button type="button" data-self="bad">答错了</button></div></div></details>
 </article>
-<article class="question" id="p2024-s4-q5" data-section="s4" data-q="q5">
+<article class="question" id="p2024-s4-q5" data-section="s4" data-q="q5" data-kind="comp">
   <div class="q-top">
     <span class="q-no">5</span>
     <span class="q-tag">综合</span>
@@ -658,284 +735,284 @@ u.blank{display:inline-block;min-width:110px;height:1.1em;border-bottom:1.5px so
   <div class="q-stem"><p>（12 分）现有五个进程 P0，P1，P2，P3，P4 共享 A，B，C，D 这四类资源，进程对资源的需求量和目前分配情况如下表。请按银行家算法回答下列问题：</p><p>（1）目前系统是否处于安全状态？</p><p>（2）若此时进程 P2 提出请求 Request(1，2，2，2)，系统能否将资源分配给它，为什么？</p><div class="tbl-wrap"><table class=""><thead><tr><th>进程</th><th>Allocation（A B C D）</th><th>Need（A B C D）</th><th>Available（A B C D）</th></tr></thead><tbody><tr><td>P0</td><td>0 0 2 3</td><td>0 0 1 2</td><td>2 6 4 3</td></tr><tr><td>P1</td><td>1 0 0 0</td><td>2 9 7 0</td><td></td></tr><tr><td>P2</td><td>1 0 2 1</td><td>2 6 5 6</td><td></td></tr><tr><td>P3</td><td>0 2 1 2</td><td>0 6 8 2</td><td></td></tr><tr><td>P4</td><td>0 1 0 0</td><td>0 7 5 6</td><td></td></tr></tbody></table></div></div>
   
   
-  <details class="answer"><summary><span class="chev"></span>显示答案</summary><div class="ans-body"><p><b>（1）（5 分）</b></p><div class="tbl-wrap"><table class="bank"><thead><tr><th>进程</th><th>Work</th><th>Need</th><th>Allocation</th><th>Work+Allocation</th><th>Finish</th></tr></thead><tbody><tr><td>P0</td><td>2 6 4 3</td><td>0 0 1 2</td><td>0 0 2 3</td><td>2 6 6 6</td><td>TRUE</td></tr><tr><td>P2</td><td>2 6 6 6</td><td>2 6 5 6</td><td>1 0 2 1</td><td>3 6 8 7</td><td>TRUE</td></tr><tr><td>P3</td><td>3 6 8 7</td><td>0 6 8 2</td><td>0 2 1 2</td><td>3 8 9 9</td><td>TRUE</td></tr><tr><td>P4</td><td>3 8 9 9</td><td>0 7 5 6</td><td>0 1 0 0</td><td>3 9 9 9</td><td>TRUE</td></tr><tr><td>P1</td><td>3 9 9 9</td><td>2 9 7 0</td><td>1 0 0 0</td><td>4 9 9 9</td><td>TRUE</td></tr></tbody></table></div><p>存在安全序列 P0、P2、P3、P4、P1，故系统安全（1 分）。</p><p><b>（2）</b>进程 P2 提出请求 Request(1，2，2，2)：</p><p class='mono'>Request(1,2,2,2) ≤ Need(2,6,5,6)　（2 分）</p><p class='mono'>Request(1,2,2,2) ≤ Available(2,6,4,3)　（2 分）</p><p>为 P2 试分配后 Available = (1,4,2,1)，不足以让任何一个进程运行结束后再释放资源，此时不存在安全序列，故本次请求不能分配（2 分）。</p><p class="q-note">原卷安全表最后一行 Work 印作「3 9 9 6」，应为 3 9 9 9；Need 比较处印作 (1,2,2,3)，应为 (1,2,2,2)。此处已按计算改正。</p></div></details>
+  <details class="answer"><summary><span class="chev"></span>答案与解析</summary><div class="ans-body"><p><b>（1）（5 分）</b></p><div class="tbl-wrap"><table class="bank"><thead><tr><th>进程</th><th>Work</th><th>Need</th><th>Allocation</th><th>Work+Allocation</th><th>Finish</th></tr></thead><tbody><tr><td>P0</td><td>2 6 4 3</td><td>0 0 1 2</td><td>0 0 2 3</td><td>2 6 6 6</td><td>TRUE</td></tr><tr><td>P2</td><td>2 6 6 6</td><td>2 6 5 6</td><td>1 0 2 1</td><td>3 6 8 7</td><td>TRUE</td></tr><tr><td>P3</td><td>3 6 8 7</td><td>0 6 8 2</td><td>0 2 1 2</td><td>3 8 9 9</td><td>TRUE</td></tr><tr><td>P4</td><td>3 8 9 9</td><td>0 7 5 6</td><td>0 1 0 0</td><td>3 9 9 9</td><td>TRUE</td></tr><tr><td>P1</td><td>3 9 9 9</td><td>2 9 7 0</td><td>1 0 0 0</td><td>4 9 9 9</td><td>TRUE</td></tr></tbody></table></div><p>存在安全序列 P0、P2、P3、P4、P1，故系统安全（1 分）。</p><p><b>（2）</b>进程 P2 提出请求 Request(1，2，2，2)：</p><p class='mono'>Request(1,2,2,2) ≤ Need(2,6,5,6)　（2 分）</p><p class='mono'>Request(1,2,2,2) ≤ Available(2,6,4,3)　（2 分）</p><p>为 P2 试分配后 Available = (1,4,2,1)，不足以让任何一个进程运行结束后再释放资源，此时不存在安全序列，故本次请求不能分配（2 分）。</p><p class="q-note">原卷安全表最后一行 Work 印作「3 9 9 6」，应为 3 9 9 9；Need 比较处印作 (1,2,2,3)，应为 (1,2,2,2)。此处已按计算改正。</p><div class="explain"><span class="explain-tag">解析</span><p>银行家三步走：① 在剩余进程中找 Need ≤ Work 的，分配、回收、标 Finish；② 全部 Finish 才算有安全序列；③ 收到请求先做「Request ≤ Need」和「Request ≤ Available」两道检查，再<b>试分配</b>（Available 减、Allocation 加、Need 减），在新状态上重新找安全序列，找不到就回滚拒绝。</p><p>本题安全序列 P0→P2→P3→P4→P1。P2 请求 (1,2,2,2) 试分配后 Available = (1,4,2,1)，最大 Need 最小的 P0 也要 (0,0,1,2)，C 类 2 &gt; 1，一个都跑不完 → 无安全序列，拒绝。</p><p>易错：两个「≤」成立就答「可以分配」，漏掉试分配后的安全性检查——这一步往往就是整题的 2 分。</p></div><div class="selfcheck"><span class="sc-label">自评</span><button type="button" data-self="ok">答对了</button><button type="button" data-self="bad">答错了</button></div></div></details>
 </article></section><section class="section" id="p2025-s1" data-paper="p2025" data-section="s1"><div class="sec-head"><h3>一、单选题</h3><span class="desc">每题 2 分，共 30 分</span></div>
-<article class="question" id="p2025-s1-q1" data-section="s1" data-q="q1">
+<article class="question" id="p2025-s1-q1" data-section="s1" data-q="q1" data-kind="mcq" data-ans="C" data-pts="2">
   <div class="q-top">
     <span class="q-no">1</span>
     <span class="q-tag">单选</span>
     <h3 class="q-title">线程</h3>
   </div>
   <div class="q-stem">下面关于线程的叙述中，正确的是（　）。</div>
-  <div class="options"><div class="opt"><span class="letter">A</span><span class="opt-body">不论是系统支持线程还是用户级线程，其切换都需要内核的支持。</span></div><div class="opt"><span class="letter">B</span><span class="opt-body">线程是资源的分配单位，进程是调度和分配的单位。</span></div><div class="opt"><span class="letter">C</span><span class="opt-body">不管系统中是否有线程，进程都是拥有资源的独立单位。</span></div><div class="opt"><span class="letter">D</span><span class="opt-body">在引入线程的系统中，进程仍是资源分配和调度分派的基本单位。</span></div></div>
-  
-  <details class="answer"><summary><span class="chev"></span>显示答案</summary><div class="ans-body">C</div></details>
+  <div class="options" data-ans="C"><button type="button" class="opt" data-opt="A" aria-pressed="false"><span class="letter">A</span><span class="opt-body">不论是系统支持线程还是用户级线程，其切换都需要内核的支持。</span></button><button type="button" class="opt" data-opt="B" aria-pressed="false"><span class="letter">B</span><span class="opt-body">线程是资源的分配单位，进程是调度和分配的单位。</span></button><button type="button" class="opt" data-opt="C" aria-pressed="false"><span class="letter">C</span><span class="opt-body">不管系统中是否有线程，进程都是拥有资源的独立单位。</span></button><button type="button" class="opt" data-opt="D" aria-pressed="false"><span class="letter">D</span><span class="opt-body">在引入线程的系统中，进程仍是资源分配和调度分派的基本单位。</span></button></div>
+  <div class="fb" role="status" aria-live="polite"></div>
+  <details class="answer"><summary><span class="chev"></span>答案与解析</summary><div class="ans-body"><p class="ans-key">答案：<b>C</b></p><div class="explain"><span class="explain-tag">解析</span><p>逐项看：</p><p>A 错——用户级线程由线程库管理，切换<b>不需要</b>内核介入（这正是它的优点，也是缺点：一个线程阻塞会拖住整个进程）。</p><p>B 错——进程是<b>资源分配</b>单位，线程是<b>调度</b>单位，题干说反了。</p><p>D 错——引入线程后，调度分派的基本单位是线程，不是进程。</p><p>C 对——不管系统里有没有线程，进程始终是<b>拥有资源</b>（地址空间、打开文件表等）的独立单位。</p></div></div></details>
 </article>
-<article class="question" id="p2025-s1-q2" data-section="s1" data-q="q2">
+<article class="question" id="p2025-s1-q2" data-section="s1" data-q="q2" data-kind="mcq" data-ans="A" data-pts="2">
   <div class="q-top">
     <span class="q-no">2</span>
     <span class="q-tag">单选</span>
     <h3 class="q-title">操作系统概念</h3>
   </div>
   <div class="q-stem">下面关于操作系统的叙述，正确的是（　）。</div>
-  <div class="options"><div class="opt"><span class="letter">A</span><span class="opt-body">批处理作业必须具有作业控制信息。</span></div><div class="opt"><span class="letter">B</span><span class="opt-body">分时系统不一定都具有人机交互功能。</span></div><div class="opt"><span class="letter">C</span><span class="opt-body">从响应时间的角度看，实时系统与分时系统差不多。</span></div><div class="opt"><span class="letter">D</span><span class="opt-body">由于采用了分时技术，用户可以独占计算机的资源。</span></div></div>
-  
-  <details class="answer"><summary><span class="chev"></span>显示答案</summary><div class="ans-body">A</div></details>
+  <div class="options" data-ans="A"><button type="button" class="opt" data-opt="A" aria-pressed="false"><span class="letter">A</span><span class="opt-body">批处理作业必须具有作业控制信息。</span></button><button type="button" class="opt" data-opt="B" aria-pressed="false"><span class="letter">B</span><span class="opt-body">分时系统不一定都具有人机交互功能。</span></button><button type="button" class="opt" data-opt="C" aria-pressed="false"><span class="letter">C</span><span class="opt-body">从响应时间的角度看，实时系统与分时系统差不多。</span></button><button type="button" class="opt" data-opt="D" aria-pressed="false"><span class="letter">D</span><span class="opt-body">由于采用了分时技术，用户可以独占计算机的资源。</span></button></div>
+  <div class="fb" role="status" aria-live="polite"></div>
+  <details class="answer"><summary><span class="chev"></span>答案与解析</summary><div class="ans-body"><p class="ans-key">答案：<b>A</b></p><div class="explain"><span class="explain-tag">解析</span><p>A 对：批处理作业必须提交作业说明书（作业控制信息），系统据此自动控制运行，全程无人干预。</p><p>B 错——分时系统的本质特征就是人机交互；C 错——实时系统的响应要求是毫秒甚至微秒级，比分时严格得多；D 错——分时的「独占」只是用户<b>感觉</b>独占，物理上仍是被多道程序共享。</p></div></div></details>
 </article>
-<article class="question" id="p2025-s1-q3" data-section="s1" data-q="q3">
+<article class="question" id="p2025-s1-q3" data-section="s1" data-q="q3" data-kind="mcq" data-ans="D" data-pts="2">
   <div class="q-top">
     <span class="q-no">3</span>
     <span class="q-tag">单选</span>
     <h3 class="q-title">I/O 控制方式</h3>
   </div>
   <div class="q-stem">在下面的 I/O 控制方式中，需要 CPU 干预最少的方式是（　）。</div>
-  <div class="options"><div class="opt"><span class="letter">A</span><span class="opt-body">程序 I/O 方式</span></div><div class="opt"><span class="letter">B</span><span class="opt-body">中断驱动 I/O 控制方式</span></div><div class="opt"><span class="letter">C</span><span class="opt-body">直接存储器访问 DMA 控制方式</span></div><div class="opt"><span class="letter">D</span><span class="opt-body">I/O 通道控制方式</span></div></div>
-  
-  <details class="answer"><summary><span class="chev"></span>显示答案</summary><div class="ans-body">D</div></details>
+  <div class="options" data-ans="D"><button type="button" class="opt" data-opt="A" aria-pressed="false"><span class="letter">A</span><span class="opt-body">程序 I/O 方式</span></button><button type="button" class="opt" data-opt="B" aria-pressed="false"><span class="letter">B</span><span class="opt-body">中断驱动 I/O 控制方式</span></button><button type="button" class="opt" data-opt="C" aria-pressed="false"><span class="letter">C</span><span class="opt-body">直接存储器访问 DMA 控制方式</span></button><button type="button" class="opt" data-opt="D" aria-pressed="false"><span class="letter">D</span><span class="opt-body">I/O 通道控制方式</span></button></div>
+  <div class="fb" role="status" aria-live="polite"></div>
+  <details class="answer"><summary><span class="chev"></span>答案与解析</summary><div class="ans-body"><p class="ans-key">答案：<b>D</b></p><div class="explain"><span class="explain-tag">解析</span><p>按 CPU 介入程度排序：程序 I/O（全程轮询）&gt; 中断驱动（每次传送中断）&gt; DMA（每块传完中断一次）&gt; 通道（整批 I/O 完成才中断一次）。</p><p>通道本身就是一台小型 I/O 处理机，能自己执行通道程序，所以 CPU 干预最少。</p></div></div></details>
 </article>
-<article class="question" id="p2025-s1-q4" data-section="s1" data-q="q4">
+<article class="question" id="p2025-s1-q4" data-section="s1" data-q="q4" data-kind="mcq" data-ans="D" data-pts="2">
   <div class="q-top">
     <span class="q-no">4</span>
     <span class="q-tag">单选</span>
     <h3 class="q-title">目态→管态</h3>
   </div>
   <div class="q-stem">系统在（　），发生从目态到管态的转换。</div>
-  <div class="options"><div class="opt"><span class="letter">A</span><span class="opt-body">发出 P 操作时</span></div><div class="opt"><span class="letter">B</span><span class="opt-body">发出 V 操作时</span></div><div class="opt"><span class="letter">C</span><span class="opt-body">执行置程序状态字时</span></div><div class="opt"><span class="letter">D</span><span class="opt-body">执行系统调用时</span></div></div>
-  
-  <details class="answer"><summary><span class="chev"></span>显示答案</summary><div class="ans-body">D</div></details>
+  <div class="options" data-ans="D"><button type="button" class="opt" data-opt="A" aria-pressed="false"><span class="letter">A</span><span class="opt-body">发出 P 操作时</span></button><button type="button" class="opt" data-opt="B" aria-pressed="false"><span class="letter">B</span><span class="opt-body">发出 V 操作时</span></button><button type="button" class="opt" data-opt="C" aria-pressed="false"><span class="letter">C</span><span class="opt-body">执行置程序状态字时</span></button><button type="button" class="opt" data-opt="D" aria-pressed="false"><span class="letter">D</span><span class="opt-body">执行系统调用时</span></button></div>
+  <div class="fb" role="status" aria-live="polite"></div>
+  <details class="answer"><summary><span class="chev"></span>答案与解析</summary><div class="ans-body"><p class="ans-key">答案：<b>D</b></p><div class="explain"><span class="explain-tag">解析</span><p>目态进入管态只有三个入口：<b>系统调用</b>（访管指令）、<b>中断</b>、<b>异常</b>。用户程序要 OS 干活只能通过系统调用，执行时 CPU 由目态切到管态。</p><p>P/V 操作、置程序状态字都不是用户程序切换状态的入口。</p></div></div></details>
 </article>
-<article class="question" id="p2025-s1-q5" data-section="s1" data-q="q5">
+<article class="question" id="p2025-s1-q5" data-section="s1" data-q="q5" data-kind="mcq" data-ans="C" data-pts="2">
   <div class="q-top">
     <span class="q-no">5</span>
     <span class="q-tag">单选</span>
     <h3 class="q-title">段页式访存</h3>
   </div>
   <div class="q-stem">存储器的段页式管理中，每次从主存中取出一条指令或一个操作数，需要（　）次访问主存。</div>
-  <div class="options"><div class="opt"><span class="letter">A</span><span class="opt-body">1</span></div><div class="opt"><span class="letter">B</span><span class="opt-body">2</span></div><div class="opt"><span class="letter">C</span><span class="opt-body">3</span></div><div class="opt"><span class="letter">D</span><span class="opt-body">4</span></div></div>
-  
-  <details class="answer"><summary><span class="chev"></span>显示答案</summary><div class="ans-body">C</div></details>
+  <div class="options" data-ans="C"><button type="button" class="opt" data-opt="A" aria-pressed="false"><span class="letter">A</span><span class="opt-body">1</span></button><button type="button" class="opt" data-opt="B" aria-pressed="false"><span class="letter">B</span><span class="opt-body">2</span></button><button type="button" class="opt" data-opt="C" aria-pressed="false"><span class="letter">C</span><span class="opt-body">3</span></button><button type="button" class="opt" data-opt="D" aria-pressed="false"><span class="letter">D</span><span class="opt-body">4</span></button></div>
+  <div class="fb" role="status" aria-live="polite"></div>
+  <details class="answer"><summary><span class="chev"></span>答案与解析</summary><div class="ans-body"><p class="ans-key">答案：<b>C</b></p><div class="explain"><span class="explain-tag">解析</span><p>段页式：先查<b>段表</b>找到该段的页表始址，再查<b>页表</b>找到物理块号，最后才访问数据 → 3 次访存。</p><p>所以段页式一定要配快表（TLB）来缓解，否则每次取指令都是三次访存。</p></div></div></details>
 </article>
-<article class="question" id="p2025-s1-q6" data-section="s1" data-q="q6">
+<article class="question" id="p2025-s1-q6" data-section="s1" data-q="q6" data-kind="mcq" data-ans="C" data-pts="2">
   <div class="q-top">
     <span class="q-no">6</span>
     <span class="q-tag">单选</span>
     <h3 class="q-title">信号量个数</h3>
   </div>
   <div class="q-stem">有 M 个进程共享同一临界资源，若使用信号量机制实现对 N 类临界资源的互斥访问，则需设置的信号量个数及变化范围是（　）。</div>
-  <div class="options"><div class="opt"><span class="letter">A</span><span class="opt-body">1 个信号量，取值范围 [1−M, 1]</span></div><div class="opt"><span class="letter">B</span><span class="opt-body">1 个信号量，取值范围 [N−M, N]</span></div><div class="opt"><span class="letter">C</span><span class="opt-body">N 个信号量，取值范围 [1−M, 1]</span></div><div class="opt"><span class="letter">D</span><span class="opt-body">N 个信号量，取值范围 [N−M, N]</span></div></div>
-  
-  <details class="answer"><summary><span class="chev"></span>显示答案</summary><div class="ans-body">C<p class="q-note">原卷答案栏这一格印作「C B」，两种理解都出现了：N 类资源各设一个信号量时取 C（每个信号量范围 [1−M,1]）；若把 N 理解成同类资源的个数，则是 1 个信号量、范围 [N−M,N]，即 B。考试按老师课堂口径为准。</p></div></details>
+  <div class="options" data-ans="C"><button type="button" class="opt" data-opt="A" aria-pressed="false"><span class="letter">A</span><span class="opt-body">1 个信号量，取值范围 [1−M, 1]</span></button><button type="button" class="opt" data-opt="B" aria-pressed="false"><span class="letter">B</span><span class="opt-body">1 个信号量，取值范围 [N−M, N]</span></button><button type="button" class="opt" data-opt="C" aria-pressed="false"><span class="letter">C</span><span class="opt-body">N 个信号量，取值范围 [1−M, 1]</span></button><button type="button" class="opt" data-opt="D" aria-pressed="false"><span class="letter">D</span><span class="opt-body">N 个信号量，取值范围 [N−M, N]</span></button></div>
+  <div class="fb" role="status" aria-live="polite"></div>
+  <details class="answer"><summary><span class="chev"></span>答案与解析</summary><div class="ans-body"><p class="ans-key">答案：<b>C</b></p><p class="q-note">原卷答案栏这一格印作「C B」，两种理解都出现了：N 类资源各设一个信号量时取 C（每个信号量范围 [1−M,1]）；若把 N 理解成同类资源的个数，则是 1 个信号量、范围 [N−M,N]，即 B。考试按老师课堂口径为准。</p><div class="explain"><span class="explain-tag">解析</span><p>N 类临界资源，每类各设一个互斥信号量 → 共 N 个。每个信号量的值表示该类资源可用的个数：初值 1，M 个进程竞争，最坏 M−1 个进程阻塞在它上面，值可降到 1−M，故范围 [1−M, 1]。</p><p>原卷答案栏这一格印作「C B」：按「N 类资源各一个信号量」理解选 <b>C</b>；若把 N 当作同类资源的个数，则是 1 个信号量、范围 [N−M, N]，即 B。考试以老师课堂口径为准。</p></div></div></details>
 </article>
-<article class="question" id="p2025-s1-q7" data-section="s1" data-q="q7">
+<article class="question" id="p2025-s1-q7" data-section="s1" data-q="q7" data-kind="mcq" data-ans="B" data-pts="2">
   <div class="q-top">
     <span class="q-no">7</span>
     <span class="q-tag">单选</span>
     <h3 class="q-title">缺页率</h3>
   </div>
   <div class="q-stem">一个使用全局置换策略的请求分页系统中，假设系统为某个进程分配了固定的物理块数。如果此时系统内运行的进程数增加，那么对于该进程来说，其缺页率通常会（　）。</div>
-  <div class="options"><div class="opt"><span class="letter">A</span><span class="opt-body">减少</span></div><div class="opt"><span class="letter">B</span><span class="opt-body">增加</span></div><div class="opt"><span class="letter">C</span><span class="opt-body">可能增加也可能减少</span></div><div class="opt"><span class="letter">D</span><span class="opt-body">不变</span></div></div>
-  
-  <details class="answer"><summary><span class="chev"></span>显示答案</summary><div class="ans-body">B</div></details>
+  <div class="options" data-ans="B"><button type="button" class="opt" data-opt="A" aria-pressed="false"><span class="letter">A</span><span class="opt-body">减少</span></button><button type="button" class="opt" data-opt="B" aria-pressed="false"><span class="letter">B</span><span class="opt-body">增加</span></button><button type="button" class="opt" data-opt="C" aria-pressed="false"><span class="letter">C</span><span class="opt-body">可能增加也可能减少</span></button><button type="button" class="opt" data-opt="D" aria-pressed="false"><span class="letter">D</span><span class="opt-body">不变</span></button></div>
+  <div class="fb" role="status" aria-live="polite"></div>
+  <details class="answer"><summary><span class="chev"></span>答案与解析</summary><div class="ans-body"><p class="ans-key">答案：<b>B</b></p><div class="explain"><span class="explain-tag">解析</span><p>全局置换意味着物理块是所有进程共享的池子。系统里进程越多，每个进程实际能保住的页越少，自己的页被别人的页顶出去，缺页率上升。</p><p>这是「进程数增加反而降低缺页率」的直觉陷阱：局部置换下自己的块数固定，缺页率才大致不变。</p></div></div></details>
 </article>
-<article class="question" id="p2025-s1-q8" data-section="s1" data-q="q8">
+<article class="question" id="p2025-s1-q8" data-section="s1" data-q="q8" data-kind="mcq" data-ans="A" data-pts="2">
   <div class="q-top">
     <span class="q-no">8</span>
     <span class="q-tag">单选</span>
     <h3 class="q-title">多级队列</h3>
   </div>
   <div class="q-stem">关于多级队列调度算法，下列说法正确的是（　）。</div>
-  <div class="options"><div class="opt"><span class="letter">A</span><span class="opt-body">通常第一个队列优先级最高</span></div><div class="opt"><span class="letter">B</span><span class="opt-body">每个就绪队列的优先权相同</span></div><div class="opt"><span class="letter">C</span><span class="opt-body">各就绪队列调度算法不同</span></div><div class="opt"><span class="letter">D</span><span class="opt-body">每个队列的时间片大小相同</span></div></div>
-  
-  <details class="answer"><summary><span class="chev"></span>显示答案</summary><div class="ans-body">A</div></details>
+  <div class="options" data-ans="A"><button type="button" class="opt" data-opt="A" aria-pressed="false"><span class="letter">A</span><span class="opt-body">通常第一个队列优先级最高</span></button><button type="button" class="opt" data-opt="B" aria-pressed="false"><span class="letter">B</span><span class="opt-body">每个就绪队列的优先权相同</span></button><button type="button" class="opt" data-opt="C" aria-pressed="false"><span class="letter">C</span><span class="opt-body">各就绪队列调度算法不同</span></button><button type="button" class="opt" data-opt="D" aria-pressed="false"><span class="letter">D</span><span class="opt-body">每个队列的时间片大小相同</span></button></div>
+  <div class="fb" role="status" aria-live="polite"></div>
+  <details class="answer"><summary><span class="chev"></span>答案与解析</summary><div class="ans-body"><p class="ans-key">答案：<b>A</b></p><div class="explain"><span class="explain-tag">解析</span><p>多级队列按进程类型划分若干个就绪队列，队列之间是<b>固定优先级</b>，通常第一个队列优先级最高（如系统进程 &gt; 交互 &gt; 批处理），只有高优先级队列空了才调度下一级。</p><p>C 的说法过于绝对——各队列可以采用相同算法，也可以采用不同算法，不是必然不同；B、D 与「队列间优先级不同、各自可设时间片」直接冲突。</p></div></div></details>
 </article>
-<article class="question" id="p2025-s1-q9" data-section="s1" data-q="q9">
+<article class="question" id="p2025-s1-q9" data-section="s1" data-q="q9" data-kind="mcq" data-ans="D" data-pts="2">
   <div class="q-top">
     <span class="q-no">9</span>
     <span class="q-tag">单选</span>
     <h3 class="q-title">临界区</h3>
   </div>
   <div class="q-stem">从下面对临界区的论述中，正确的是（　）。</div>
-  <div class="options"><div class="opt"><span class="letter">A</span><span class="opt-body">临界区是指进程中用于实现进程互斥的那段代码。</span></div><div class="opt"><span class="letter">B</span><span class="opt-body">临界区是指进程中用于实现进程同步的那段代码。</span></div><div class="opt"><span class="letter">C</span><span class="opt-body">临界区是指进程中用于实现进程通信的那段代码。</span></div><div class="opt"><span class="letter">D</span><span class="opt-body">临界区是指进程中访问临界资源的那段代码。</span></div></div>
-  
-  <details class="answer"><summary><span class="chev"></span>显示答案</summary><div class="ans-body">D</div></details>
+  <div class="options" data-ans="D"><button type="button" class="opt" data-opt="A" aria-pressed="false"><span class="letter">A</span><span class="opt-body">临界区是指进程中用于实现进程互斥的那段代码。</span></button><button type="button" class="opt" data-opt="B" aria-pressed="false"><span class="letter">B</span><span class="opt-body">临界区是指进程中用于实现进程同步的那段代码。</span></button><button type="button" class="opt" data-opt="C" aria-pressed="false"><span class="letter">C</span><span class="opt-body">临界区是指进程中用于实现进程通信的那段代码。</span></button><button type="button" class="opt" data-opt="D" aria-pressed="false"><span class="letter">D</span><span class="opt-body">临界区是指进程中访问临界资源的那段代码。</span></button></div>
+  <div class="fb" role="status" aria-live="polite"></div>
+  <details class="answer"><summary><span class="chev"></span>答案与解析</summary><div class="ans-body"><p class="ans-key">答案：<b>D</b></p><div class="explain"><span class="explain-tag">解析</span><p>临界区 = 进程中<b>访问临界资源</b>的那段代码。临界资源是一次仅允许一个进程使用的资源（打印机、共享变量等）。</p><p>A 的「用于实现互斥」颠倒了因果：代码之所以必须互斥地执行，是因为它访问了临界资源，而不是因为它是互斥代码。</p></div></div></details>
 </article>
-<article class="question" id="p2025-s1-q10" data-section="s1" data-q="q10">
+<article class="question" id="p2025-s1-q10" data-section="s1" data-q="q10" data-kind="mcq" data-ans="B" data-pts="2">
   <div class="q-top">
     <span class="q-no">10</span>
     <span class="q-tag">单选</span>
     <h3 class="q-title">修改位</h3>
   </div>
   <div class="q-stem">在基于分页的虚拟存储管理系统中，页表项增加了修改位字段，下列程序中，需要使用这个字段的是（　）。</div>
-  <div class="options"><div class="opt"><span class="letter">A</span><span class="opt-body">分配页框的程序</span></div><div class="opt"><span class="letter">B</span><span class="opt-body">选择换出页的程序</span></div><div class="opt"><span class="letter">C</span><span class="opt-body">从外存调入页的程序</span></div><div class="opt"><span class="letter">D</span><span class="opt-body">访问页的程序</span></div></div>
-  
-  <details class="answer"><summary><span class="chev"></span>显示答案</summary><div class="ans-body">B</div></details>
+  <div class="options" data-ans="B"><button type="button" class="opt" data-opt="A" aria-pressed="false"><span class="letter">A</span><span class="opt-body">分配页框的程序</span></button><button type="button" class="opt" data-opt="B" aria-pressed="false"><span class="letter">B</span><span class="opt-body">选择换出页的程序</span></button><button type="button" class="opt" data-opt="C" aria-pressed="false"><span class="letter">C</span><span class="opt-body">从外存调入页的程序</span></button><button type="button" class="opt" data-opt="D" aria-pressed="false"><span class="letter">D</span><span class="opt-body">访问页的程序</span></button></div>
+  <div class="fb" role="status" aria-live="polite"></div>
+  <details class="answer"><summary><span class="chev"></span>答案与解析</summary><div class="ans-body"><p class="ans-key">答案：<b>B</b></p><div class="explain"><span class="explain-tag">解析</span><p>修改位（脏位）表示该页调入后是否被改写过。淘汰一页时，修改位为 0 可直接丢弃，为 1 必须先写回磁盘。</p><p>所以它在<b>选择换出页</b>时用来判断要不要写回，能显著减少磁盘 I/O。分配页框、调入页、访问页都不需要它。</p></div></div></details>
 </article>
-<article class="question" id="p2025-s1-q11" data-section="s1" data-q="q11">
+<article class="question" id="p2025-s1-q11" data-section="s1" data-q="q11" data-kind="mcq" data-ans="B" data-pts="2">
   <div class="q-top">
     <span class="q-no">11</span>
     <span class="q-tag">单选</span>
     <h3 class="q-title">避免饥饿</h3>
   </div>
   <div class="q-stem">下列哪种调度算法可以有效避免「饥饿」现象的发生（　）。</div>
-  <div class="options"><div class="opt"><span class="letter">A</span><span class="opt-body">非抢占式短作业优先</span></div><div class="opt"><span class="letter">B</span><span class="opt-body">先来先服务</span></div><div class="opt"><span class="letter">C</span><span class="opt-body">抢占式短作业优先</span></div><div class="opt"><span class="letter">D</span><span class="opt-body">基于静态优先级的调度</span></div></div>
-  
-  <details class="answer"><summary><span class="chev"></span>显示答案</summary><div class="ans-body">B</div></details>
+  <div class="options" data-ans="B"><button type="button" class="opt" data-opt="A" aria-pressed="false"><span class="letter">A</span><span class="opt-body">非抢占式短作业优先</span></button><button type="button" class="opt" data-opt="B" aria-pressed="false"><span class="letter">B</span><span class="opt-body">先来先服务</span></button><button type="button" class="opt" data-opt="C" aria-pressed="false"><span class="letter">C</span><span class="opt-body">抢占式短作业优先</span></button><button type="button" class="opt" data-opt="D" aria-pressed="false"><span class="letter">D</span><span class="opt-body">基于静态优先级的调度</span></button></div>
+  <div class="fb" role="status" aria-live="polite"></div>
+  <details class="answer"><summary><span class="chev"></span>答案与解析</summary><div class="ans-body"><p class="ans-key">答案：<b>B</b></p><div class="explain"><span class="explain-tag">解析</span><p>饥饿来自「一直有更划算的作业插队」。FCFS 按到达先后服务、不抢占，先来的必然先被服务，不会饿死。</p><p>其余三个都可能让长作业或低优先级作业无限等待：两种 SJF 都偏爱短作业，静态优先级调度偏爱高优先级作业。</p></div></div></details>
 </article>
-<article class="question" id="p2025-s1-q12" data-section="s1" data-q="q12">
+<article class="question" id="p2025-s1-q12" data-section="s1" data-q="q12" data-kind="mcq" data-ans="B" data-pts="2">
   <div class="q-top">
     <span class="q-no">12</span>
     <span class="q-tag">单选</span>
     <h3 class="q-title">时间片轮转</h3>
   </div>
   <div class="q-stem">在时间片轮转调度算法中，若系统的就绪队列中有 10 个进程，时间片大小为 200ms，系统进行进程切换需要 10ms。则一个进程在最坏情况下大概需要等待多长时间才能再次获得 CPU（　）。</div>
-  <div class="options"><div class="opt"><span class="letter">A</span><span class="opt-body">200ms</span></div><div class="opt"><span class="letter">B</span><span class="opt-body">1900ms</span></div><div class="opt"><span class="letter">C</span><span class="opt-body">2000ms</span></div><div class="opt"><span class="letter">D</span><span class="opt-body">2100ms</span></div></div>
-  
-  <details class="answer"><summary><span class="chev"></span>显示答案</summary><div class="ans-body">B</div></details>
+  <div class="options" data-ans="B"><button type="button" class="opt" data-opt="A" aria-pressed="false"><span class="letter">A</span><span class="opt-body">200ms</span></button><button type="button" class="opt" data-opt="B" aria-pressed="false"><span class="letter">B</span><span class="opt-body">1900ms</span></button><button type="button" class="opt" data-opt="C" aria-pressed="false"><span class="letter">C</span><span class="opt-body">2000ms</span></button><button type="button" class="opt" data-opt="D" aria-pressed="false"><span class="letter">D</span><span class="opt-body">2100ms</span></button></div>
+  <div class="fb" role="status" aria-live="polite"></div>
+  <details class="answer"><summary><span class="chev"></span>答案与解析</summary><div class="ans-body"><p class="ans-key">答案：<b>B</b></p><div class="explain"><span class="explain-tag">解析</span><p>一个进程用完时间片 200ms 后被放回队尾，要等排在它前面的 9 个进程各跑完一个时间片，再加 9 次进程切换：9×200 + 9×10 = 1890ms ≈ 1900ms。</p><p>易错：漏掉切换开销（得 1800），或把切换次数算成 10 次（得 1910）。选项里最接近的是 1900ms。</p></div></div></details>
 </article>
-<article class="question" id="p2025-s1-q13" data-section="s1" data-q="q13">
+<article class="question" id="p2025-s1-q13" data-section="s1" data-q="q13" data-kind="mcq" data-ans="A" data-pts="2">
   <div class="q-top">
     <span class="q-no">13</span>
     <span class="q-tag">单选</span>
     <h3 class="q-title">两级目录</h3>
   </div>
   <div class="q-stem">两级文件目录中，主文件目录的项目内容包括（　）。</div>
-  <div class="options"><div class="opt"><span class="letter">A</span><span class="opt-body">用户名和指向该用户目录文件的指针</span></div><div class="opt"><span class="letter">B</span><span class="opt-body">文件名和指向该用户文件的指针</span></div><div class="opt"><span class="letter">C</span><span class="opt-body">用户名和指向该用户文件的指针</span></div><div class="opt"><span class="letter">D</span><span class="opt-body">文件名和指向该用户目录文件的指针</span></div></div>
-  
-  <details class="answer"><summary><span class="chev"></span>显示答案</summary><div class="ans-body">A</div></details>
+  <div class="options" data-ans="A"><button type="button" class="opt" data-opt="A" aria-pressed="false"><span class="letter">A</span><span class="opt-body">用户名和指向该用户目录文件的指针</span></button><button type="button" class="opt" data-opt="B" aria-pressed="false"><span class="letter">B</span><span class="opt-body">文件名和指向该用户文件的指针</span></button><button type="button" class="opt" data-opt="C" aria-pressed="false"><span class="letter">C</span><span class="opt-body">用户名和指向该用户文件的指针</span></button><button type="button" class="opt" data-opt="D" aria-pressed="false"><span class="letter">D</span><span class="opt-body">文件名和指向该用户目录文件的指针</span></button></div>
+  <div class="fb" role="status" aria-live="polite"></div>
+  <details class="answer"><summary><span class="chev"></span>答案与解析</summary><div class="ans-body"><p class="ans-key">答案：<b>A</b></p><div class="explain"><span class="explain-tag">解析</span><p>两级目录分工：<b>主文件目录（MFD）</b>每个表项对应一个用户，内容是「用户名 + 指向该用户文件目录（UFD）的指针」；UFD 里才记录该用户的文件名、物理位置等。</p><p>B、D 把「文件名」放进主目录，混淆了两级目录的分工。</p></div></div></details>
 </article>
-<article class="question" id="p2025-s1-q14" data-section="s1" data-q="q14">
+<article class="question" id="p2025-s1-q14" data-section="s1" data-q="q14" data-kind="mcq" data-ans="C" data-pts="2">
   <div class="q-top">
     <span class="q-no">14</span>
     <span class="q-tag">单选</span>
     <h3 class="q-title">DMA</h3>
   </div>
   <div class="q-stem">关于 DMA 控制方式，下列说法正确的是（　）。</div>
-  <div class="options"><div class="opt"><span class="letter">A</span><span class="opt-body">采用 DMA 控制方式时，CPU 不用干预整个输入/输出过程。</span></div><div class="opt"><span class="letter">B</span><span class="opt-body">采用 DMA 控制方式时，每传输完一个数据块，CPU 要执行中断处理。</span></div><div class="opt"><span class="letter">C</span><span class="opt-body">采用 DMA 传输方式，CPU 只在输入/输出开始和结束时干预输入/输出。</span></div><div class="opt"><span class="letter">D</span><span class="opt-body">采用 DMA 传输方式只能提高传输速度，不能提高 CPU 与输入/输出设备的并行程度。</span></div></div>
-  
-  <details class="answer"><summary><span class="chev"></span>显示答案</summary><div class="ans-body">C</div></details>
+  <div class="options" data-ans="C"><button type="button" class="opt" data-opt="A" aria-pressed="false"><span class="letter">A</span><span class="opt-body">采用 DMA 控制方式时，CPU 不用干预整个输入/输出过程。</span></button><button type="button" class="opt" data-opt="B" aria-pressed="false"><span class="letter">B</span><span class="opt-body">采用 DMA 控制方式时，每传输完一个数据块，CPU 要执行中断处理。</span></button><button type="button" class="opt" data-opt="C" aria-pressed="false"><span class="letter">C</span><span class="opt-body">采用 DMA 传输方式，CPU 只在输入/输出开始和结束时干预输入/输出。</span></button><button type="button" class="opt" data-opt="D" aria-pressed="false"><span class="letter">D</span><span class="opt-body">采用 DMA 传输方式只能提高传输速度，不能提高 CPU 与输入/输出设备的并行程度。</span></button></div>
+  <div class="fb" role="status" aria-live="polite"></div>
+  <details class="answer"><summary><span class="chev"></span>答案与解析</summary><div class="ans-body"><p class="ans-key">答案：<b>C</b></p><div class="explain"><span class="explain-tag">解析</span><p>DMA 以数据块为单位传送：开始前 CPU 初始化（设内存地址、字数、方向），传送期间由 DMA 控制器直接搬数据、CPU 不干预，一整块传完才中断一次通知 CPU。</p><p>A 说「不用干预整个输入/输出过程」太绝对——开始和结束都要 CPU；B 描述的是中断驱动方式；D 错，DMA 让 CPU 与 I/O 完全并行，并行度恰恰提高了。</p></div></div></details>
 </article>
-<article class="question" id="p2025-s1-q15" data-section="s1" data-q="q15">
+<article class="question" id="p2025-s1-q15" data-section="s1" data-q="q15" data-kind="mcq" data-ans="D" data-pts="2">
   <div class="q-top">
     <span class="q-no">15</span>
     <span class="q-tag">单选</span>
     <h3 class="q-title">连续组织</h3>
   </div>
   <div class="q-stem">关于外存文件采用的连续组织方式，下列说法不正确的是（　）。</div>
-  <div class="options"><div class="opt"><span class="letter">A</span><span class="opt-body">文件访问速度快。</span></div><div class="opt"><span class="letter">B</span><span class="opt-body">外存会产生外部碎片。</span></div><div class="opt"><span class="letter">C</span><span class="opt-body">需要事先知道文件长度。</span></div><div class="opt"><span class="letter">D</span><span class="opt-body">不支持直接存取。</span></div></div>
-  
-  <details class="answer"><summary><span class="chev"></span>显示答案</summary><div class="ans-body">D</div></details>
+  <div class="options" data-ans="D"><button type="button" class="opt" data-opt="A" aria-pressed="false"><span class="letter">A</span><span class="opt-body">文件访问速度快。</span></button><button type="button" class="opt" data-opt="B" aria-pressed="false"><span class="letter">B</span><span class="opt-body">外存会产生外部碎片。</span></button><button type="button" class="opt" data-opt="C" aria-pressed="false"><span class="letter">C</span><span class="opt-body">需要事先知道文件长度。</span></button><button type="button" class="opt" data-opt="D" aria-pressed="false"><span class="letter">D</span><span class="opt-body">不支持直接存取。</span></button></div>
+  <div class="fb" role="status" aria-live="polite"></div>
+  <details class="answer"><summary><span class="chev"></span>答案与解析</summary><div class="ans-body"><p class="ans-key">答案：<b>D</b></p><div class="explain"><span class="explain-tag">解析</span><p>连续组织把文件放在一片连续盘块上：顺序读极快、支持直接（随机）存取，但必须事先知道文件长度、会产生外部碎片、文件增长困难。</p><p>题干问「不正确」，D 把它的优点说成了缺点。</p></div></div></details>
 </article></section><section class="section" id="p2025-s2" data-paper="p2025" data-section="s2"><div class="sec-head"><h3>二、判断题</h3><span class="desc">对的打「√」，错的打「×」，每题 1 分，共 10 分</span></div>
-<article class="question" id="p2025-s2-q1" data-section="s2" data-q="q1">
+<article class="question" id="p2025-s2-q1" data-section="s2" data-q="q1" data-kind="judge" data-ans="√" data-pts="1">
   <div class="q-top">
     <span class="q-no">1</span>
     <span class="q-tag">判断</span>
     <h3 class="q-title">并发执行</h3>
   </div>
   <div class="q-stem">程序在并发执行时会失去封闭性。</div>
-  
-  
-  <details class="answer"><summary><span class="chev"></span>显示答案</summary><div class="ans-body">√</div></details>
+  <div class="options judge" data-ans="√"><button type="button" class="opt" data-opt="√" aria-pressed="false"><span class="letter">√</span><span class="opt-body">对</span></button><button type="button" class="opt" data-opt="×" aria-pressed="false"><span class="letter">×</span><span class="opt-body">错</span></button></div>
+  <div class="fb" role="status" aria-live="polite"></div>
+  <details class="answer"><summary><span class="chev"></span>答案与解析</summary><div class="ans-body"><p class="ans-key">答案：<b>√</b></p><div class="explain"><span class="explain-tag">解析</span><p>并发执行的程序共享资源，执行速度受其他程序影响，结果不再只由自身输入决定——这就是失去封闭性和可再现性。</p></div></div></details>
 </article>
-<article class="question" id="p2025-s2-q2" data-section="s2" data-q="q2">
+<article class="question" id="p2025-s2-q2" data-section="s2" data-q="q2" data-kind="judge" data-ans="×" data-pts="1">
   <div class="q-top">
     <span class="q-no">2</span>
     <span class="q-tag">判断</span>
     <h3 class="q-title">快表访存</h3>
   </div>
   <div class="q-stem">具有快表的存储管理系统中，CPU 每次存储数据都只访问一次内存。</div>
-  
-  
-  <details class="answer"><summary><span class="chev"></span>显示答案</summary><div class="ans-body">×</div></details>
+  <div class="options judge" data-ans="×"><button type="button" class="opt" data-opt="√" aria-pressed="false"><span class="letter">√</span><span class="opt-body">对</span></button><button type="button" class="opt" data-opt="×" aria-pressed="false"><span class="letter">×</span><span class="opt-body">错</span></button></div>
+  <div class="fb" role="status" aria-live="polite"></div>
+  <details class="answer"><summary><span class="chev"></span>答案与解析</summary><div class="ans-body"><p class="ans-key">答案：<b>×</b></p><div class="explain"><span class="explain-tag">解析</span><p>有快表时，<b>命中</b>才只需访问一次内存（直接取数）；<b>未命中</b>仍要查内存页表再访存，共两次。题干说「每次都只访问一次」，错。</p></div></div></details>
 </article>
-<article class="question" id="p2025-s2-q3" data-section="s2" data-q="q3">
+<article class="question" id="p2025-s2-q3" data-section="s2" data-q="q3" data-kind="judge" data-ans="√" data-pts="1">
   <div class="q-top">
     <span class="q-no">3</span>
     <span class="q-tag">判断</span>
     <h3 class="q-title">直接存取</h3>
   </div>
   <div class="q-stem">在文件的直接存取方法中，允许随意存取文件中的一个记录。</div>
-  
-  
-  <details class="answer"><summary><span class="chev"></span>显示答案</summary><div class="ans-body">√</div></details>
+  <div class="options judge" data-ans="√"><button type="button" class="opt" data-opt="√" aria-pressed="false"><span class="letter">√</span><span class="opt-body">对</span></button><button type="button" class="opt" data-opt="×" aria-pressed="false"><span class="letter">×</span><span class="opt-body">错</span></button></div>
+  <div class="fb" role="status" aria-live="polite"></div>
+  <details class="answer"><summary><span class="chev"></span>答案与解析</summary><div class="ans-body"><p class="ans-key">答案：<b>√</b></p><div class="explain"><span class="explain-tag">解析</span><p>直接存取（随机存取）允许按记录号直接定位，不必从文件头顺序扫描，磁盘上的文件普遍支持。</p></div></div></details>
 </article>
-<article class="question" id="p2025-s2-q4" data-section="s2" data-q="q4">
+<article class="question" id="p2025-s2-q4" data-section="s2" data-q="q4" data-kind="judge" data-ans="×" data-pts="1">
   <div class="q-top">
     <span class="q-no">4</span>
     <span class="q-tag">判断</span>
     <h3 class="q-title">请求页式碎片</h3>
   </div>
   <div class="q-stem">请求页式管理系统中，既可以减少外零头，又可以减少内零头。</div>
-  
-  
-  <details class="answer"><summary><span class="chev"></span>显示答案</summary><div class="ans-body">×</div></details>
+  <div class="options judge" data-ans="×"><button type="button" class="opt" data-opt="√" aria-pressed="false"><span class="letter">√</span><span class="opt-body">对</span></button><button type="button" class="opt" data-opt="×" aria-pressed="false"><span class="letter">×</span><span class="opt-body">错</span></button></div>
+  <div class="fb" role="status" aria-live="polite"></div>
+  <details class="answer"><summary><span class="chev"></span>答案与解析</summary><div class="ans-body"><p class="ans-key">答案：<b>×</b></p><div class="explain"><span class="explain-tag">解析</span><p>请求页式没有外部碎片（页框大小固定、块块可用），但每个进程最后一页平均半个页的内零头仍然存在。</p><p>减少外部碎片是分页的功劳；页越大内零头越大，所以不是「两种碎片都减少」。</p></div></div></details>
 </article>
-<article class="question" id="p2025-s2-q5" data-section="s2" data-q="q5">
+<article class="question" id="p2025-s2-q5" data-section="s2" data-q="q5" data-kind="judge" data-ans="√" data-pts="1">
   <div class="q-top">
     <span class="q-no">5</span>
     <span class="q-tag">判断</span>
     <h3 class="q-title">进程调度</h3>
   </div>
   <div class="q-stem">进程调度是最基本的处理机调度，运行频率最高，又称短程调度。</div>
-  
-  
-  <details class="answer"><summary><span class="chev"></span>显示答案</summary><div class="ans-body">√</div></details>
+  <div class="options judge" data-ans="√"><button type="button" class="opt" data-opt="√" aria-pressed="false"><span class="letter">√</span><span class="opt-body">对</span></button><button type="button" class="opt" data-opt="×" aria-pressed="false"><span class="letter">×</span><span class="opt-body">错</span></button></div>
+  <div class="fb" role="status" aria-live="polite"></div>
+  <details class="answer"><summary><span class="chev"></span>答案与解析</summary><div class="ans-body"><p class="ans-key">答案：<b>√</b></p><div class="explain"><span class="explain-tag">解析</span><p>处理机调度分三级：高级（作业）调度、中级（内存对换）调度、低级（进程）调度。</p><p>进程调度即低级调度，决定哪个就绪进程上 CPU，运行频率最高（毫秒级），又称短程调度。</p></div></div></details>
 </article>
-<article class="question" id="p2025-s2-q6" data-section="s2" data-q="q6">
+<article class="question" id="p2025-s2-q6" data-section="s2" data-q="q6" data-kind="judge" data-ans="×" data-pts="1">
   <div class="q-top">
     <span class="q-no">6</span>
     <span class="q-tag">判断</span>
     <h3 class="q-title">动态重定位</h3>
   </div>
   <div class="q-stem">动态重定位的地址变换是在装入时一次完成的，以后不再改变。</div>
-  
-  
-  <details class="answer"><summary><span class="chev"></span>显示答案</summary><div class="ans-body">×</div></details>
+  <div class="options judge" data-ans="×"><button type="button" class="opt" data-opt="√" aria-pressed="false"><span class="letter">√</span><span class="opt-body">对</span></button><button type="button" class="opt" data-opt="×" aria-pressed="false"><span class="letter">×</span><span class="opt-body">错</span></button></div>
+  <div class="fb" role="status" aria-live="polite"></div>
+  <details class="answer"><summary><span class="chev"></span>答案与解析</summary><div class="ans-body"><p class="ans-key">答案：<b>×</b></p><div class="explain"><span class="explain-tag">解析</span><p>动态重定位是<b>执行时</b>由重定位寄存器（硬件）把逻辑地址 + 基址变成物理地址，程序在内存里可以移动。</p><p>「装入时一次完成、以后不再改变」是<b>静态重定位</b>。</p></div></div></details>
 </article>
-<article class="question" id="p2025-s2-q7" data-section="s2" data-q="q7">
+<article class="question" id="p2025-s2-q7" data-section="s2" data-q="q7" data-kind="judge" data-ans="√" data-pts="1">
   <div class="q-top">
     <span class="q-no">7</span>
     <span class="q-tag">判断</span>
     <h3 class="q-title">响应比</h3>
   </div>
   <div class="q-stem">响应比高者优先调度算法解决了长作业死等的问题。</div>
-  
-  
-  <details class="answer"><summary><span class="chev"></span>显示答案</summary><div class="ans-body">√</div></details>
+  <div class="options judge" data-ans="√"><button type="button" class="opt" data-opt="√" aria-pressed="false"><span class="letter">√</span><span class="opt-body">对</span></button><button type="button" class="opt" data-opt="×" aria-pressed="false"><span class="letter">×</span><span class="opt-body">错</span></button></div>
+  <div class="fb" role="status" aria-live="polite"></div>
+  <details class="answer"><summary><span class="chev"></span>答案与解析</summary><div class="ans-body"><p class="ans-key">答案：<b>√</b></p><div class="explain"><span class="explain-tag">解析</span><p>响应比 =（等待时间 + 要求服务时间）÷ 要求服务时间。等待越久响应比越高，长作业等久了也能被服务，所以 HRRN 解决了 SJF 造成的「长作业死等」。</p></div></div></details>
 </article>
-<article class="question" id="p2025-s2-q8" data-section="s2" data-q="q8">
+<article class="question" id="p2025-s2-q8" data-section="s2" data-q="q8" data-kind="judge" data-ans="×" data-pts="1">
   <div class="q-top">
     <span class="q-no">8</span>
     <span class="q-tag">判断</span>
     <h3 class="q-title">文件空间分配</h3>
   </div>
   <div class="q-stem">文件存储空间的分配通常以字节或字节单位。</div>
-  
-  
-  <details class="answer"><summary><span class="chev"></span>显示答案</summary><div class="ans-body">×</div></details>
+  <div class="options judge" data-ans="×"><button type="button" class="opt" data-opt="√" aria-pressed="false"><span class="letter">√</span><span class="opt-body">对</span></button><button type="button" class="opt" data-opt="×" aria-pressed="false"><span class="letter">×</span><span class="opt-body">错</span></button></div>
+  <div class="fb" role="status" aria-live="polite"></div>
+  <details class="answer"><summary><span class="chev"></span>答案与解析</summary><div class="ans-body"><p class="ans-key">答案：<b>×</b></p><div class="explain"><span class="explain-tag">解析</span><p>文件存储空间以<b>块（簇）</b>为单位分配，不是字节。按字节分配，位示图 / 空闲表根本无法管理。</p></div></div></details>
 </article>
-<article class="question" id="p2025-s2-q9" data-section="s2" data-q="q9">
+<article class="question" id="p2025-s2-q9" data-section="s2" data-q="q9" data-kind="judge" data-ans="×" data-pts="1">
   <div class="q-top">
     <span class="q-no">9</span>
     <span class="q-tag">判断</span>
     <h3 class="q-title">SPOOLing</h3>
   </div>
   <div class="q-stem">SPOOLing 系统中，输出井和输出缓存都在硬盘中。</div>
-  
-  
-  <details class="answer"><summary><span class="chev"></span>显示答案</summary><div class="ans-body">×</div></details>
+  <div class="options judge" data-ans="×"><button type="button" class="opt" data-opt="√" aria-pressed="false"><span class="letter">√</span><span class="opt-body">对</span></button><button type="button" class="opt" data-opt="×" aria-pressed="false"><span class="letter">×</span><span class="opt-body">错</span></button></div>
+  <div class="fb" role="status" aria-live="polite"></div>
+  <details class="answer"><summary><span class="chev"></span>答案与解析</summary><div class="ans-body"><p class="ans-key">答案：<b>×</b></p><div class="explain"><span class="explain-tag">解析</span><p>SPOOLing 四大件：输入井、输出井在<b>磁盘</b>；输入缓冲区、输出缓冲区在<b>内存</b>。题干把输出缓冲区也说成硬盘，错。</p></div></div></details>
 </article>
-<article class="question" id="p2025-s2-q10" data-section="s2" data-q="q10">
+<article class="question" id="p2025-s2-q10" data-section="s2" data-q="q10" data-kind="judge" data-ans="×" data-pts="1">
   <div class="q-top">
     <span class="q-no">10</span>
     <span class="q-tag">判断</span>
     <h3 class="q-title">预防死锁</h3>
   </div>
   <div class="q-stem">预防死锁是指在资源动态分配过程中，用某种方法去防止系统进入不安全状态。</div>
-  
-  
-  <details class="answer"><summary><span class="chev"></span>显示答案</summary><div class="ans-body">×</div></details>
+  <div class="options judge" data-ans="×"><button type="button" class="opt" data-opt="√" aria-pressed="false"><span class="letter">√</span><span class="opt-body">对</span></button><button type="button" class="opt" data-opt="×" aria-pressed="false"><span class="letter">×</span><span class="opt-body">错</span></button></div>
+  <div class="fb" role="status" aria-live="polite"></div>
+  <details class="answer"><summary><span class="chev"></span>答案与解析</summary><div class="ans-body"><p class="ans-key">答案：<b>×</b></p><div class="explain"><span class="explain-tag">解析</span><p>题干描述的是<b>避免死锁</b>（银行家算法，动态判定安全性）。<b>预防死锁</b>是事先破坏四个必要条件之一（互斥、请求和保持、不可剥夺、循环等待）。两个概念别混。</p></div></div></details>
 </article></section><section class="section" id="p2025-s3" data-paper="p2025" data-section="s3"><div class="sec-head"><h3>三、填空简答</h3><span class="desc">共 30 分</span></div>
-<article class="question" id="p2025-s3-q1" data-section="s3" data-q="q1">
+<article class="question" id="p2025-s3-q1" data-section="s3" data-q="q1" data-kind="fill">
   <div class="q-top">
     <span class="q-no">1</span>
     <span class="q-tag">填空</span>
@@ -944,9 +1021,9 @@ u.blank{display:inline-block;min-width:110px;height:1.1em;border-bottom:1.5px so
   <div class="q-stem">并发和 <u class='blank'></u> 是操作系统的两个最基本的特征，两者之间互为存在条件。</div>
   
   
-  <details class="answer"><summary><span class="chev"></span>显示答案</summary><div class="ans-body"><p>共享</p></div></details>
+  <details class="answer"><summary><span class="chev"></span>答案与解析</summary><div class="ans-body"><p>共享</p><div class="explain"><span class="explain-tag">解析</span><p>OS 四大特征：并发、共享、虚拟、异步，其中<b>并发和共享</b>是最基本的两个，互为存在条件——没有并发就谈不上共享，没有共享并发也无法进行。</p></div><div class="selfcheck"><span class="sc-label">自评</span><button type="button" data-self="ok">答对了</button><button type="button" data-self="bad">答错了</button></div></div></details>
 </article>
-<article class="question" id="p2025-s3-q2" data-section="s3" data-q="q2">
+<article class="question" id="p2025-s3-q2" data-section="s3" data-q="q2" data-kind="fill">
   <div class="q-top">
     <span class="q-no">2</span>
     <span class="q-tag">填空</span>
@@ -955,9 +1032,9 @@ u.blank{display:inline-block;min-width:110px;height:1.1em;border-bottom:1.5px so
   <div class="q-stem">进程的调度方式通常有 <u class='blank'></u> 和 <u class='blank'></u> 两种。</div>
   
   
-  <details class="answer"><summary><span class="chev"></span>显示答案</summary><div class="ans-body"><p>抢占、非抢占</p></div></details>
+  <details class="answer"><summary><span class="chev"></span>答案与解析</summary><div class="ans-body"><p>抢占、非抢占</p><div class="explain"><span class="explain-tag">解析</span><p>按可否剥夺分：<b>抢占式</b>（时间片用完、有更高优先级进程到达就剥夺）和<b>非抢占式</b>（进程自己放弃 CPU 才切换）。</p></div><div class="selfcheck"><span class="sc-label">自评</span><button type="button" data-self="ok">答对了</button><button type="button" data-self="bad">答错了</button></div></div></details>
 </article>
-<article class="question" id="p2025-s3-q3" data-section="s3" data-q="q3">
+<article class="question" id="p2025-s3-q3" data-section="s3" data-q="q3" data-kind="fill">
   <div class="q-top">
     <span class="q-no">3</span>
     <span class="q-tag">填空</span>
@@ -966,9 +1043,9 @@ u.blank{display:inline-block;min-width:110px;height:1.1em;border-bottom:1.5px so
   <div class="q-stem">为了使作业的平均周转时间最短，处理机应采用 <u class='blank'></u> 调度算法；为了能实现人机交互作用，处理机应采用 <u class='blank'></u> 调度算法。</div>
   
   
-  <details class="answer"><summary><span class="chev"></span>显示答案</summary><div class="ans-body"><p>短作业/短进程优先；时间片轮转</p></div></details>
+  <details class="answer"><summary><span class="chev"></span>答案与解析</summary><div class="ans-body"><p>短作业/短进程优先；时间片轮转</p><div class="explain"><span class="explain-tag">解析</span><p>平均周转时间最短靠<b>短作业（短进程）优先</b>；人机交互要求响应快、公平，用<b>时间片轮转</b>。</p></div><div class="selfcheck"><span class="sc-label">自评</span><button type="button" data-self="ok">答对了</button><button type="button" data-self="bad">答错了</button></div></div></details>
 </article>
-<article class="question" id="p2025-s3-q4" data-section="s3" data-q="q4">
+<article class="question" id="p2025-s3-q4" data-section="s3" data-q="q4" data-kind="fill">
   <div class="q-top">
     <span class="q-no">4</span>
     <span class="q-tag">填空</span>
@@ -977,9 +1054,9 @@ u.blank{display:inline-block;min-width:110px;height:1.1em;border-bottom:1.5px so
   <div class="q-stem">按信息交换方式不同，通道可分为三类：<u class='blank'></u> 通道、数组选择通道、数组多路通道。</div>
   
   
-  <details class="answer"><summary><span class="chev"></span>显示答案</summary><div class="ans-body"><p>字符/字节多路</p></div></details>
+  <details class="answer"><summary><span class="chev"></span>答案与解析</summary><div class="ans-body"><p>字符/字节多路</p><div class="explain"><span class="explain-tag">解析</span><p>按信息交换方式，通道分三类：<b>字节多路通道</b>（低速字符设备，分时轮转）、数组选择通道（高速设备，一段时间只服务一台）、数组多路通道（高速设备，分时并行）。</p></div><div class="selfcheck"><span class="sc-label">自评</span><button type="button" data-self="ok">答对了</button><button type="button" data-self="bad">答错了</button></div></div></details>
 </article>
-<article class="question" id="p2025-s3-q5" data-section="s3" data-q="q5">
+<article class="question" id="p2025-s3-q5" data-section="s3" data-q="q5" data-kind="fill">
   <div class="q-top">
     <span class="q-no">5</span>
     <span class="q-tag">填空</span>
@@ -988,9 +1065,9 @@ u.blank{display:inline-block;min-width:110px;height:1.1em;border-bottom:1.5px so
   <div class="q-stem">计算机系统中 CPU 空闲时，<u class='blank'></u> 进程将会被运行。</div>
   
   
-  <details class="answer"><summary><span class="chev"></span>显示答案</summary><div class="ans-body"><p>调度（程序）</p></div></details>
+  <details class="answer"><summary><span class="chev"></span>答案与解析</summary><div class="ans-body"><p>调度（程序）</p><div class="explain"><span class="explain-tag">解析</span><p>CPU 空闲时内核运行调度程序，从就绪队列里选一个进程投入运行。</p></div><div class="selfcheck"><span class="sc-label">自评</span><button type="button" data-self="ok">答对了</button><button type="button" data-self="bad">答错了</button></div></div></details>
 </article>
-<article class="question" id="p2025-s3-q6" data-section="s3" data-q="q6">
+<article class="question" id="p2025-s3-q6" data-section="s3" data-q="q6" data-kind="fill">
   <div class="q-top">
     <span class="q-no">6</span>
     <span class="q-tag">填空</span>
@@ -999,9 +1076,9 @@ u.blank{display:inline-block;min-width:110px;height:1.1em;border-bottom:1.5px so
   <div class="q-stem">进程所请求的一次打印输出结束后，将使进程状态从 <u class='blank'></u> 状态变为 <u class='blank'></u> 状态。</div>
   
   
-  <details class="answer"><summary><span class="chev"></span>显示答案</summary><div class="ans-body"><p>等待/阻塞；就绪</p></div></details>
+  <details class="answer"><summary><span class="chev"></span>答案与解析</summary><div class="ans-body"><p>等待/阻塞；就绪</p><div class="explain"><span class="explain-tag">解析</span><p>打印是 I/O 请求：发出后进程进入<b>等待（阻塞）</b>态；打印完成的中断到来，进程被唤醒转入<b>就绪</b>态，等调度程序分配 CPU。</p><p>易错：写成「完成 → 运行」。被唤醒只是回到就绪队列，能不能上 CPU 由调度决定。</p></div><div class="selfcheck"><span class="sc-label">自评</span><button type="button" data-self="ok">答对了</button><button type="button" data-self="bad">答错了</button></div></div></details>
 </article>
-<article class="question" id="p2025-s3-q7" data-section="s3" data-q="q7">
+<article class="question" id="p2025-s3-q7" data-section="s3" data-q="q7" data-kind="fill">
   <div class="q-top">
     <span class="q-no">7</span>
     <span class="q-tag">填空</span>
@@ -1010,9 +1087,9 @@ u.blank{display:inline-block;min-width:110px;height:1.1em;border-bottom:1.5px so
   <div class="q-stem">动态重定位是在作业 <u class='blank'></u> 过程中进行的。</div>
   
   
-  <details class="answer"><summary><span class="chev"></span>显示答案</summary><div class="ans-body"><p>执行</p></div></details>
+  <details class="answer"><summary><span class="chev"></span>答案与解析</summary><div class="ans-body"><p>执行</p><div class="explain"><span class="explain-tag">解析</span><p>动态重定位的地址变换发生在<b>执行</b>过程中（每次访存做一次加法），这正是「动态」两个字的含义。</p></div><div class="selfcheck"><span class="sc-label">自评</span><button type="button" data-self="ok">答对了</button><button type="button" data-self="bad">答错了</button></div></div></details>
 </article>
-<article class="question" id="p2025-s3-q8" data-section="s3" data-q="q8">
+<article class="question" id="p2025-s3-q8" data-section="s3" data-q="q8" data-kind="fill">
   <div class="q-top">
     <span class="q-no">8</span>
     <span class="q-tag">填空</span>
@@ -1021,9 +1098,9 @@ u.blank{display:inline-block;min-width:110px;height:1.1em;border-bottom:1.5px so
   <div class="q-stem">已知某文件采用串联结构，它由 10 个逻辑记录组成，每个逻辑记录刚好存放于一个磁盘块上，都为 1024 字节，并依次存放在 10、61、32、75、87、98、46、37、33 和 11 号磁盘块上。若要存取文件相对于文件头偏移 7654 字节处的信息，则要访问的磁盘块块号为 <u class='blank'></u>，块内的偏移量是 <u class='blank'></u>。</div>
   
   
-  <details class="answer"><summary><span class="chev"></span>显示答案</summary><div class="ans-body"><p>37；486</p><p class='muted'>7654 ÷ 1024 = 7 余 486，即第 8 个逻辑块，对应 37 号块。</p></div></details>
+  <details class="answer"><summary><span class="chev"></span>答案与解析</summary><div class="ans-body"><p>37；486</p><p class='muted'>7654 ÷ 1024 = 7 余 486，即第 8 个逻辑块，对应 37 号块。</p><div class="explain"><span class="explain-tag">解析</span><p>先算逻辑块号：7654 ÷ 1024 = 7 余 486 → 第 8 个逻辑块（从 0 计），块内偏移 486。</p><p>串联结构必须从第一个块顺着指针走 7 次：10 → 61 → 32 → 75 → 87 → 98 → 46 → <b>37</b>。</p><p>这题顺带说明链接分配不支持随机存取——虽然你算出了块号，实际访问仍要从头走链，正是本题想考的点。</p></div><div class="selfcheck"><span class="sc-label">自评</span><button type="button" data-self="ok">答对了</button><button type="button" data-self="bad">答错了</button></div></div></details>
 </article>
-<article class="question" id="p2025-s3-q9" data-section="s3" data-q="q9">
+<article class="question" id="p2025-s3-q9" data-section="s3" data-q="q9" data-kind="fill">
   <div class="q-top">
     <span class="q-no">9</span>
     <span class="q-tag">简答</span>
@@ -1032,9 +1109,9 @@ u.blank{display:inline-block;min-width:110px;height:1.1em;border-bottom:1.5px so
   <div class="q-stem"><p>（4 分）在采用分页存储管理系统中，地址结构长度为 18 位，其中 11 至 17 位表示页号，0 至 10 位表示页内位移量。若有一程序依次被放入 2、3、7 号物理块中，相对地址 2800 处有一条指令 <span class='mono'>store 1, 3500</span>。请问：</p><p>(1) 主存容量最大可为多少？每块有多大？</p><p>(2) 上述指令在几号页内？对应的物理地址为多少？</p></div>
   
   
-  <details class="answer"><summary><span class="chev"></span>显示答案</summary><div class="ans-body"><p>（1）主存容量最大为 2<sup>18</sup> = 256K，可分为 2<sup>7</sup> = 128 块，每块大小为 2<sup>11</sup> = 2K。（2 分）</p><p>（2）相对地址为 2800，2800 ÷ 2048 = 1 余 752，所以指令所在页号为 1 号，块号为 3。物理地址 = 3 × 2048 + 752 = 6896 = <b>1AF0H</b>。（2 分）</p><p class="q-note">原卷答案写作 1AE0，按 6896 的十六进制换算应为 1AF0（6896 = 0x1AF0）。</p></div></details>
+  <details class="answer"><summary><span class="chev"></span>答案与解析</summary><div class="ans-body"><p>（1）主存容量最大为 2<sup>18</sup> = 256K，可分为 2<sup>7</sup> = 128 块，每块大小为 2<sup>11</sup> = 2K。（2 分）</p><p>（2）相对地址为 2800，2800 ÷ 2048 = 1 余 752，所以指令所在页号为 1 号，块号为 3。物理地址 = 3 × 2048 + 752 = 6896 = <b>1AF0H</b>。（2 分）</p><p class="q-note">原卷答案写作 1AE0，按 6896 的十六进制换算应为 1AF0（6896 = 0x1AF0）。</p><div class="explain"><span class="explain-tag">解析</span><p>(1) 地址 18 位 → 主存最大 2<sup>18</sup> = 256KB；页内位移 11 位 → 页大小 2<sup>11</sup> = 2KB；页数 2<sup>7</sup> = 128。</p><p>(2) 2800 = 1×2048 + 752 → 页号 1、页内偏移 752；页 1 放在 3 号块 → 3×2048 + 752 = 6896 = 0x1AF0。</p><p>易错：页号从 0 开始（0 号页在第 2 块、1 号页在第 3 块）；十六进制别写成 1AE0（原卷此处印错）。</p></div><div class="selfcheck"><span class="sc-label">自评</span><button type="button" data-self="ok">答对了</button><button type="button" data-self="bad">答错了</button></div></div></details>
 </article>
-<article class="question" id="p2025-s3-q10" data-section="s3" data-q="q10">
+<article class="question" id="p2025-s3-q10" data-section="s3" data-q="q10" data-kind="fill">
   <div class="q-top">
     <span class="q-no">10</span>
     <span class="q-tag">简答</span>
@@ -1068,7 +1145,7 @@ main()
 }</pre></div>
   
   
-  <details class="answer"><summary><span class="chev"></span>显示答案</summary><div class="ans-body"><p class='muted'>原卷未附答案，下面为按题意补全的参考写法（direct2 与 direct1 对称）。</p><pre class='code'>Semaphore Scount2 = 1;       // 需补上方向 2 的计数器互斥信号量
+  <details class="answer"><summary><span class="chev"></span>答案与解析</summary><div class="ans-body"><p class='muted'>原卷未附答案，下面为按题意补全的参考写法（direct2 与 direct1 对称）。</p><pre class='code'>Semaphore Scount2 = 1;       // 需补上方向 2 的计数器互斥信号量
 
 void direct2( )
 {
@@ -1086,9 +1163,9 @@ main()
 {
     direct1();
     direct2();
-}</pre></div></details>
+}</pre><div class="explain"><span class="explain-tag">解析</span><p>思路是「读者-写者」的变体：每个方向各有一个计数器，count 从 0 变 1 时申请桥（P(S)），从 1 变 0 时释放桥（V(S)），计数的修改用各自的互斥信号量保护。</p><p>易错：direct2 必须有自己的 Scount2，不能和 Scount1 共用；两个方向共用同一个桥信号量 S，才能保证两岸不同时过桥。</p></div><div class="selfcheck"><span class="sc-label">自评</span><button type="button" data-self="ok">答对了</button><button type="button" data-self="bad">答错了</button></div></div></details>
 </article>
-<article class="question" id="p2025-s3-q11" data-section="s3" data-q="q11">
+<article class="question" id="p2025-s3-q11" data-section="s3" data-q="q11" data-kind="fill">
   <div class="q-top">
     <span class="q-no">11</span>
     <span class="q-tag">简答</span>
@@ -1097,9 +1174,9 @@ main()
   <div class="q-stem"><p>（4 分）有四个作业同时到达系统，它们的估计运行时间如下：</p><p>作业 A：6ms，作业 B：2ms，作业 C：10ms，作业 D：4ms。</p><p>采用短作业优先（SJF）调度算法，请问这批作业的平均周转时间和平均带权周转时间分别是什么？</p></div>
   
   
-  <details class="answer"><summary><span class="chev"></span>显示答案</summary><div class="ans-body"><p>SJF 调度顺序：B(2ms) → D(4ms) → A(6ms) → C(10ms)</p><p>完成时间：B 2ms，D 6ms，A 12ms，C 22ms</p><p>周转时间：B 2ms，D 6ms，A 12ms，C 22ms；平均周转时间 = (2+6+12+22)/4 = <b>10.5ms</b></p><p>带权周转：1，1.5，2，2.2；平均带权周转时间 = 6.7/4 = <b>1.675</b></p></div></details>
+  <details class="answer"><summary><span class="chev"></span>答案与解析</summary><div class="ans-body"><p>SJF 调度顺序：B(2ms) → D(4ms) → A(6ms) → C(10ms)</p><p>完成时间：B 2ms，D 6ms，A 12ms，C 22ms</p><p>周转时间：B 2ms，D 6ms，A 12ms，C 22ms；平均周转时间 = (2+6+12+22)/4 = <b>10.5ms</b></p><p>带权周转：1，1.5，2，2.2；平均带权周转时间 = 6.7/4 = <b>1.675</b></p><div class="explain"><span class="explain-tag">解析</span><p>四个作业同时到达 → 没有到达时间差，SJF 就是按执行时间从短到长排：B(2) → D(4) → A(6) → C(10)，完成时刻 2、6、12、22。</p><p>周转时间 = 完成 − 到达 = 2、6、12、22，平均 (2+6+12+22)/4 = <b>10.5ms</b>。</p><p>带权周转 = 周转 ÷ 运行 = 1、1.5、2、2.2，平均 6.7/4 = <b>1.675</b>。</p></div><div class="selfcheck"><span class="sc-label">自评</span><button type="button" data-self="ok">答对了</button><button type="button" data-self="bad">答错了</button></div></div></details>
 </article>
-<article class="question" id="p2025-s3-q12" data-section="s3" data-q="q12">
+<article class="question" id="p2025-s3-q12" data-section="s3" data-q="q12" data-kind="fill">
   <div class="q-top">
     <span class="q-no">12</span>
     <span class="q-tag">简答</span>
@@ -1108,9 +1185,9 @@ main()
   <div class="q-stem"><p>（6 分）设磁盘的 I/O 请求队列中的柱面号为 190、102、161、77、90、128、30、140、25，磁头的起始位置为 95（磁头的运行方向向外）。请问，使用下列磁盘调度算法，这批访问任务的总寻道距离分别是多少？写出求解过程。</p><p>（1）最短寻道距离优先算法　（2）电梯调度算法</p></div>
   
   
-  <details class="answer"><summary><span class="chev"></span>显示答案</summary><div class="ans-body"><p><b>（1）SSTF（3 分）</b></p><p class='mono'>95 → 90 → 102 → 77 → 30 → 25 → 128 → 140 → 161 → 190</p><p class='mono'>5 + 12 + 25 + 47 + 5 + 103 + 12 + 21 + 29 = 259</p><p><b>（2）电梯调度（3 分）</b></p><p class='mono'>95 → 90 → 77 → 30 → 25 → 102 → 128 → 140 → 161 → 190</p><p class='mono'>5 + 13 + 47 + 5 + 77 + 26 + 12 + 21 + 29 = 235</p></div></details>
+  <details class="answer"><summary><span class="chev"></span>答案与解析</summary><div class="ans-body"><p><b>（1）SSTF（3 分）</b></p><p class='mono'>95 → 90 → 102 → 77 → 30 → 25 → 128 → 140 → 161 → 190</p><p class='mono'>5 + 12 + 25 + 47 + 5 + 103 + 12 + 21 + 29 = 259</p><p><b>（2）电梯调度（3 分）</b></p><p class='mono'>95 → 90 → 77 → 30 → 25 → 102 → 128 → 140 → 161 → 190</p><p class='mono'>5 + 13 + 47 + 5 + 77 + 26 + 12 + 21 + 29 = 235</p><div class="explain"><span class="explain-tag">解析</span><p>SSTF 不看方向，每次取最近：95→90(5)→102(12)→77(25)→30(47)→25(5)→128(103)→140(12)→161(21)→190(29) = <b>259</b>。</p><p>电梯（SCAN）沿当前方向走到头再反向：方向「向外」即向小柱面，95→90→77→30→25；之后反向往大：102→128→140→161→190，合计 5+13+47+5+77+26+12+21+29 = <b>235</b>。</p><p>易错：电梯算法到端点后<b>改变方向继续服务</b>，不是跳到另一端重新开始（那是 C-SCAN）。</p></div><div class="selfcheck"><span class="sc-label">自评</span><button type="button" data-self="ok">答对了</button><button type="button" data-self="bad">答错了</button></div></div></details>
 </article></section><section class="section" id="p2025-s4" data-paper="p2025" data-section="s4"><div class="sec-head"><h3>四、综合题</h3><span class="desc">共 30 分</span></div>
-<article class="question" id="p2025-s4-q1" data-section="s4" data-q="q1">
+<article class="question" id="p2025-s4-q1" data-section="s4" data-q="q1" data-kind="comp">
   <div class="q-top">
     <span class="q-no">1</span>
     <span class="q-tag">综合</span>
@@ -1119,9 +1196,9 @@ main()
   <div class="q-stem"><p>（8 分）在一个支持虚拟分页、采用请求页式调度的存储管理系统中，有一用户程序页面访问顺序为：0，1，3，2，5，7，6，4，3，6，0，5，3，2，0，1。若分配给该作业 4 个空白物理块。</p><p>（1）试按 FIFO 置换算法计算页面访问的缺页率，写出求解过程。</p><p>（2）试按 LRU 置换算法计算页面访问的缺页率，写出求解过程。</p></div>
   
   
-  <details class="answer"><summary><span class="chev"></span>显示答案</summary><div class="ans-body"><p><b>（1）FIFO 置换算法：缺页率 13/16（4 分）</b></p><div class="tbl-wrap"><table class="pt"><thead><tr><th></th><th>0</th><th>1</th><th>3</th><th>2</th><th>5</th><th>7</th><th>6</th><th>4</th><th>3</th><th>6</th><th>0</th><th>5</th><th>3</th><th>2</th><th>0</th><th>1</th></tr></thead><tbody><tr><td>页框0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>5</td><td>5</td><td>5</td><td>5</td><td>3</td><td></td><td>3</td><td>3</td><td></td><td>3</td><td></td><td>1</td></tr><tr><td>页框1</td><td></td><td>1</td><td>1</td><td>1</td><td>1</td><td>7</td><td>7</td><td>7</td><td>7</td><td></td><td>0</td><td>0</td><td></td><td>0</td><td></td><td>0</td></tr><tr><td>页框2</td><td></td><td></td><td>3</td><td>3</td><td>3</td><td>3</td><td>6</td><td>6</td><td>6</td><td></td><td>6</td><td>5</td><td></td><td>5</td><td></td><td>5</td></tr><tr><td>页框3</td><td></td><td></td><td></td><td>2</td><td>2</td><td>2</td><td>2</td><td>4</td><td>4</td><td></td><td>4</td><td>4</td><td></td><td>2</td><td></td><td>2</td></tr></tbody></table></div><p><b>（2）LRU 置换算法：缺页率 13/16（4 分）</b></p><div class="tbl-wrap"><table class="pt"><thead><tr><th></th><th>0</th><th>1</th><th>3</th><th>2</th><th>5</th><th>7</th><th>6</th><th>4</th><th>3</th><th>6</th><th>0</th><th>5</th><th>3</th><th>2</th><th>0</th><th>1</th></tr></thead><tbody><tr><td>页框0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>5</td><td>5</td><td>5</td><td>5</td><td>3</td><td></td><td>3</td><td>3</td><td></td><td>3</td><td></td><td>3</td></tr><tr><td>页框1</td><td></td><td>1</td><td>1</td><td>1</td><td>1</td><td>7</td><td>7</td><td>7</td><td>7</td><td></td><td>0</td><td>0</td><td></td><td>0</td><td></td><td>0</td></tr><tr><td>页框2</td><td></td><td></td><td>3</td><td>3</td><td>3</td><td>3</td><td>6</td><td>6</td><td>6</td><td></td><td>6</td><td>6</td><td></td><td>2</td><td></td><td>2</td></tr><tr><td>页框3</td><td></td><td></td><td></td><td>2</td><td>2</td><td>2</td><td>2</td><td>4</td><td>4</td><td></td><td>4</td><td>5</td><td></td><td>5</td><td></td><td>1</td></tr></tbody></table></div><p class="q-note">原卷把第 4 行标成「页框1」，应为页框3；此处已改。</p></div></details>
+  <details class="answer"><summary><span class="chev"></span>答案与解析</summary><div class="ans-body"><p><b>（1）FIFO 置换算法：缺页率 13/16（4 分）</b></p><div class="tbl-wrap"><table class="pt"><thead><tr><th></th><th>0</th><th>1</th><th>3</th><th>2</th><th>5</th><th>7</th><th>6</th><th>4</th><th>3</th><th>6</th><th>0</th><th>5</th><th>3</th><th>2</th><th>0</th><th>1</th></tr></thead><tbody><tr><td>页框0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>5</td><td>5</td><td>5</td><td>5</td><td>3</td><td></td><td>3</td><td>3</td><td></td><td>3</td><td></td><td>1</td></tr><tr><td>页框1</td><td></td><td>1</td><td>1</td><td>1</td><td>1</td><td>7</td><td>7</td><td>7</td><td>7</td><td></td><td>0</td><td>0</td><td></td><td>0</td><td></td><td>0</td></tr><tr><td>页框2</td><td></td><td></td><td>3</td><td>3</td><td>3</td><td>3</td><td>6</td><td>6</td><td>6</td><td></td><td>6</td><td>5</td><td></td><td>5</td><td></td><td>5</td></tr><tr><td>页框3</td><td></td><td></td><td></td><td>2</td><td>2</td><td>2</td><td>2</td><td>4</td><td>4</td><td></td><td>4</td><td>4</td><td></td><td>2</td><td></td><td>2</td></tr></tbody></table></div><p><b>（2）LRU 置换算法：缺页率 13/16（4 分）</b></p><div class="tbl-wrap"><table class="pt"><thead><tr><th></th><th>0</th><th>1</th><th>3</th><th>2</th><th>5</th><th>7</th><th>6</th><th>4</th><th>3</th><th>6</th><th>0</th><th>5</th><th>3</th><th>2</th><th>0</th><th>1</th></tr></thead><tbody><tr><td>页框0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>5</td><td>5</td><td>5</td><td>5</td><td>3</td><td></td><td>3</td><td>3</td><td></td><td>3</td><td></td><td>3</td></tr><tr><td>页框1</td><td></td><td>1</td><td>1</td><td>1</td><td>1</td><td>7</td><td>7</td><td>7</td><td>7</td><td></td><td>0</td><td>0</td><td></td><td>0</td><td></td><td>0</td></tr><tr><td>页框2</td><td></td><td></td><td>3</td><td>3</td><td>3</td><td>3</td><td>6</td><td>6</td><td>6</td><td></td><td>6</td><td>6</td><td></td><td>2</td><td></td><td>2</td></tr><tr><td>页框3</td><td></td><td></td><td></td><td>2</td><td>2</td><td>2</td><td>2</td><td>4</td><td>4</td><td></td><td>4</td><td>5</td><td></td><td>5</td><td></td><td>1</td></tr></tbody></table></div><p class="q-note">原卷把第 4 行标成「页框1」，应为页框3；此处已改。</p><div class="explain"><span class="explain-tag">解析</span><p>16 次访问、4 个页框，两问缺页都是 13 次（13/16），可以互相印证。</p><p>FIFO 维护先进先出队列，命中不改变队列位置，淘汰队头；LRU 淘汰最久未被访问的页，命中要把该页移到最新端。</p><p>本题两者缺页数相同，但过程中淘汰对象并不一样（例如第 12 次访问 5 时，FIFO 淘汰 6、LRU 淘汰 4），所以过程表必须逐列写，不能只写最终缺页率。</p></div><div class="selfcheck"><span class="sc-label">自评</span><button type="button" data-self="ok">答对了</button><button type="button" data-self="bad">答错了</button></div></div></details>
 </article>
-<article class="question" id="p2025-s4-q2" data-section="s4" data-q="q2">
+<article class="question" id="p2025-s4-q2" data-section="s4" data-q="q2" data-kind="comp">
   <div class="q-top">
     <span class="q-no">2</span>
     <span class="q-tag">综合</span>
@@ -1130,9 +1207,9 @@ main()
   <div class="q-stem"><p>（8 分）现有五个进程 P0，P1，P2，P3，P4 共享 A，B，C，D 这四类资源，进程对资源的需求量和目前分配情况如下表。请按银行家算法回答下列问题：</p><p>（1）目前系统是否处于安全状态？</p><p>（2）若此时进程 P3 提出请求 Request(0，1，0，2)，系统能否将资源分配给它，为什么？</p><div class="tbl-wrap"><table class=""><thead><tr><th>进程</th><th>Allocation（A B C D）</th><th>Need（A B C D）</th><th>Available（A B C D）</th></tr></thead><tbody><tr><td>P0</td><td>0 0 1 3</td><td>0 0 2 2</td><td>0 2 3 3</td></tr><tr><td>P1</td><td>2 1 0 0</td><td>1 4 4 0</td><td></td></tr><tr><td>P2</td><td>1 0 0 1</td><td>2 7 4 6</td><td></td></tr><tr><td>P3</td><td>1 2 1 0</td><td>0 1 3 5</td><td></td></tr><tr><td>P4</td><td>0 3 0 0</td><td>1 5 1 6</td><td></td></tr></tbody></table></div></div>
   
   
-  <details class="answer"><summary><span class="chev"></span>显示答案</summary><div class="ans-body"><p><b>（1）（4 分）</b></p><div class="tbl-wrap"><table class="bank"><thead><tr><th>进程</th><th>Work</th><th>Need</th><th>Allocation</th><th>Work+Allocation</th><th>Finish</th></tr></thead><tbody><tr><td>P0</td><td>0 2 3 3</td><td>0 0 2 2</td><td>0 0 1 3</td><td>0 2 4 6</td><td>TRUE</td></tr><tr><td>P3</td><td>0 2 4 6</td><td>0 1 3 5</td><td>1 2 1 0</td><td>1 4 5 6</td><td>TRUE</td></tr><tr><td>P1</td><td>1 4 5 6</td><td>1 4 4 0</td><td>2 1 0 0</td><td>3 5 5 6</td><td>TRUE</td></tr><tr><td>P4</td><td>3 5 5 6</td><td>1 5 1 6</td><td>0 3 0 0</td><td>3 8 5 6</td><td>TRUE</td></tr><tr><td>P2</td><td>3 8 5 6</td><td>2 7 4 6</td><td>1 0 0 1</td><td>4 8 5 7</td><td>TRUE</td></tr></tbody></table></div><p>存在安全序列 P0、P3、P1、P4、P2，故系统安全（1 分）。</p><p><b>（2）</b>进程 P3 提出请求 Request(0，1，0，2)：</p><p class='mono'>Request(0,1,0,2) ≤ Available(0,2,3,3)　（1 分）</p><p class='mono'>Request(0,1,0,2) ≤ Need(0,1,3,5)　（1 分）</p><p>为 P3 试分配后 Available = (0,1,3,1)，不足以让任何一个进程运行结束后再释放资源，此时不存在安全序列，故本次请求不能分配。（1 分）</p><p class="q-note">原卷把试分配后的进程写成「为 P2 试分配」，应为 P3。此处已改。</p></div></details>
+  <details class="answer"><summary><span class="chev"></span>答案与解析</summary><div class="ans-body"><p><b>（1）（4 分）</b></p><div class="tbl-wrap"><table class="bank"><thead><tr><th>进程</th><th>Work</th><th>Need</th><th>Allocation</th><th>Work+Allocation</th><th>Finish</th></tr></thead><tbody><tr><td>P0</td><td>0 2 3 3</td><td>0 0 2 2</td><td>0 0 1 3</td><td>0 2 4 6</td><td>TRUE</td></tr><tr><td>P3</td><td>0 2 4 6</td><td>0 1 3 5</td><td>1 2 1 0</td><td>1 4 5 6</td><td>TRUE</td></tr><tr><td>P1</td><td>1 4 5 6</td><td>1 4 4 0</td><td>2 1 0 0</td><td>3 5 5 6</td><td>TRUE</td></tr><tr><td>P4</td><td>3 5 5 6</td><td>1 5 1 6</td><td>0 3 0 0</td><td>3 8 5 6</td><td>TRUE</td></tr><tr><td>P2</td><td>3 8 5 6</td><td>2 7 4 6</td><td>1 0 0 1</td><td>4 8 5 7</td><td>TRUE</td></tr></tbody></table></div><p>存在安全序列 P0、P3、P1、P4、P2，故系统安全（1 分）。</p><p><b>（2）</b>进程 P3 提出请求 Request(0，1，0，2)：</p><p class='mono'>Request(0,1,0,2) ≤ Available(0,2,3,3)　（1 分）</p><p class='mono'>Request(0,1,0,2) ≤ Need(0,1,3,5)　（1 分）</p><p>为 P3 试分配后 Available = (0,1,3,1)，不足以让任何一个进程运行结束后再释放资源，此时不存在安全序列，故本次请求不能分配。（1 分）</p><p class="q-note">原卷把试分配后的进程写成「为 P2 试分配」，应为 P3。此处已改。</p><div class="explain"><span class="explain-tag">解析</span><p>安全序列就是「一路绿灯」：每次都在剩余进程里挑 Need ≤ Work 的。</p><p>本题：(0,2,3,3) 先供 P0 → (0,2,4,6)；P3 → (1,4,5,6)；P1 → (3,5,5,6)；P4 → (3,8,5,6)；P2 → (4,8,5,7)。安全序列 P0、P3、P1、P4、P2。</p><p>P3 请求 (0,1,0,2)：先验 ≤ Need(0,1,3,5)、≤ Available(0,2,3,3)，再试分配 → Available (0,1,3,1)。此时最小的 P0 也要 (0,0,2,2)，C 类 2 &gt; 1，一个都跑不完 → 不安全 → 拒绝。</p><p>答题时要把「哪个进程、哪类资源不够」点出来，比一句「不安全」更稳。</p></div><div class="selfcheck"><span class="sc-label">自评</span><button type="button" data-self="ok">答对了</button><button type="button" data-self="bad">答错了</button></div></div></details>
 </article>
-<article class="question" id="p2025-s4-q3" data-section="s4" data-q="q3">
+<article class="question" id="p2025-s4-q3" data-section="s4" data-q="q3" data-kind="comp">
   <div class="q-top">
     <span class="q-no">3</span>
     <span class="q-tag">综合</span>
@@ -1141,12 +1218,12 @@ main()
   <div class="q-stem"><p>（5 分）假设系统内存用户区大小为 512KB，初始状态全为空闲。现有如下作业序列请求内存：</p><p>作业1申请 100KB，作业2申请 60KB，作业3申请 150KB，作业2 释放 60KB，作业4申请 80KB，作业1 释放 100KB，作业5申请 70KB。</p><p>请使用首次适应（FF）算法，画出上述序列完成后内存的空闲分区链结构图（需标明分区大小、起始地址），并计算此时的内存利用率（已分配空间/总内存空间）。</p></div>
   
   
-  <details class="answer"><summary><span class="chev"></span>显示答案</summary><div class="ans-body"><p><b>最终内存布局：</b></p><pre class='code'>0       70      160            310        390      512
+  <details class="answer"><summary><span class="chev"></span>答案与解析</summary><div class="ans-body"><p><b>最终内存布局：</b></p><pre class='code'>0       70      160            310        390      512
 | 作业5 |  空闲  |    作业3     |   作业4   |  空闲   |
 | 70KB  |  90KB  |    150KB     |   80KB    | 122KB   |
-[0-70) [70-160) [160-310)     [310-390)  [390-512)</pre><p>已分配：作业5 [0,70)；作业3 [160,310)；作业4 [310,390)。空闲：[70,160) 90KB，[390,512) 122KB。（3 分）</p><p>已分配空间 = 70 + 150 + 80 = 300KB；内存利用率 = 300 ÷ 512 = <b>58.6%</b>（2 分）。</p></div></details>
+[0-70) [70-160) [160-310)     [310-390)  [390-512)</pre><p>已分配：作业5 [0,70)；作业3 [160,310)；作业4 [310,390)。空闲：[70,160) 90KB，[390,512) 122KB。（3 分）</p><p>已分配空间 = 70 + 150 + 80 = 300KB；内存利用率 = 300 ÷ 512 = <b>58.6%</b>（2 分）。</p><div class="explain"><span class="explain-tag">解析</span><p>FF 每次从<b>低地址</b>开始找第一个够大的空闲区，是「先挑位置」不是「先挑大小」。</p><p>过程：J1 100 → [0,100)；J2 60 → [100,160)；J3 150 → [160,310)；J2 释放 → [100,160) 空出 60；J4 申请 80：从 0 扫起，[100,160) 只有 60 不够，[310,512) 有 202 → 放 [310,390)；J1 释放 → [0,100) 空闲；J5 申请 70：第一个够大的就是 [0,100) → 放 [0,70)。</p><p>易错：J5 会落回刚释放的低地址区，而不是 310 之后；J4 不能挤进 60KB 的空洞。</p><p>最终已分配 70+150+80 = 300KB，利用率 300 ÷ 512 ≈ <b>58.6%</b>。</p></div><div class="selfcheck"><span class="sc-label">自评</span><button type="button" data-self="ok">答对了</button><button type="button" data-self="bad">答错了</button></div></div></details>
 </article>
-<article class="question" id="p2025-s4-q4" data-section="s4" data-q="q4">
+<article class="question" id="p2025-s4-q4" data-section="s4" data-q="q4" data-kind="comp">
   <div class="q-top">
     <span class="q-no">4</span>
     <span class="q-tag">综合</span>
@@ -1155,7 +1232,7 @@ main()
   <div class="q-stem"><p>（9 分）某文件系统目录采用 i 索引结点方式进行管理，每个 i 索引结点中有 10 个直接地址，一、二、三级间接索引各一个。若每个盘块大小为 512B，每个磁盘块需要 4 个字节来标识。</p><p>（1）该文件系统中最大的文件可以达到多大？</p><p>（2）假设某文件的索引节点已在内存，其他信息均在外存，为了访问该文件中字节偏移量为 80000 的内容，需要几次访问磁盘？</p><p>（3）假定一个文件的实际大小是 1MB，该文件实际占用多少个磁盘块（包括间接索引块）？</p></div>
   
   
-  <details class="answer"><summary><span class="chev"></span>显示答案</summary><div class="ans-body"><p>（1）每个索引块可存放 512 ÷ 4 = 128 个盘块号（1 分）。</p><p class='mono'>最大文件 = (10 + 128 + 128² + 128³) × 512B ≈ 1,082,201,088B ≈ 1032MB（约 1.01GB）（4 分）</p><p class='warn-inline'>原卷此处写作 1073758346B = 17.135GB，数值与单位都有误：按 128³ 项算应为约 1032MB；原卷的 B 数也只相当于约 1024MB。</p><p>（2）80000 ÷ 512 = 156 余 128，信息在第 157 个逻辑块中；前 10 块直接、接着 128 块一级间接，第 157 块落在二级间接区，需读 2 个索引块 + 1 个数据块，共 <b>3 次</b>访问磁盘（2 分）。</p><p>（3）1MB ÷ 512B = 2048 个数据块。10 + 128 = 138 块走直接与一级间接，剩 1910 块走二级间接：需一级间接块 1 个、二级间接顶层 1 个、二级间接下层 ⌈1910 ÷ 128⌉ = 15 个，共 17 个索引块。实际占用 2048 + 17 = <b>2065 块</b>（2 分）。</p><p class="q-note">原卷第 (1) 问答案有误，已按题意重算并标注；(2)(3) 与原卷一致。</p></div></details>
+  <details class="answer"><summary><span class="chev"></span>答案与解析</summary><div class="ans-body"><p>（1）每个索引块可存放 512 ÷ 4 = 128 个盘块号（1 分）。</p><p class='mono'>最大文件 = (10 + 128 + 128² + 128³) × 512B ≈ 1,082,201,088B ≈ 1032MB（约 1.01GB）（4 分）</p><p class='warn-inline'>原卷此处写作 1073758346B = 17.135GB，数值与单位都有误：按 128³ 项算应为约 1032MB；原卷的 B 数也只相当于约 1024MB。</p><p>（2）80000 ÷ 512 = 156 余 128，信息在第 157 个逻辑块中；前 10 块直接、接着 128 块一级间接，第 157 块落在二级间接区，需读 2 个索引块 + 1 个数据块，共 <b>3 次</b>访问磁盘（2 分）。</p><p>（3）1MB ÷ 512B = 2048 个数据块。10 + 128 = 138 块走直接与一级间接，剩 1910 块走二级间接：需一级间接块 1 个、二级间接顶层 1 个、二级间接下层 ⌈1910 ÷ 128⌉ = 15 个，共 17 个索引块。实际占用 2048 + 17 = <b>2065 块</b>（2 分）。</p><p class="q-note">原卷第 (1) 问答案有误，已按题意重算并标注；(2)(3) 与原卷一致。</p><div class="explain"><span class="explain-tag">解析</span><p>(1) 每块 512B ÷ 每号 4B = 128 个地址。最大文件 = (10 + 128 + 128² + 128³) × 512B ≈ <b>1032MB</b>。数量级靠 128³×512B ≈ 1GB 估即可。</p><p>(2) 80000 ÷ 512 = 156 余 128 → 逻辑块号 156（从 0 计）。直接地址覆盖 0–9，一级间接覆盖 10–137，156 落在二级间接区（138–265）→ 读「二级顶层索引块 + 下层索引块 + 数据块」= <b>3 次</b>。</p><p>(3) 1MB ÷ 512B = 2048 个数据块；索引块 = 一级 1 个 + 二级顶层 1 个 + 二级下层 ⌈(2048−138)÷128⌉ = 15 个，共 17 个；总计 2048 + 17 = <b>2065 块</b>。</p><p>易错：把 i 结点本身当成盘块、漏掉一级间接块、或忘记数据块本身也要算。</p></div><div class="selfcheck"><span class="sc-label">自评</span><button type="button" data-self="ok">答对了</button><button type="button" data-self="bad">答错了</button></div></div></details>
 </article></section>
     </div>
   </main>
@@ -1168,6 +1245,168 @@ main()
   var sections = document.querySelectorAll('.section');
   var menubtns = document.querySelectorAll('[data-target]');
   var heads = document.querySelectorAll('.paper-head');
+  var sideEl = document.querySelector('.side');
+
+  // 手机端侧栏是吸顶的，工具栏要贴着它下面吸，否则会被盖住
+  function syncSide(){
+    var h = 0;
+    if(sideEl && window.matchMedia('(max-width:860px)').matches) h = sideEl.offsetHeight;
+    document.documentElement.style.setProperty('--sideh', h + 'px');
+  }
+  window.addEventListener('resize', syncSide);
+
+  /* ---------------- 作答与计分 ---------------- */
+  var K_ANS = 'osp-answers-v1', K_SELF = 'osp-self-v1';
+  function load(k){ try{ return JSON.parse(localStorage.getItem(k) || '{}') || {}; }catch(e){ return {}; } }
+  function store(k, v){ try{ localStorage.setItem(k, JSON.stringify(v)); }catch(e){} }
+  var ANS = load(K_ANS), SELF = load(K_SELF);
+  var QUESTIONS = Array.prototype.slice.call(document.querySelectorAll('.question'));
+
+  function paperOf(q){ return q.id.slice(0, 5); }
+
+  function paint(q){
+    var qid = q.id, kind = q.dataset.kind;
+    if(kind === 'mcq' || kind === 'judge'){
+      var ans = q.dataset.ans, pick = ANS[qid];
+      Array.prototype.forEach.call(q.querySelectorAll('.options .opt'), function(b){
+        b.classList.remove('chosen', 'correct', 'wrong', 'dim');
+        b.setAttribute('aria-pressed', 'false');
+        if(!pick) return;
+        if(b.dataset.opt === pick){ b.classList.add('chosen'); b.setAttribute('aria-pressed', 'true'); }
+        if(b.dataset.opt === ans) b.classList.add('correct');
+        if(pick !== ans && b.dataset.opt === pick) b.classList.add('wrong');
+        if(pick !== ans && b.dataset.opt !== pick && b.dataset.opt !== ans) b.classList.add('dim');
+      });
+      var fb = q.querySelector('.fb');
+      if(fb){
+        fb.classList.remove('ok', 'bad', 'on');
+        if(!pick){
+          fb.innerHTML = '';
+        }else if(pick === ans){
+          fb.classList.add('ok', 'on');
+          fb.innerHTML = '<b>✓ 答对了</b><span class="fb-extra">本题 +' + (q.dataset.pts || 0) + ' 分</span>'
+                       + '<button type="button" class="undo" data-undo="1">重做</button>';
+        }else{
+          fb.classList.add('bad', 'on');
+          fb.innerHTML = '<b>✗ 答错了</b><span class="fb-extra">你选 ' + pick + '，正确答案是 <b>' + ans + '</b></span>'
+                       + '<button type="button" class="undo" data-undo="1">重做</button>';
+        }
+      }
+    }else{
+      var s = SELF[qid];
+      Array.prototype.forEach.call(q.querySelectorAll('[data-self]'), function(b){
+        b.classList.toggle('on', b.dataset.self === s);
+      });
+    }
+  }
+
+  function answer(q, pick){
+    if(ANS[q.id]) return;
+    ANS[q.id] = pick;
+    store(K_ANS, ANS);
+    paint(q);
+    updateScores();
+    var d = q.querySelector('details.answer');
+    if(d) d.open = true;
+  }
+
+  function undo(q){
+    delete ANS[q.id];
+    store(K_ANS, ANS);
+    paint(q);
+    updateScores();
+  }
+
+  function selfMark(q, val){
+    if(SELF[q.id] === val) delete SELF[q.id]; else SELF[q.id] = val;
+    store(K_SELF, SELF);
+    paint(q);
+    updateScores();
+  }
+
+  function updateScores(){
+    var stats = {};
+    function st(p){ return stats[p] || (stats[p] = {score:0, total:0, ptsBad:0, ok:0, bad:0, left:0, sok:0, sbad:0, sall:0}); }
+    QUESTIONS.forEach(function(q){
+      var s = st(paperOf(q)), kind = q.dataset.kind;
+      if(kind === 'mcq' || kind === 'judge'){
+        var pts = parseInt(q.dataset.pts, 10) || 0;
+        s.total += pts;
+        var pick = ANS[q.id];
+        if(!pick) s.left++;
+        else if(pick === q.dataset.ans){ s.ok++; s.score += pts; }
+        else { s.bad++; s.ptsBad += pts; }
+      }else{
+        s.sall++;
+        if(SELF[q.id] === 'ok') s.sok++;
+        else if(SELF[q.id] === 'bad') s.sbad++;
+      }
+    });
+    Object.keys(stats).forEach(function(p){
+      var s = stats[p], t = s.total || 1;
+      var bar = document.querySelector('.scorebar[data-paper="' + p + '"]');
+      if(bar){
+        bar.querySelector('.sc-num').textContent = s.score;
+        bar.querySelector('.sc-den').textContent = '/' + s.total;
+        bar.querySelector('.m-ok').textContent = '对 ' + s.ok;
+        bar.querySelector('.m-bad').textContent = '错 ' + s.bad;
+        bar.querySelector('.m-left').textContent = '未答 ' + s.left;
+        bar.querySelector('.s-ok').textContent = s.sok;
+        bar.querySelector('.s-bad').textContent = s.sbad;
+        bar.querySelector('.s-all').textContent = '/ ' + s.sall + ' 题';
+        var okW = (s.score / t * 100).toFixed(2) + '%';
+        var badW = (s.ptsBad / t * 100).toFixed(2) + '%';
+        bar.querySelector('.sc-bar .ok').style.width = okW;
+        var badEl = bar.querySelector('.sc-bar .bad');
+        badEl.style.left = okW;
+        badEl.style.width = badW;
+      }
+      var mini = document.querySelector('.pg-score[data-paper="' + p + '"]');
+      if(mini) mini.innerHTML = '客观题 <b>' + s.score + '</b>/' + s.total
+                              + ' · 主观自评 <b>' + s.sok + '</b>/' + s.sall;
+    });
+    QUESTIONS.forEach(function(q){
+      var b = document.querySelector('.q-list button[data-target="' + q.id + '"]');
+      if(!b) return;
+      b.classList.remove('st-ok', 'st-bad', 'st-self');
+      var kind = q.dataset.kind, pick = ANS[q.id], s = SELF[q.id];
+      if(kind === 'mcq' || kind === 'judge'){
+        if(pick) b.classList.add(pick === q.dataset.ans ? 'st-ok' : 'st-bad');
+      }else if(s){
+        b.classList.add('st-self');
+      }
+    });
+  }
+
+  function resetPaper(p, btn){
+    if(btn.dataset.armed !== '1'){
+      btn.dataset.armed = '1';
+      btn.textContent = '再点一次清空';
+      btn.classList.add('armed');
+      setTimeout(function(){
+        if(btn.dataset.armed === '1'){
+          btn.dataset.armed = '0';
+          btn.textContent = '重做本卷';
+          btn.classList.remove('armed');
+        }
+      }, 3200);
+      return;
+    }
+    QUESTIONS.forEach(function(q){
+      if(paperOf(q) !== p) return;
+      delete ANS[q.id];
+      delete SELF[q.id];
+      paint(q);
+      var d = q.querySelector('details.answer');
+      if(d) d.open = false;
+    });
+    store(K_ANS, ANS);
+    store(K_SELF, SELF);
+    updateScores();
+    btn.dataset.armed = '0';
+    btn.textContent = '重做本卷';
+    btn.classList.remove('armed');
+  }
 
   function parse(hash){
     var m = /^(p\d{4})(?:-(s\d+))?(?:-(q\d+))?$/.exec((hash||'').replace('#',''));
@@ -1180,6 +1419,9 @@ main()
     tabs.forEach(function(b){ b.classList.toggle('on', b.dataset.paper === state.paper); });
     groups.forEach(function(g){ g.classList.toggle('on', g.dataset.paper === state.paper); });
     heads.forEach(function(h){ h.style.display = h.dataset.paper === state.paper ? '' : 'none'; });
+    document.querySelectorAll('.scorebar').forEach(function(sb){
+      sb.classList.toggle('on', sb.dataset.paper === state.paper);
+    });
 
     sections.forEach(function(sec){
       var samePaper = sec.dataset.paper === state.paper;
@@ -1210,6 +1452,7 @@ main()
       var oldNav = document.querySelector('.q-nav');
       if(oldNav) oldNav.remove();
     }
+    syncSide();
     window.scrollTo({top:0});
   }
 
@@ -1250,6 +1493,27 @@ main()
   }
 
   document.addEventListener('click', function(e){
+    var opt = e.target.closest('.options .opt');
+    if(opt){
+      var qa = opt.closest('.question');
+      if(qa) answer(qa, opt.dataset.opt);
+      return;
+    }
+    var undoBtn = e.target.closest('[data-undo]');
+    if(undoBtn){
+      var qu = undoBtn.closest('.question');
+      if(qu) undo(qu);
+      return;
+    }
+    var selfBtn = e.target.closest('[data-self]');
+    if(selfBtn){
+      var qs = selfBtn.closest('.question');
+      if(qs) selfMark(qs, selfBtn.dataset.self);
+      return;
+    }
+    var resetBtn = e.target.closest('[data-reset]');
+    if(resetBtn){ resetPaper(resetBtn.dataset.reset, resetBtn); return; }
+
     var b = e.target.closest('[data-target]');
     if(b){
       state = parse(b.dataset.target) || state;
@@ -1292,6 +1556,8 @@ main()
     if(e.key === 'ArrowRight') go(q, 1);
   });
 
+  QUESTIONS.forEach(paint);
+  updateScores();
   showFromHash();
 })();
 </script>
